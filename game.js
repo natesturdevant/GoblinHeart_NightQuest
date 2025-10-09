@@ -40,6 +40,9 @@ let gameState = {
     },
 	revealedSpecials: {},
     equipment: { weapon: null, armor: null, accessory: null, special: null },
+	exploredTiles: {},  // Stores explored tiles per map
+    fogOfWarEnabled: true,  // Debug toggle
+    explorationRadius: 5,  // How far player can see
     combat: { inCombat: false, turnCount: 0 },
     spellCasting: { active: false, selectedSpellIndex: 0, pendingSpell: null },
     enemies: [], 
@@ -256,6 +259,7 @@ async function initializeGameWithLDtk() {
 function initGame() {
     loadMap('Overworld');
     renderWorld();
+	updateExploration()
     updateStatus();
     addMessage("Your quest begins!");
     addMessage("BUMP enemies or use TACTICAL mode (C)!");
@@ -322,6 +326,7 @@ function checkTransition() {
         gameState.player.x = t.x;
         gameState.player.y = t.y;
         renderWorld();
+		updateExploration()
         updateStatus();
     }
 }
@@ -423,13 +428,9 @@ function getCameraPosition() {
 
 function renderWorld() {
     if (gameState.viewMode === 'journal') {
-        // Keep your existing journal rendering
-		renderJournal();
+        renderJournal();
         return;
     }
-	
-	console.log('gameState.world.tiles length:', gameState.world.tiles.length);
-	console.log('gameState.world.tiles[0]:', gameState.world.tiles[0]);
     
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
@@ -500,6 +501,149 @@ function renderWorld() {
     const img = spriteImages.player;
     if (img && img.complete) {
         ctx.drawImage(img, playerViewX * TILE_SIZE, playerViewY * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+    }
+    
+    // RENDER FOG OF WAR
+    if (gameState.fogOfWarEnabled) {
+        const mapKey = gameState.currentMap;
+        const explored = gameState.exploredTiles[mapKey] || new Set();
+        const revealing = gameState.revealingTiles?.[mapKey] || new Map();
+        
+        for (let viewY = 0; viewY < VIEWPORT_HEIGHT; viewY++) {
+            for (let viewX = 0; viewX < VIEWPORT_WIDTH; viewX++) {
+                const worldX = viewX + camera.x;
+                const worldY = viewY + camera.y;
+                const key = `${worldX},${worldY}`;
+                
+                if (!explored.has(key)) {
+                    // Completely unexplored - solid black
+                    ctx.fillStyle = '#000000';
+                    ctx.fillRect(viewX * TILE_SIZE, viewY * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+                } else if (revealing.has(key)) {
+                    // Currently revealing - fade in
+                    const data = revealing.get(key);
+                    const now = Date.now();
+                    
+                    if (now >= data.startTime) {
+                        const alpha = 1 - data.progress; // Fade from black (1) to clear (0)
+                        ctx.fillStyle = `rgba(0, 0, 0, ${alpha})`;
+                        ctx.fillRect(viewX * TILE_SIZE, viewY * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+                    } else {
+                        // Not started yet - still black
+                        ctx.fillStyle = '#000000';
+                        ctx.fillRect(viewX * TILE_SIZE, viewY * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+                    }
+                }
+                // else: fully revealed, draw nothing (tile is visible)
+            }
+        }
+    }
+}
+
+function updateExploration() {
+    if (!gameState.fogOfWarEnabled) return;
+    
+    const mapKey = gameState.currentMap;
+    if (!gameState.exploredTiles[mapKey]) {
+        gameState.exploredTiles[mapKey] = new Set();
+    }
+    if (!gameState.revealingTiles) {
+        gameState.revealingTiles = {};
+    }
+    if (!gameState.revealingTiles[mapKey]) {
+        gameState.revealingTiles[mapKey] = new Map();
+    }
+    
+    const radius = gameState.explorationRadius;
+    const px = gameState.player.x;
+    const py = gameState.player.y;
+    
+    const newlyRevealed = [];
+    
+    // Mark all tiles within radius as explored
+    for (let dy = -radius; dy <= radius; dy++) {
+        for (let dx = -radius; dx <= radius; dx++) {
+            const x = px + dx;
+            const y = py + dy;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            const key = `${x},${y}`;
+            
+            if (distance <= radius && 
+                x >= 0 && x < gameState.world.width && 
+                y >= 0 && y < gameState.world.height) {
+                
+                // If not already explored, add to revealing animation
+                if (!gameState.exploredTiles[mapKey].has(key)) {
+                    newlyRevealed.push({ key, distance });
+                }
+                gameState.exploredTiles[mapKey].add(key);
+            }
+        }
+    }
+    
+    // Add newly revealed tiles to animation queue with staggered timing
+    if (newlyRevealed.length > 0) {
+        newlyRevealed.forEach(({ key, distance }) => {
+            // Stagger based on distance from player (cascade effect)
+            const delay = distance * 30; // 30ms per tile of distance
+            gameState.revealingTiles[mapKey].set(key, {
+                progress: 0,
+                startTime: Date.now() + delay
+            });
+        });
+        
+        // Start animation loop if not already running
+        if (!gameState.revealAnimationRunning) {
+            gameState.revealAnimationRunning = true;
+            animateReveal();
+        }
+    }
+}
+
+function animateReveal() {
+    if (!gameState.fogOfWarEnabled) {
+        gameState.revealAnimationRunning = false;
+        return;
+    }
+    
+    const mapKey = gameState.currentMap;
+    const revealing = gameState.revealingTiles[mapKey];
+    if (!revealing || revealing.size === 0) {
+        gameState.revealAnimationRunning = false;
+        return;
+    }
+    
+    const now = Date.now();
+    let stillAnimating = false;
+    
+    // Update progress for all revealing tiles
+    revealing.forEach((data, key) => {
+        if (now >= data.startTime) {
+            const elapsed = now - data.startTime;
+            const duration = 200; // 200ms reveal duration per tile
+            data.progress = Math.min(1, elapsed / duration);
+            
+            if (data.progress < 1) {
+                stillAnimating = true;
+            }
+        } else {
+            stillAnimating = true; // Still waiting for delay
+        }
+    });
+    
+    // Remove completed animations
+    revealing.forEach((data, key) => {
+        if (data.progress >= 1) {
+            revealing.delete(key);
+        }
+    });
+    
+    renderWorld();
+    
+    if (stillAnimating) {
+        requestAnimationFrame(animateReveal);
+    } else {
+        gameState.revealAnimationRunning = false;
     }
 }
 
@@ -587,72 +731,7 @@ function checkLevelUp() {
     if (gameState.inventoryOpen) { updateInventoryDisplay(); }
 }
 
-// ===== PLAYER MOVEMENT =====
-/*  function movePlayer(dx, dy) {
-	
-	const key = `${newX},${newY}`;
-	const locs = specialLocations[gameState.currentMap];
-	if (locs && locs[key]) {
-		const special = locs[key];
-		const revealKey = `${gameState.currentMap}:${key}`;
-		if (!special.requiresSearch && !gameState.revealedSpecials[revealKey]) {
-			addMessage(special.message);
-			gameState.revealedSpecials[revealKey] = true;
-		}
-	}
-    const newX = gameState.player.x + dx;
-    const newY = gameState.player.y + dy;
-    if (newX < 0 || newX >= gameState.world.width || newY < 0 || newY >= gameState.world.height) {
-        addMessage("Cannot go that way.");
-        return;
-    }
-    const tileChar = gameState.world.tiles[newY][newX];
-    const tileType = tileTypes[tileChar];
-    if (!tileType.passable) {
-        addMessage(`${tileType.name} blocks path.`);
-        return;
-    }
-    const enemy = gameState.enemies.find(e => e.x === newX && e.y === newY);
-    if (enemy) {
-        if (gameState.equipment.weapon) {
-            addMessage(`Bump attack ${enemy.name}!`);
-            const stats = calculateStats();
-            const hitChance = 0.7 + (stats.agility * 0.02);
-            if (Math.random() < hitChance) {
-                dealDamage(gameState.player, enemy, true);
-                if (enemy.hp > 0) {
-                    addMessage(`${enemy.name} counters!`);
-                    dealDamage(enemy, gameState.player, false);
-                }
-            } else {
-                addMessage("Miss!");
-                dealDamage(enemy, gameState.player, false);
-            }
-            enemyTurn();
-            if (gameState.player.weaponCooldown > 0) gameState.player.weaponCooldown--;
-            renderWorld();
-            updateStatus();
-        } else {
-            addMessage(`${enemy.name} blocks! Need weapon.`);
-        }
-        return;
-    }
-    gameState.player.x = newX;
-    gameState.player.y = newY;
-    checkTransition();
-  
-	
-    if (locs && locs[key]) addMessage(locs[key]);
-    if (tileType.name === 'treasure chest') addMessage("Chest here! Press A.");
-    const loot = gameState.lootBags.find(l => l.x === newX && l.y === newY);
-    if (loot) addMessage("Loot here! Press A.");
-    enemyTurn();
-    if (gameState.player.weaponCooldown > 0) gameState.player.weaponCooldown--;
-    gameState.player.stepCount++;
-    if (gameState.player.stepCount % CONFIG.spawning.checkInterval === 0) trySpawnEnemy();
-    renderWorld();
-    updateStatus();
-} */
+//=======PLAYER MOVEMENT=========
 
 function movePlayer(dx, dy) {
 	const newX = gameState.player.x + dx;
@@ -707,6 +786,7 @@ function movePlayer(dx, dy) {
     }
     gameState.player.x = newX;
     gameState.player.y = newY;
+	updateExploration();
     checkTransition();
   
 	
@@ -815,18 +895,6 @@ function performAction() {
     addMessage("Nothing here.");
 }
 
-/* function searchLocation() {
-    const x = gameState.player.x;
-    const y = gameState.player.y;
-    const tileChar = gameState.world.tiles[y][x];
-    const tileType = tileTypes[tileChar];
-    addMessage(`You search: ${tileType.description}`);
-    const key = `${x},${y}`;
-    const locs = specialLocations[gameState.currentMap];
-    if (locs && locs[key]) {
-        addMessage("Something special here...");
-    }
-} */
 
 function searchLocation() {
     const x = gameState.player.x;
@@ -2000,6 +2068,7 @@ document.addEventListener('keydown', function(e) {
         case 'c': case 'C': e.preventDefault(); toggleCombatMode(); break;
         case 'w': case 'W': case ' ': e.preventDefault(); waitTurn(); break;
 		case 'j': case 'J': e.preventDefault(); toggleJournal(); break;
+		case 'f': case 'F': e.preventDefault(); gameState.fogOfWarEnabled = !gameState.fogOfWarEnabled; addMessage(gameState.fogOfWarEnabled ? "Fog of war ON" : "Fog of war OFF"); renderWorld(); break;
     }
 	
 	
