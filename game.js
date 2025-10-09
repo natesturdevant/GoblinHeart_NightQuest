@@ -1288,6 +1288,7 @@ function useItem() {
     }
 }
 
+
 function dropItem() {
     if (gameState.selectedItemIndex < 0 || gameState.selectedItemIndex >= gameState.player.inventory.length) {
         addMessage("No item selected.");
@@ -1296,8 +1297,12 @@ function dropItem() {
     const itemId = gameState.player.inventory[gameState.selectedItemIndex];
     const item = itemDatabase[itemId];
     
-    // Check if item is equipped
-    if (Object.values(gameState.equipment).includes(itemId)) {
+    // Count how many of this item we have
+    const itemCount = gameState.player.inventory.filter(id => id === itemId).length;
+    const isEquipped = Object.values(gameState.equipment).includes(itemId);
+    
+    // Only block if this is the ONLY copy and it's equipped
+    if (isEquipped && itemCount === 1) {
         addMessage("Cannot drop equipped items! Unequip first.");
         return;
     }
@@ -1466,11 +1471,17 @@ function sellItem() {
     if (gameState.shopSelectedIndex >= gameState.player.inventory.length) return;
     const itemId = gameState.player.inventory[gameState.shopSelectedIndex];
     const item = itemDatabase[itemId];
+    
+    // Count how many of this item we have
+    const itemCount = gameState.player.inventory.filter(id => id === itemId).length;
     const isEquipped = Object.values(gameState.equipment).includes(itemId);
-    if (isEquipped) {
+    
+    // Only block if this is the ONLY copy and it's equipped
+    if (isEquipped && itemCount === 1) {
         addMessage("Cannot sell equipped items! Unequip first.");
         return;
     }
+    
     let sellPrice = 0;
     const shopInv = shopInventory[gameState.currentShopkeeper];
     const shopItem = shopInv ? shopInv.find(si => si.itemId === itemId) : null;

@@ -11,30 +11,35 @@
     <h1>Goblinheart: Night Quest</h1>
     
     <div class="game-container">
+    <!-- Canvas and Message Box side-by-side -->
+    <div class="game-layout">
         <canvas id="gameCanvas" width="480" height="360"></canvas>
         
         <div class="message-box" id="messageBox">
             Welcome to Goblinheart: Night Quest!
         </div>
-        
-        <div class="status-bar">
-            <span>HP: <span id="playerHp">100</span>/<span id="playerMaxHp">100</span></span>
-            <span>MP: <span id="playerMp">50</span>/<span id="playerMaxMp">50</span></span>
-            <span>Lv: <span id="playerLevel">1</span></span>
-            <span>STR: <span id="statusStrength">10</span></span>
-            <span>Gold: <span id="playerGold">0</span></span>
-            <span>XP: <span id="playerXp">0</span>/<span id="playerXpNext">31</span></span>
-            <span class="map-indicator">Map: <span id="currentMapName">Overworld</span></span>
-        </div>
-        
-        <div class="controls">
-            <button id="exportBtn">Export Save</button>
-            <button id="importBtn">Import Save</button>
-            <button id="newGameBtn">New Game</button>
-            <br><br>
-            Arrows: Move | C: Tactical | A: Action | W: Wait | I: Inventory | M: Spells | S: Search | L: Look
-        </div>
     </div>
+    
+    <!-- Status bar below (full width) -->
+    <div class="status-bar">
+        <span>HP: <span id="playerHp">100</span>/<span id="playerMaxHp">100</span></span>
+        <span>MP: <span id="playerMp">50</span>/<span id="playerMaxMp">50</span></span>
+        <span>Lv: <span id="playerLevel">1</span></span>
+        <span>STR: <span id="statusStrength">10</span></span>
+        <span>Gold: <span id="playerGold">0</span></span>
+        <span>XP: <span id="playerXp">0</span>/<span id="playerXpNext">31</span></span>
+        <span class="map-indicator">Map: <span id="currentMapName">Overworld</span></span>
+    </div>
+    
+    <!-- Controls below -->
+    <div class="controls">
+        <button id="exportBtn">Export Save</button>
+        <button id="importBtn">Import Save</button>
+        <button id="newGameBtn">New Game</button>
+        <br><br>
+        Arrows: Move | C: Tactical | A: Action | W: Wait | I: Inventory | M: Spells | S: Search | L: Look | F: Toggle Fog
+    </div>
+</div>
 
     <div class="inventory-panel" id="inventoryPanel">
         <div class="inventory-header">INVENTORY & EQUIPMENT</div>

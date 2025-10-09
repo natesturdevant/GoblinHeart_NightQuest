@@ -1,6 +1,6 @@
 body {
     margin: 0;
-    padding: 20px;
+    padding: 10px;
     font-family: 'Press Start 2P', 'Courier New', monospace;
     background-color: #000;
     color: #0f0;
@@ -21,6 +21,16 @@ h1 {
     border: 2px solid #0f0;
     background-color: #000;
     padding: 10px;
+    display: flex;
+    flex-direction: column;
+    max-width: 95vw;
+}
+
+/* NEW: Container for canvas and message box side-by-side */
+.game-layout {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
 }
 
 #gameCanvas {
@@ -30,56 +40,39 @@ h1 {
     image-rendering: -moz-crisp-edges;
     image-rendering: crisp-edges;
     display: block;
+    flex-shrink: 0;
 }
 
-/* .game-world {
-    display: grid;
-    grid-template-columns: repeat(20, 24px);
-    grid-template-rows: repeat(15, 24px);
-    gap: 0;
-    font-size: 16px;
-    line-height: 24px;
-    border: 1px solid #333;
-    background-color: #001100;
-} */
-
-/* .tile {
-    width: 24px;
-    height: 24px;
-    background-size: 24px 24px;
-    background-repeat: no-repeat;
-    image-rendering: pixelated;
-    image-rendering: -moz-crisp-edges;
-    image-rendering: crisp-edges;
-} */
-
 .message-box {
-    width: 480px;
-    height: 140px;
-    margin-top: 10px;
+    width: 300px;  /* Fixed width for message box */
+    height: 360px;  /* Match canvas height */
     padding: 10px;
     border: 2px solid #0f0;
     background-color: #001;
-    overflow-y: hidden;
-    font-size: 10px;
+    overflow-y: auto;  /* Changed to auto so it scrolls if needed */
+    font-size: 9px;
     line-height: 1.5;
+    box-sizing: border-box;
 }
 
 .status-bar {
-    width: 480px;
+    width: 100%;
     padding: 8px 10px;
     border: 1px solid #0f0;
     background-color: #002;
-    margin-top: 5px;
+    margin-bottom: 5px;
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
-    font-size: 10px;
+    gap: 10px;
+    font-size: 9px;
+    box-sizing: border-box;
 }
 
 .controls {
-    margin-top: 15px;
+    margin-top: 5px;
     text-align: center;
-    font-size: 8px;
+    font-size: 7px;
     line-height: 1.8;
     color: #888;
 }
