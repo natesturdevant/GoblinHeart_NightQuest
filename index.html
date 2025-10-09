@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Goblinheart: Night Quest</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Goblinheart: Night Quest</h1>
+    
+    <div class="game-container">
+        <canvas id="gameCanvas" width="480" height="360"></canvas>
+        
+        <div class="message-box" id="messageBox">
+            Welcome to Goblinheart: Night Quest!
+        </div>
+        
+        <div class="status-bar">
+            <span>HP: <span id="playerHp">100</span>/<span id="playerMaxHp">100</span></span>
+            <span>MP: <span id="playerMp">50</span>/<span id="playerMaxMp">50</span></span>
+            <span>Lv: <span id="playerLevel">1</span></span>
+            <span>STR: <span id="statusStrength">10</span></span>
+            <span>Gold: <span id="playerGold">0</span></span>
+            <span>XP: <span id="playerXp">0</span>/<span id="playerXpNext">31</span></span>
+            <span class="map-indicator">Map: <span id="currentMapName">Overworld</span></span>
+        </div>
+        
+        <div class="controls">
+            <button id="exportBtn">Export Save</button>
+            <button id="importBtn">Import Save</button>
+            <button id="newGameBtn">New Game</button>
+            <br><br>
+            Arrows: Move | C: Tactical | A: Action | W: Wait | I: Inventory | M: Spells | S: Search | L: Look
+        </div>
+    </div>
+
+    <div class="inventory-panel" id="inventoryPanel">
+        <div class="inventory-header">INVENTORY & EQUIPMENT</div>
+        
+        <div class="inventory-section">
+            <h3>Stats</h3>
+            <div class="inventory-items" style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; min-height: 50px;">
+                <div style="color: #ff0; font-size: 9px;">STR: <span id="statAttack">10</span></div>
+                <div style="color: #ff0; font-size: 9px;">VIT: <span id="statDefense">8</span></div>
+                <div style="color: #ff0; font-size: 9px;">INT: <span id="statMagic">6</span></div>
+                <div style="color: #ff0; font-size: 9px;">SPR: <span id="statSpirit">7</span></div>
+                <div style="color: #ff0; font-size: 9px;">AGI: <span id="statAgility">5</span></div>
+                <div style="color: #ff0; font-size: 9px;">LUK: <span id="statLuck">4</span></div>
+            </div>
+        </div>
+
+        <div class="inventory-section">
+            <h3>Items</h3>
+            <div class="inventory-items" id="inventoryItems">
+                <div class="slot-empty">No items</div>
+            </div>
+        </div>
+
+        <div class="inventory-section">
+            <h3>Equipment</h3>
+            <div class="equipment-slots">
+                <div class="equipment-slot">
+                    <div class="slot-label">Weapon:</div>
+                    <div id="weaponSlot" class="slot-empty">None</div>
+                </div>
+                <div class="equipment-slot">
+                    <div class="slot-label">Armor:</div>
+                    <div id="armorSlot" class="slot-empty">None</div>
+                </div>
+                <div class="equipment-slot">
+                    <div class="slot-label">Accessory:</div>
+                    <div id="accessorySlot" class="slot-empty">None</div>
+                </div>
+                <div class="equipment-slot">
+                    <div class="slot-label">Special:</div>
+                    <div id="specialSlot" class="slot-empty">None</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="inventory-close">Press I to close | Arrows: Select | E: Equip | U: Use | D: Drop</div>
+    </div>
+
+    <div class="shop-panel" id="shopPanel">
+        <div class="shop-header">MERCHANT SHOP</div>
+        
+        <div class="shop-mode-buttons">
+            <button class="shop-mode-btn active" id="buyModeBtn">BUY</button>
+            <button class="shop-mode-btn" id="sellModeBtn">SELL</button>
+        </div>
+
+        <div class="shop-items" id="shopItems">
+            <div class="slot-empty">Loading...</div>
+        </div>
+
+        <div class="shop-footer">
+            <div style="margin-bottom: 8px;">Your Gold: <span id="shopGold" style="color: #0f0;">0</span></div>
+            <div>Arrows: Select | Enter/A: Confirm | ESC: Close</div>
+        </div>
+    </div>
+
+    <div class="spell-panel" id="spellPanel">
+        <div class="spell-header">SPELLBOOK</div>
+        
+        <div class="spell-list" id="spellList">
+            <div class="slot-empty">No spells learned</div>
+        </div>
+
+        <div class="spell-footer">
+            <div style="margin-bottom: 8px;">MP: <span id="spellMp" style="color: #00f;">0</span>/<span id="spellMaxMp" style="color: #00f;">0</span></div>
+            <div>Arrows: Select | Enter/C: Cast | ESC/M: Close</div>
+        </div>
+    </div>
+
+	
+	<script src="data.js?v=3"></script>
+	<script src="game.js?v=3"></script>
+    
+	<script>
+        // Start the game after loading LDtk
+        initializeGameWithLDtk();
+    </script>
+	
+</body>
+
+</html>
+
+

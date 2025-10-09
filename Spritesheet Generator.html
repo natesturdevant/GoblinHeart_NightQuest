@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Generate Tileset</title>
+    <style>
+        body { margin: 20px; font-family: monospace; background: #000; color: #0f0; }
+        canvas { border: 2px solid #0f0; image-rendering: pixelated; }
+        button { padding: 10px; margin: 10px; background: #003; color: #0f0; border: 2px solid #0f0; cursor: pointer; font-family: monospace; }
+        button:hover { background: #005; }
+        #preview { margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <h1>Goblinheart Tileset Generator</h1>
+    <button onclick="generateAndDownload()">Generate Tileset (tileset.png)</button>
+    <div id="preview"></div>
+    
+<script>
+const CGA = {
+    BLACK: '#000000',
+    WHITE: '#FFFFFF',
+    CYAN: '#00FFFF',
+    MAGENTA: '#FF00FF',
+    BROWN: '#AA5500',
+    LIGHTGRAY: '#AAAAAA'
+};
+
+function createSprite(pattern, size = 16) {
+    const canvas = document.createElement('canvas');
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = CGA.BLACK;
+    ctx.fillRect(0, 0, size, size);
+    const pixelSize = size / 8;
+    for (let y = 0; y < 8; y++) {
+        for (let x = 0; x < 8; x++) {
+            const pixel = pattern[y][x];
+            if (pixel !== '0') {
+                ctx.fillStyle = pixel;
+                ctx.fillRect(x * pixelSize, y * pixelSize, pixelSize, pixelSize);
+            }
+        }
+    }
+    return canvas;
+}
+
+const spritePatterns = {
+    grass: [['0','0','0','C','0','0','C','0'],['0','C','0','0','0','C','0','0'],['C','0','0','0','0','0','0','C'],['0','0','0','C','0','0','0','0'],['0','0','C','0','0','0','C','0'],['0','C','0','0','C','0','0','0'],['0','0','0','0','0','0','0','C'],['C','0','0','C','0','0','0','0']].map(row => row.map(p => p === 'C' ? CGA.CYAN : '0')),
+    wall: [['W','W','W','W','W','W','W','W'],['W','0','W','0','W','0','W','0'],['W','W','W','W','W','W','W','W'],['W','0','W','0','W','0','W','0'],['W','W','W','W','W','W','W','W'],['W','0','W','0','W','0','W','0'],['W','W','W','W','W','W','W','W'],['W','0','W','0','W','0','W','0']].map(row => row.map(p => p === 'W' ? CGA.WHITE : '0')),
+    water: [['0','0','C','C','0','0','C','C'],['0','C','C','C','C','0','C','C'],['C','C','C','0','C','C','C','0'],['C','C','0','0','C','C','0','0'],['C','0','0','C','C','0','0','C'],['0','0','C','C','0','0','C','C'],['0','C','C','C','C','0','C','C'],['C','C','C','0','C','C','C','0']].map(row => row.map(p => p === 'C' ? CGA.CYAN : '0')),
+    tree: [['0','0','0','C','C','0','0','0'],['0','0','C','C','C','C','0','0'],['0','C','C','C','C','C','C','0'],['C','C','C','C','C','C','C','C'],['0','C','C','C','C','C','C','0'],['0','0','0','C','C','0','0','0'],['0','0','0','C','C','0','0','0'],['0','0','C','C','C','C','0','0']].map(row => row.map(p => p === 'C' ? CGA.CYAN : '0')),
+    door: [['W','W','W','W','W','W','W','W'],['W','0','0','0','0','0','0','W'],['W','0','0','0','0','0','0','W'],['W','0','0','W','0','0','0','W'],['W','0','0','W','0','0','0','W'],['W','0','0','0','0','0','0','W'],['W','0','0','0','0','0','0','W'],['W','W','W','W','W','W','W','W']].map(row => row.map(p => p === 'W' ? CGA.WHITE : '0')),
+    gate: [['M','M','M','M','M','M','M','M'],['M','0','0','0','0','0','0','M'],['M','0','0','0','0','0','0','M'],['M','0','0','M','M','0','0','M'],['M','0','0','M','M','0','0','M'],['M','0','0','0','0','0','0','M'],['M','0','0','0','0','0','0','M'],['M','M','M','M','M','M','M','M']].map(row => row.map(p => p === 'M' ? CGA.MAGENTA : '0')),
+    mountain: [['0','0','0','0','W','0','0','0'],['0','0','0','W','W','W','0','0'],['0','0','W','W','W','W','W','0'],['0','W','W','0','W','0','W','W'],['W','W','W','W','W','W','W','W'],['W','0','W','W','W','W','0','W'],['W','W','W','W','W','W','W','W'],['W','W','W','W','W','W','W','W']].map(row => row.map(p => p === 'W' ? CGA.WHITE : '0')),
+    treasure: [['0','0','W','W','W','W','0','0'],['0','W','M','M','M','M','W','0'],['W','M','C','C','C','C','M','W'],['W','M','C','C','C','C','M','W'],['W','M','M','M','M','M','M','W'],['W','M','W','M','W','M','W','M'],['0','W','M','M','M','M','W','0'],['0','0','W','W','W','W','0','0']].map(row => row.map(p => { if (p === 'W') return CGA.WHITE; if (p === 'M') return CGA.MAGENTA; if (p === 'C') return CGA.CYAN; return '0'; })),
+    stairsdown: [['0','0','0','0','0','0','0','0'],['B','B','B','B','B','B','B','B'],['0','B','B','B','B','B','B','0'],['0','0','B','B','B','B','0','0'],['0','0','0','B','B','0','0','0'],['0','0','0','0','B','0','0','0'],['0','0','0','0','0','0','0','0'],['0','0','0','0','0','0','0','0']].map(row => row.map(p => p === 'B' ? CGA.BROWN : '0')),
+    stairsup: [['0','0','0','0','0','0','0','0'],['0','0','0','0','B','0','0','0'],['0','0','0','B','B','0','0','0'],['0','0','B','B','B','B','0','0'],['0','B','B','B','B','B','B','0'],['B','B','B','B','B','B','B','B'],['0','0','0','0','0','0','0','0'],['0','0','0','0','0','0','0','0']].map(row => row.map(p => p === 'B' ? CGA.BROWN : '0')),
+    floor: [['L','0','0','L','0','0','L','0'],['0','0','L','0','0','L','0','0'],['0','L','0','0','L','0','0','L'],['L','0','0','L','0','0','L','0'],['0','0','L','0','0','L','0','0'],['0','L','0','0','L','0','0','L'],['L','0','0','L','0','0','L','0'],['0','0','L','0','0','L','0','0']].map(row => row.map(p => p === 'L' ? CGA.LIGHTGRAY : '0')),
+    window: [['W','W','W','W','W','W','W','W'],['W','M','M','W','M','M','M','W'],['W','M','C','W','C','C','C','W'],['W','M','C','W','C','C','C','W'],['W','W','W','W','W','W','W','W'],['W','M','M','W','M','M','M','W'],['W','M','C','W','C','C','C','W'],['W','W','W','W','W','W','W','W']].map(row => row.map(p => { if (p === 'W') return CGA.WHITE; if (p === 'M') return CGA.MAGENTA; if (p === 'C') return CGA.CYAN; return '0'; })),
+    table: [['B','B','B','B','B','B','B','B'],['B','0','0','0','0','0','0','B'],['B','0','0','0','0','0','0','B'],['B','0','0','0','0','0','0','B'],['B','B','B','B','B','B','B','B'],['0','0','B','0','0','B','0','0'],['0','0','B','0','0','B','0','0'],['0','0','B','B','B','B','0','0']].map(row => row.map(p => p === 'B' ? CGA.BROWN : '0')),
+    sand: [['0','0','W','0','0','W','0','0'],['0','W','0','0','W','0','0','0'],['W','0','0','0','0','0','W','0'],['0','0','W','0','0','0','0','W'],['0','0','0','0','W','0','0','0'],['0','W','0','W','0','0','0','0'],['W','0','0','0','0','W','0','0'],['0','0','0','W','0','0','W','0']].map(row => row.map(p => p === 'W' ? CGA.WHITE : '0')),
+    rocks: [['0','L','L','0','0','W','W','0'],['L','L','L','L','W','W','W','W'],['L','L','L','0','W','W','W','0'],['0','0','0','0','0','W','0','0'],['W','W','0','L','L','L','0','0'],['W','W','W','L','L','L','L','0'],['0','W','0','0','L','L','0','0'],['0','0','0','0','0','0','0','0']].map(row => row.map(p => { if (p === 'W') return CGA.WHITE; if (p === 'L') return CGA.LIGHTGRAY; return '0'; })),
+    bridge: [['B','B','B','B','B','B','B','B'],['B','0','B','0','B','0','B','0'],['B','B','B','B','B','B','B','B'],['0','0','0','0','0','0','0','0'],['B','B','B','B','B','B','B','B'],['B','0','B','0','B','0','B','0'],['B','B','B','B','B','B','B','B'],['0','0','0','0','0','0','0','0']].map(row => row.map(p => p === 'B' ? CGA.BROWN : '0')),
+    scrub: [['0','0','B','B','0','0','0','0'],['0','B','B','B','B','0','0','B'],['B','B','B','B','B','B','B','B'],['0','B','B','B','B','B','B','0'],['0','0','0','B','B','0','0','0'],['0','B','B','0','0','B','B','0'],['B','B','B','B','B','B','B','B'],['0','B','B','B','B','B','B','0']].map(row => row.map(p => p === 'B' ? CGA.BROWN : '0')),
+    grass2: [['0','C','0','0','C','0','0','0'],['C','C','0','C','0','0','C','0'],['0','C','C','C','0','C','C','C'],['0','0','C','0','0','C','C','0'],['0','0','0','C','C','0','C','0'],['C','C','0','C','C','C','0','0'],['C','C','C','C','0','C','0','C'],['0','C','C','0','0','0','C','C']].map(row => row.map(p => p === 'C' ? CGA.CYAN : '0')),
+    mountains2: [['0','0','0','W','W','0','0','0'],['0','0','W','W','W','W','0','0'],['0','W','W','W','W','W','W','0'],['W','W','W','L','L','W','W','W'],['W','W','L','L','L','L','W','W'],['W','L','L','L','L','L','L','W'],['L','L','L','L','L','L','L','L'],['0','0','0','0','0','0','0','0']].map(row => row.map(p => { if (p === 'W') return CGA.WHITE; if (p === 'L') return CGA.LIGHTGRAY; return '0'; })),
+    mailbox: [['0','0','C','C','C','C','0','0'],['0','C','C','C','C','C','C','0'],['C','C','W','C','C','W','C','C'],['C','C','C','C','C','C','C','C'],['0','0','0','C','C','0','0','0'],['0','0','0','C','C','0','0','0'],['0','0','C','C','C','C','0','0'],['0','0','C','C','C','C','0','0']].map(row => row.map(p => { if (p === 'C') return CGA.CYAN; if (p === 'W') return CGA.WHITE; return '0'; })),
+    fountain: [['0','0','C','C','C','C','0','0'],['0','C','W','C','C','W','C','0'],['C','W','C','C','C','C','W','C'],['C','C','C','C','C','C','C','C'],['C','C','C','C','C','C','C','C'],['0','C','C','C','C','C','C','0'],['0','W','W','W','W','W','W','0'],['0','0','W','W','W','W','0','0']].map(row => row.map(p => { if (p === 'C') return CGA.CYAN; if (p === 'W') return CGA.WHITE; return '0'; })),
+    streetlight: [['0','0','W','W','W','W','0','0'],['0','W','W','W','W','W','W','0'],['0','0','W','W','W','W','0','0'],['0','0','0','W','W','0','0','0'],['0','0','0','W','W','0','0','0'],['0','0','0','W','W','0','0','0'],['0','0','W','W','W','W','0','0'],['0','0','W','W','W','W','0','0']].map(row => row.map(p => p === 'W' ? CGA.WHITE : '0')),
+    brick: [['M','M','M','M','0','M','M','M'],['M','0','M','0','M','0','M','0'],['M','M','M','M','M','M','M','M'],['0','M','M','M','M','0','M','M'],['M','0','M','0','M','M','0','M'],['M','M','M','M','0','M','M','M'],['M','M','0','M','M','M','0','M'],['M','M','M','M','M','M','M','M']].map(row => row.map(p => p === 'M' ? CGA.MAGENTA : '0')),
+    cornice: [['W','W','W','W','W','W','W','W'],['L','L','L','L','L','L','L','L'],['W','0','W','0','W','0','W','0'],['L','L','L','L','L','L','L','L'],['0','0','0','0','0','0','0','0'],['0','0','0','0','0','0','0','0'],['0','0','0','0','0','0','0','0'],['0','0','0','0','0','0','0','0']].map(row => row.map(p => { if (p === 'W') return CGA.WHITE; if (p === 'L') return CGA.LIGHTGRAY; return '0'; }))
+};
+
+// Tile order matches LDtk tile IDs
+const tileOrder = ['grass', 'wall', 'water', 'tree', 'door', 'gate', 'mountain', 'treasure', 
+                   'stairsdown', 'stairsup', 'floor', 'window', 'table', 'sand', 'rocks', 
+                   'bridge', 'scrub', 'grass2', 'mountains2', 'mailbox', 'fountain', 
+                   'streetlight', 'brick', 'cornice'];
+
+function generateAndDownload() {
+    const tileSize = 16;
+    const cols = 8;
+    const rows = Math.ceil(tileOrder.length / cols);
+    
+    const canvas = document.createElement('canvas');
+    canvas.width = cols * tileSize;
+    canvas.height = rows * tileSize;
+    canvas.style.width = (cols * tileSize * 4) + 'px';
+    canvas.style.height = (rows * tileSize * 4) + 'px';
+    const ctx = canvas.getContext('2d');
+    
+    // Fill with black background
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    tileOrder.forEach((key, idx) => {
+        const x = (idx % cols) * tileSize;
+        const y = Math.floor(idx / cols) * tileSize;
+        const spriteCanvas = createSprite(spritePatterns[key], tileSize);
+        ctx.drawImage(spriteCanvas, x, y);
+    });
+    
+    // Show preview
+    document.getElementById('preview').innerHTML = '<h2>Preview (4x scale):</h2>';
+    document.getElementById('preview').appendChild(canvas);
+    
+    // Download
+    canvas.toBlob(blob => {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.download = 'tileset.png';
+        link.href = url;
+        link.click();
+        URL.revokeObjectURL(url);
+    });
+}
+</script>
+</body>
+</html>

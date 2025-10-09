@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Goblinheart Map Editor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        body { margin: 0; padding: 20px; font-family: 'Press Start 2P', monospace; background: #000; color: #0f0; font-size: 10px; }
+        h1 { font-size: 16px; text-align: center; }
+        .container { display: flex; gap: 20px; max-width: 1400px; margin: 0 auto; }
+        .editor-panel { flex: 1; }
+        .controls-panel { width: 300px; background: #001; border: 2px solid #0f0; padding: 15px; max-height: 90vh; overflow-y: auto; }
+        .control-group { margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #050; }
+        .control-group h3 { font-size: 10px; margin-bottom: 10px; color: #0ff; }
+        label { display: block; margin-bottom: 5px; font-size: 8px; }
+        input, button, textarea { font-family: 'Press Start 2P', monospace; font-size: 8px; margin-bottom: 10px; width: 100%; box-sizing: border-box; }
+        input[type="number"], input[type="text"] { background: #002; color: #0f0; border: 1px solid #0f0; padding: 5px; }
+        button { background: #003; color: #0f0; border: 2px solid #0f0; padding: 8px; cursor: pointer; }
+        button:hover { background: #005; }
+        button.active { background: #006; border-color: #0ff; }
+        .tile-palette { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
+        .tile-button { aspect-ratio: 1; background: #002; border: 2px solid #050; font-size: 16px; cursor: pointer; padding: 0; }
+        .tile-button.selected { border-color: #0ff; background: #004; }
+        #mapCanvas { border: 2px solid #0f0; background: #001100; cursor: crosshair; image-rendering: pixelated; display: block; margin-bottom: 10px; }
+        #mapCanvas.panning { cursor: grab; }
+        #mapCanvas.panning:active { cursor: grabbing; }
+        .map-info { background: #002; border: 1px solid #0f0; padding: 10px; margin-bottom: 10px; font-size: 8px; }
+        .selected-tile-info { background: #002; border: 1px solid #0ff; padding: 8px; margin-bottom: 10px; font-size: 8px; color: #0ff; }
+        textarea { background: #001; color: #0f0; border: 1px solid #0f0; padding: 5px; height: 150px; font-size: 7px; resize: vertical; }
+        .transition-list { font-size: 7px; max-height: 150px; overflow-y: auto; background: #002; border: 1px solid #0f0; padding: 5px; }
+        .transition-item { padding: 5px; margin: 2px 0; background: #003; border: 1px solid #050; cursor: pointer; }
+        .transition-item:hover { background: #004; }
+        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #001; border: 3px solid #0ff; padding: 20px; z-index: 1000; min-width: 300px; }
+        .modal.active { display: block; }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 999; }
+        .modal-overlay.active { display: block; }
+    </style>
+</head>
+<body>
+    <h1>Goblinheart Map Editor</h1>
+    <div class="container">
+        <div class="editor-panel">
+            <div class="map-info">
+                <div>Map: <span id="mapSizeDisplay">20x15</span> | Mouse: <span id="mousePos">--</span> | Mode: <span id="currentMode">Paint</span></div>
+            </div>
+            <div class="selected-tile-info">
+                Selected: <span id="selectedTileName">grass</span> (<span id="selectedTileChar">.</span>)
+            </div>
+            <canvas id="mapCanvas" width="800" height="600"></canvas>
+        </div>
+        <div class="controls-panel">
+            <div class="control-group">
+                <h3>Map Name</h3>
+                <input type="text" id="mapName" value="my_map">
+            </div>
+            <div class="control-group">
+                <h3>Dimensions</h3>
+                <label>Width:</label>
+                <input type="number" id="mapWidth" value="20" min="10" max="256">
+                <label>Height:</label>
+                <input type="number" id="mapHeight" value="15" min="10" max="256">
+                <button onclick="resizeMap()">Resize Map</button>
+            </div>
+            <div class="control-group">
+                <h3>Mode</h3>
+                <button id="paintBtn" class="active" onclick="setMode('paint')">Paint</button>
+                <button id="transBtn" onclick="setMode('transition')">Transition</button>
+            </div>
+            <div class="control-group">
+                <h3>Tiles</h3>
+                <div class="tile-palette" id="palette"></div>
+            </div>
+            <div class="control-group">
+                <h3>Transitions (<span id="transCount">0</span>)</h3>
+                <div class="transition-list" id="transList">None</div>
+            </div>
+            <div class="control-group">
+                <h3>Export</h3>
+                <button onclick="exportAll()">Export Everything</button>
+                <textarea id="output" readonly></textarea>
+            </div>
+        </div>
+    </div>
+    <div class="modal-overlay" id="overlay" onclick="closeModal()"></div>
+    <div class="modal" id="modal">
+        <h3 style="color:#0ff;margin-top:0">Transition Config</h3>
+        <div style="margin-bottom:10px">Position: <span id="transPos"></span></div>
+        <label>To Map:</label>
+        <input type="text" id="destMap">
+        <label>To X:</label>
+        <input type="number" id="destX" value="10">
+        <label>To Y:</label>
+        <input type="number" id="destY" value="10">
+        <label>Message:</label>
+        <input type="text" id="msg" placeholder="Optional">
+        <button onclick="saveTrans()">Save</button>
+        <button onclick="delTrans()">Delete</button>
+        <button onclick="closeModal()">Cancel</button>
+    </div>
+<script>
+const TILES={
+    '.':'#0a0','#':'#fff','~':'#0ff','T':'#0f0','D':'#ccc','G':'#f0f',
+    'M':'#aaa','$':'#ff0','>':'#a50','<':'#a50','f':'#666',
+    'w':'#0af','t':'#a50',',':'#ff0','r':'#888','=':'#a50','s':'#850',
+    '`':'#0a0','m':'#888','P':'#0af','F':'#0af','I':'#ff0','+':'#a00','_':'#aaa'
+};
+
+const TILE_NAMES = {
+    '.':'grass','#':'wall','~':'water','T':'tree','D':'door','G':'gate',
+    'M':'mountain','$':'treasure','>':'stairs down','<':'stairs up','f':'floor',
+    'w':'window','t':'table',',':'sand','r':'rocks','=':'bridge','s':'scrub',
+    '`':'grass2','m':'mountains2','P':'mailbox','F':'fountain','I':'streetlight','+':'brick','_':'cornice'
+};
+
+const SIZE=32;
+let w=20,h=15,map=[],trans={},sel='.',mode='paint',canvas,ctx,zoom=1,ox=0,oy=0;
+let isPanning=false,paintDrag=false,lastMouseX=0,lastMouseY=0,editPos=null;
+
+function init(){
+    canvas=document.getElementById('mapCanvas');
+    ctx=canvas.getContext('2d');
+    Object.keys(TILES).forEach(t=>{
+        const b=document.createElement('button');
+        b.className='tile-button';
+        b.textContent=t;
+        b.style.color=TILES[t];
+        b.onclick=()=>{
+            sel=t;
+            updateSelectedTile();
+            document.querySelectorAll('.tile-button').forEach(x=>x.classList.toggle('selected',x.textContent===t));
+        };
+        document.getElementById('palette').appendChild(b);
+    });
+    updateSelectedTile();
+    initMap();
+    
+    canvas.onmousedown=e=>{
+        const r=canvas.getBoundingClientRect();
+        const cx=e.clientX-r.left,cy=e.clientY-r.top;
+        
+        // Middle mouse button for panning
+        if(e.button===1){
+            e.preventDefault();
+            isPanning=true;
+            lastMouseX=cx;
+            lastMouseY=cy;
+            canvas.classList.add('panning');
+            return;
+        }
+        
+        // Left click for paint/transition
+        if(e.button===0){
+            const tx=Math.floor((cx/zoom-ox)/SIZE),ty=Math.floor((cy/zoom-oy)/SIZE);
+            if(tx>=0&&tx<w&&ty>=0&&ty<h){
+                if(mode==='paint'){
+                    map[ty]=map[ty].substring(0,tx)+sel+map[ty].substring(tx+1);
+                    paintDrag=true;
+                } else {
+                    editTrans(tx,ty);
+                }
+            }
+        }
+        render();
+    };
+    
+    canvas.onmousemove=e=>{
+        const r=canvas.getBoundingClientRect();
+        const cx=e.clientX-r.left,cy=e.clientY-r.top;
+        const tx=Math.floor((cx/zoom-ox)/SIZE),ty=Math.floor((cy/zoom-oy)/SIZE);
+        document.getElementById('mousePos').textContent=tx+','+ty;
+        
+        // Handle panning
+        if(isPanning){
+            const dx=cx-lastMouseX;
+            const dy=cy-lastMouseY;
+            ox+=dx/zoom;
+            oy+=dy/zoom;
+            lastMouseX=cx;
+            lastMouseY=cy;
+            render();
+            return;
+        }
+        
+        // Handle paint dragging (only if not panning)
+        if(paintDrag&&e.buttons===1&&mode==='paint'&&tx>=0&&tx<w&&ty>=0&&ty<h){
+            map[ty]=map[ty].substring(0,tx)+sel+map[ty].substring(tx+1);
+            render();
+        }
+    };
+    
+    canvas.onmouseup=e=>{
+        if(e.button===1){
+            isPanning=false;
+            canvas.classList.remove('panning');
+        }
+        if(e.button===0){
+            paintDrag=false;
+        }
+    };
+    
+    canvas.oncontextmenu=e=>e.preventDefault();
+    
+    canvas.onwheel=e=>{
+        e.preventDefault();
+        zoom*=e.deltaY>0?0.9:1.1;
+        zoom=Math.max(0.25,Math.min(4,zoom));
+        render();
+    };
+    
+    render();
+}
+
+function updateSelectedTile(){
+    document.getElementById('selectedTileName').textContent=TILE_NAMES[sel]||'unknown';
+    document.getElementById('selectedTileChar').textContent=sel;
+}
+
+function initMap(){
+    map=[];
+    for(let y=0;y<h;y++)map.push('.'.repeat(w));
+    trans={};
+    updateInfo();
+}
+
+function resizeMap(){
+    const nw=parseInt(document.getElementById('mapWidth').value);
+    const nh=parseInt(document.getElementById('mapHeight').value);
+    if(confirm(`Resize to ${nw}x${nh}? Clears map.`)){w=nw;h=nh;initMap();render();}
+}
+
+function updateInfo(){
+    document.getElementById('mapSizeDisplay').textContent=w+'x'+h;
+    document.getElementById('transCount').textContent=Object.keys(trans).length;
+    const list=document.getElementById('transList');
+    if(Object.keys(trans).length===0){list.innerHTML='None';return;}
+    list.innerHTML='';
+    Object.keys(trans).forEach(k=>{
+        const d=document.createElement('div');
+        d.className='transition-item';
+        d.textContent=k+' → '+trans[k].map;
+        d.onclick=()=>{const[x,y]=k.split(',').map(Number);editTrans(x,y);};
+        list.appendChild(d);
+    });
+}
+
+function setMode(m){
+    mode=m;
+    document.getElementById('paintBtn').classList.toggle('active',m==='paint');
+    document.getElementById('transBtn').classList.toggle('active',m==='transition');
+    document.getElementById('currentMode').textContent=m;
+    canvas.style.cursor=m==='paint'?'crosshair':'pointer';
+}
+
+function editTrans(x,y){
+    editPos={x,y};
+    const k=x+','+y;
+    const t=trans[k];
+    document.getElementById('transPos').textContent=k;
+    document.getElementById('destMap').value=t?t.map:'';
+    document.getElementById('destX').value=t?t.x:10;
+    document.getElementById('destY').value=t?t.y:10;
+    document.getElementById('msg').value=t?t.message:'';
+    document.getElementById('overlay').classList.add('active');
+    document.getElementById('modal').classList.add('active');
+}
+
+function saveTrans(){
+    if(!editPos)return;
+    const dm=document.getElementById('destMap').value.trim();
+    if(!dm){alert('Need destination map!');return;}
+    const k=editPos.x+','+editPos.y;
+    trans[k]={map:dm,x:parseInt(document.getElementById('destX').value),y:parseInt(document.getElementById('destY').value),message:document.getElementById('msg').value.trim()};
+    updateInfo();closeModal();render();
+}
+
+function delTrans(){
+    if(!editPos)return;
+    delete trans[editPos.x+','+editPos.y];
+    updateInfo();closeModal();render();
+}
+
+function closeModal(){
+    document.getElementById('overlay').classList.remove('active');
+    document.getElementById('modal').classList.remove('active');
+    editPos=null;
+}
+
+function render(){
+    ctx.fillStyle='#011';
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.save();
+    ctx.scale(zoom,zoom);
+    ctx.translate(ox,oy);
+    for(let y=0;y<h;y++){
+        for(let x=0;x<w;x++){
+            ctx.fillStyle=TILES[map[y][x]]||'#000';
+            ctx.fillRect(x*SIZE,y*SIZE,SIZE,SIZE);
+            ctx.strokeStyle='#003';
+            ctx.strokeRect(x*SIZE,y*SIZE,SIZE,SIZE);
+        }
+    }
+    Object.keys(trans).forEach(k=>{
+        const[x,y]=k.split(',').map(Number);
+        ctx.strokeStyle='#ff0';
+        ctx.lineWidth=3;
+        const p=8;
+        ctx.beginPath();
+        ctx.moveTo(x*SIZE+p,y*SIZE+p);
+        ctx.lineTo((x+1)*SIZE-p,(y+1)*SIZE-p);
+        ctx.moveTo((x+1)*SIZE-p,y*SIZE+p);
+        ctx.lineTo(x*SIZE+p,(y+1)*SIZE-p);
+        ctx.stroke();
+    });
+    ctx.restore();
+}
+
+function exportAll(){
+    const n=document.getElementById('mapName').value||'my_map';
+    const out=`'${n}': {\n    name: '${n}',\n    tiles: ${JSON.stringify(map,null,4)},\n    spawnRate: 0.08,\n    spawnTypes: ['goblin'],\n    spawnWeights: [1.0],\n    maxEnemies: 8\n},\n\n'${n}': ${JSON.stringify(trans,null,4).replace(/"(\d+),(\d+)":/g,"'$1,$2':")},`;
+    document.getElementById('output').value=out;
+    navigator.clipboard.writeText(out);
+    alert('Copied to clipboard!');
+}
+
+init();
+</script>
+</body>
+</html>

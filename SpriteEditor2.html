@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>8x8 CGA Sprite Editor</title>
+  <style>
+    body { font-family: monospace; background: #222; color: #eee; text-align: center; }
+    #editor { display: inline-block; }
+    #palette { margin-bottom: 10px; }
+    .color-btn {
+      display: inline-block; width: 32px; height: 32px;
+      margin: 2px; cursor: pointer; border: 2px solid white;
+    }
+    #grid { display: grid; grid-template-columns: repeat(8, 32px); grid-gap: 2px; }
+    .cell {
+      width: 32px; height: 32px;
+      border: 1px solid #444;
+      cursor: pointer;
+      background: black;
+    }
+    #output { margin-top: 20px; }
+    #output textarea {
+      width: 320px; height: 220px;
+      background: #111; color: #0f0;
+      font-family: monospace; font-size: 14px;
+      border: 1px solid #555; padding: 5px;
+    }
+  </style>
+</head>
+<body>
+
+<h2>8×8 CGA Sprite Editor</h2>
+<div id="editor">
+  <div id="palette"></div>
+  <div id="grid"></div>
+</div>
+
+<br>
+<label>Sprite Name: <input type="text" id="spriteName" value="sprite" style="background:#111;color:#0f0;border:1px solid #555;padding:4px;"></label>
+<br><br>
+<button onclick="generateArray()">Export Array</button>
+<button onclick="copyToClipboard()">Copy to Clipboard</button>
+<button onclick="importArray()">Import Array</button>
+<div id="output"><textarea></textarea></div>
+
+<script>
+// Define CGA colors
+const CGA = {
+  BLACK: '#000000',
+  CYAN: '#00AAAA',
+  MAGENTA: '#AA00AA',
+  WHITE: '#AAAAAA'
+};
+
+// Symbol mapping
+const SYMBOLS = {
+  '#000000': '0',
+  '#00aaaa': 'C',
+  '#aa00aa': 'M',
+  '#aaaaaa': 'W'
+};
+
+// Reverse map for import
+const COLORS = {
+  '0': CGA.BLACK,
+  'C': CGA.CYAN,
+  'M': CGA.MAGENTA,
+  'W': CGA.WHITE
+};
+
+let currentColor = CGA.WHITE;
+let isPainting = false;
+
+// Normalize any CSS color to lowercase hex
+function normalizeColor(color) {
+  let ctx = document.createElement("canvas").getContext("2d");
+  ctx.fillStyle = color;
+  return ctx.fillStyle.toLowerCase();
+}
+
+// Build palette
+const paletteDiv = document.getElementById('palette');
+Object.values(CGA).forEach(c => {
+  const btn = document.createElement('div');
+  btn.className = 'color-btn';
+  btn.style.background = c;
+  btn.onclick = () => { currentColor = c; };
+  paletteDiv.appendChild(btn);
+});
+
+// Build grid
+const grid = document.getElementById('grid');
+let cells = [];
+for (let y = 0; y < 8; y++) {
+  let row = [];
+  for (let x = 0; x < 8; x++) {
+    const div = document.createElement('div');
+    div.className = 'cell';
+    div.style.background = CGA.BLACK;
+
+    // Paint on click or drag
+    div.onmousedown = () => { isPainting = true; div.style.background = currentColor; };
+    div.onmouseenter = () => { if (isPainting) div.style.background = currentColor; };
+    div.onmouseup = () => { isPainting = false; };
+
+    grid.appendChild(div);
+    row.push(div);
+  }
+  cells.push(row);
+}
+
+document.body.onmouseup = () => { isPainting = false; };
+
+function generateArray() {
+  let spriteName = document.getElementById('spriteName').value || 'sprite';
+  
+  let arr = cells.map(row =>
+    '[' + row.map(cell => {
+      let norm = normalizeColor(cell.style.background || CGA.BLACK);
+      return `'${SYMBOLS[norm] || '0'}'`;
+    }).join(',') + ']'
+  );
+
+  let output = `${spriteName}: [\n${arr.join(",\n")}\n].map(row => row.map(p => { if (p === 'W') return CGA.WHITE; if (p === 'M') return CGA.MAGENTA; if (p === 'C') return CGA.CYAN; return '0'; })),`;
+  document.querySelector('#output textarea').value = output;
+}
+
+function copyToClipboard() {
+  let textarea = document.querySelector('#output textarea');
+  textarea.select();
+  document.execCommand('copy');
+}
+
+function importArray() {
+  let textarea = document.querySelector('#output textarea');
+  let text = textarea.value;
+
+  try {
+    // Extract inner rows using eval-safe parsing
+    let arrayText = text.match(/\[(.|\n)*\]/)[0];
+    let rows = eval(arrayText); // safe here since you control the input
+
+    for (let y = 0; y < 8; y++) {
+      for (let x = 0; x < 8; x++) {
+        let symbol = rows[y][x].replace(/'/g,''); // strip quotes if present
+        cells[y][x].style.background = COLORS[symbol] || CGA.BLACK;
+      }
+    }
+  } catch (e) {
+    alert("Could not parse array. Make sure it's in the correct format.");
+  }
+}
+</script>
+</body>
+</html>
