@@ -11,7 +11,7 @@
 	"iid": "e950ec60-8560-11f0-84ce-89b2d14cf2b8",
 	"jsonVersion": "1.5.3",
 	"appBuildId": 473703,
-	"nextUid": 27,
+	"nextUid": 29,
 	"identifierStyle": "Capitalize",
 	"toc": [],
 	"worldLayout": "Free",
@@ -764,6 +764,43 @@
 					"allowedRefsEntityUid": null,
 					"allowedRefTags": [],
 					"tilesetUid": null
+				},
+				{
+					"identifier": "journal_entry",
+					"doc": null,
+					"__type": "Bool",
+					"uid": 28,
+					"type": "F_Bool",
+					"isArray": false,
+					"canBeNull": false,
+					"arrayMinLength": null,
+					"arrayMaxLength": null,
+					"editorDisplayMode": "Hidden",
+					"editorDisplayScale": 1,
+					"editorDisplayPos": "Above",
+					"editorLinkStyle": "StraightArrow",
+					"editorDisplayColor": null,
+					"editorAlwaysShow": false,
+					"editorShowInWorld": true,
+					"editorCutLongValues": true,
+					"editorTextSuffix": null,
+					"editorTextPrefix": null,
+					"useForSmartColor": false,
+					"exportToToc": false,
+					"searchable": false,
+					"min": null,
+					"max": null,
+					"regex": null,
+					"acceptFileTypes": null,
+					"defaultOverride": null,
+					"textLanguageMode": null,
+					"symmetricalRef": false,
+					"autoChainRef": true,
+					"allowOutOfLevelRef": true,
+					"allowedRefs": "OnlySame",
+					"allowedRefsEntityUid": null,
+					"allowedRefTags": [],
+					"tilesetUid": null
 				}
 			]
 		}
@@ -999,7 +1036,8 @@
 								}] },
 								{ "__identifier": "requires_search", "__type": "Bool", "__value": true, "__tile": null, "defUid": 19, "realEditorValues": [] },
 								{ "__identifier": "journal_title", "__type": "String", "__value": null, "__tile": null, "defUid": 21, "realEditorValues": [] },
-								{ "__identifier": "journal_image", "__type": "String", "__value": null, "__tile": null, "defUid": 22, "realEditorValues": [] }
+								{ "__identifier": "journal_image", "__type": "String", "__value": null, "__tile": null, "defUid": 22, "realEditorValues": [] },
+								{ "__identifier": "journal_entry", "__type": "Bool", "__value": false, "__tile": null, "defUid": 28, "realEditorValues": [] }
 							],
 							"__worldX": 64,
 							"__worldY": 112
@@ -1026,7 +1064,8 @@
 									"params": [ false ]
 								}] },
 								{ "__identifier": "journal_title", "__type": "String", "__value": null, "__tile": null, "defUid": 21, "realEditorValues": [] },
-								{ "__identifier": "journal_image", "__type": "String", "__value": null, "__tile": null, "defUid": 22, "realEditorValues": [] }
+								{ "__identifier": "journal_image", "__type": "String", "__value": null, "__tile": null, "defUid": 22, "realEditorValues": [] },
+								{ "__identifier": "journal_entry", "__type": "Bool", "__value": false, "__tile": null, "defUid": 28, "realEditorValues": [] }
 							],
 							"__worldX": 64,
 							"__worldY": 80
@@ -1106,6 +1145,52 @@
 							],
 							"__worldX": 112,
 							"__worldY": 80
+						},
+						{
+							"__identifier": "NPC",
+							"__grid": [15,5],
+							"__pivot": [0,0],
+							"__tags": [],
+							"__tile": null,
+							"__smartColor": "#D77643",
+							"iid": "fb662ef0-8560-11f0-9f39-1707407a450d",
+							"width": 16,
+							"height": 16,
+							"defUid": 6,
+							"px": [240,80],
+							"fieldInstances": [{ "__identifier": "npc_type", "__type": "String", "__value": "merchant", "__tile": null, "defUid": 7, "realEditorValues": [{
+								"id": "V_String",
+								"params": ["merchant"]
+							}] }],
+							"__worldX": 240,
+							"__worldY": 80
+						},
+						{
+							"__identifier": "Transition",
+							"__grid": [13,5],
+							"__pivot": [0,0],
+							"__tags": [],
+							"__tile": null,
+							"__smartColor": "#EAD4AA",
+							"iid": "23554ee0-8560-11f0-9f39-031394c1be05",
+							"width": 16,
+							"height": 16,
+							"defUid": 8,
+							"px": [208,80],
+							"fieldInstances": [
+								{ "__identifier": "to_map", "__type": "String", "__value": "Coffee_Shop", "__tile": null, "defUid": 9, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["Coffee_Shop"]
+								}] },
+								{ "__identifier": "to_x", "__type": "Int", "__value": 7, "__tile": null, "defUid": 10, "realEditorValues": [{ "id": "V_Int", "params": [7] }] },
+								{ "__identifier": "to_y", "__type": "Int", "__value": 7, "__tile": null, "defUid": 11, "realEditorValues": [{ "id": "V_Int", "params": [7] }] },
+								{ "__identifier": "message", "__type": "String", "__value": "You walk into the bohemian coffee shop.", "__tile": null, "defUid": 12, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["You walk into the bohemian coffee shop."]
+								}] }
+							],
+							"__worldX": 208,
+							"__worldY": 80
 						}
 					]
 				},
@@ -1133,9 +1218,9 @@
 						1,1,1,2,15,15,1,1,12,23,12,1,1,12,23,12,1,1,0,0,0,0,0,0,0,0,0,0,0,2,1,1,1,1,1,
 						1,2,1,1,15,1,23,23,23,1,1,23,23,23,1,1,0,0,0,0,0,0,0,0,0,0,0,2,2,12,2,5,2,2,2,
 						1,18,1,1,12,23,12,1,18,12,23,12,1,1,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,16,1,20,8,1,1,
-						1,1,23,23,23,1,1,23,23,23,1,1,0,0,0,0,0,0,0,0,0,0,0,11,11,11,11,11,11,11,11,11,11,11,11,
-						11,11,11,11,11,11,11,11,11,11,0,0,0,0,0,0,0,0,0,0,0,11,11,11,11,11,11,11,11,11,11,11,11,11,11,
-						11,11,11,11,11,11,11,11,0,0,0,0,0,0,0,0,0,0,0,22,4,1,4,21,22,21,2,22,2,2,22,2,2,2,2,
+						1,1,23,5,23,1,1,23,5,23,1,1,0,0,0,0,0,0,0,0,0,0,0,11,11,11,11,11,11,11,11,11,11,11,11,
+						11,11,11,11,11,11,11,11,11,9,0,0,0,0,0,0,0,0,0,0,0,11,11,11,11,11,11,11,11,11,11,11,11,11,11,
+						11,11,11,11,11,11,11,9,0,0,0,0,0,0,0,0,0,0,0,22,4,1,4,21,22,21,2,22,2,2,22,2,2,2,2,
 						2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,1,1,4,1,1,1,1,1,4,1,1,1,18,1,1,1,1,1,
 						1,1,4,1,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,4,1,1,1,1,1,18,1,1,1,1,1,1,4,1,1,
 						1,1,0,0,0,0,0,0,0,0,0,0,0,18,1,4,1,1,1,1,18,1,1,1,1,4,1,4,1,1,1,1,1,1,1,
@@ -1164,7 +1249,7 @@
 					"entityInstances": []
 				}
 			],
-			"__neighbours": []
+			"__neighbours": [{ "levelIid": "98fdcfb0-8560-11f0-9f39-736f8c57795f", "dir": "n" }]
 		},
 		{
 			"identifier": "Dungeon1",
@@ -1200,7 +1285,7 @@
 					"id": "V_String",
 					"params": ["imp"]
 				} ] },
-				{ "__identifier": "spawnWeights", "__type": "Array<Float>", "__value": [0.25,0.25,0.25,1], "__tile": null, "defUid": 25, "realEditorValues": [ { "id": "V_Float", "params": [0.25] }, { "id": "V_Float", "params": [0.25] }, { "id": "V_Float", "params": [0.25] }, null ] },
+				{ "__identifier": "spawnWeights", "__type": "Array<Float>", "__value": [0.25,0.25,0.25,0.25], "__tile": null, "defUid": 25, "realEditorValues": [ { "id": "V_Float", "params": [0.25] }, { "id": "V_Float", "params": [0.25] }, { "id": "V_Float", "params": [0.25] }, { "id": "V_Float", "params": [0.25] } ] },
 				{ "__identifier": "maxEnemies", "__type": "Int", "__value": 8, "__tile": null, "defUid": 26, "realEditorValues": [] }
 			],
 			"layerInstances": [
@@ -1254,6 +1339,81 @@
 							],
 							"__worldX": 576,
 							"__worldY": 201
+						},
+						{
+							"__identifier": "Treasure",
+							"__grid": [0,6],
+							"__pivot": [0,0],
+							"__tags": [],
+							"__tile": null,
+							"__smartColor": "#E4A672",
+							"iid": "9a524080-8560-11f0-9f39-fdb9897ef5ff",
+							"width": 16,
+							"height": 16,
+							"defUid": 13,
+							"px": [4,97],
+							"fieldInstances": [
+								{ "__identifier": "gold", "__type": "Int", "__value": 1000, "__tile": null, "defUid": 15, "realEditorValues": [{ "id": "V_Int", "params": [1000] }] },
+								{ "__identifier": "items", "__type": "Array<String>", "__value": [], "__tile": null, "defUid": 16, "realEditorValues": [] }
+							],
+							"__worldX": 580,
+							"__worldY": 298
+						},
+						{
+							"__identifier": "Treasure",
+							"__grid": [2,0],
+							"__pivot": [0,0],
+							"__tags": [],
+							"__tile": null,
+							"__smartColor": "#E4A672",
+							"iid": "0dbd37f0-8560-11f0-9f39-41920f170289",
+							"width": 16,
+							"height": 16,
+							"defUid": 13,
+							"px": [33,0],
+							"fieldInstances": [
+								{ "__identifier": "gold", "__type": "Int", "__value": 500, "__tile": null, "defUid": 15, "realEditorValues": [{ "id": "V_Int", "params": [500] }] },
+								{ "__identifier": "items", "__type": "Array<String>", "__value": ["power_ring"], "__tile": null, "defUid": 16, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["power_ring"]
+								}] }
+							],
+							"__worldX": 609,
+							"__worldY": 201
+						},
+						{
+							"__identifier": "Special",
+							"__grid": [13,9],
+							"__pivot": [0,0],
+							"__tags": [],
+							"__tile": null,
+							"__smartColor": "#733E39",
+							"iid": "4dd61a90-8560-11f0-9f39-cd8ff975e1b0",
+							"width": 16,
+							"height": 16,
+							"defUid": 17,
+							"px": [208,144],
+							"fieldInstances": [
+								{ "__identifier": "message", "__type": "String", "__value": "I saw an underground fountain deep within a dungeon.", "__tile": null, "defUid": 18, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["I saw an underground fountain deep within a dungeon."]
+								}] },
+								{ "__identifier": "requires_search", "__type": "Bool", "__value": true, "__tile": null, "defUid": 19, "realEditorValues": [null] },
+								{ "__identifier": "journal_title", "__type": "String", "__value": "Quiet Majesty!", "__tile": null, "defUid": 21, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["Quiet Majesty!"]
+								}] },
+								{ "__identifier": "journal_image", "__type": "String", "__value": "fountain", "__tile": null, "defUid": 22, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["fountain"]
+								}] },
+								{ "__identifier": "journal_entry", "__type": "Bool", "__value": true, "__tile": null, "defUid": 28, "realEditorValues": [{
+									"id": "V_Bool",
+									"params": [ true ]
+								}] }
+							],
+							"__worldX": 784,
+							"__worldY": 345
 						}
 					]
 				},
@@ -1276,13 +1436,13 @@
 					"visible": true,
 					"optionalRules": [],
 					"intGridCsv": [
-						10,23,11,11,11,11,11,11,11,6,11,11,11,11,11,11,11,23,23,23,23,23,23,23,23,23,11,11,11,14,11,11,11,11,11,
-						11,11,14,11,11,11,5,11,11,11,11,11,11,23,14,11,11,11,11,11,11,11,5,11,11,11,11,11,11,11,23,23,23,23,23,
-						23,23,23,23,11,11,14,11,11,11,11,11,11,11,11,11,14,11,11,14,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,
-						11,11,11,11,11,11,11,11,11,11,23,23,23,23,23,23,23,11,11,11,11,11,11,11,14,11,23,11,11,11,11,14,6,11,11,
-						11,11,11,11,11,11,11,23,11,11,11,11,11,23,11,11,11,14,11,11,14,11,11,23,23,23,23,23,23,23,11,11,11,11,11,
-						11,11,11,11,23,23,14,11,11,11,11,11,11,11,14,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,
-						11,11,14,11,11,11,14,11,11,11,14,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,
+						10,23,8,11,11,11,11,11,11,6,11,11,11,23,0,11,11,23,23,23,23,23,23,23,23,23,23,23,0,0,0,11,11,11,11,
+						11,11,14,11,11,11,5,11,11,23,0,23,11,23,23,23,23,23,23,23,23,23,23,2,11,23,11,23,11,11,0,0,0,0,0,
+						0,0,0,0,23,11,23,11,23,11,11,23,23,23,23,23,23,23,23,14,23,11,23,11,23,11,8,23,11,11,11,11,11,11,11,
+						11,23,11,23,11,23,11,2,23,11,23,23,23,23,23,23,23,23,11,23,0,23,0,2,23,11,23,11,11,11,11,14,6,11,11,
+						23,11,23,0,2,23,11,23,11,11,11,11,11,23,23,11,23,14,23,0,2,23,11,23,23,23,23,23,23,23,11,11,23,21,23,
+						0,2,23,11,23,23,14,11,11,11,11,11,23,23,23,23,0,11,11,11,11,11,11,23,23,23,23,23,23,11,11,0,11,11,23,
+						23,23,23,23,23,23,23,23,23,23,23,23,23,11,11,23,23,23,23,23,23,23,23,23,23,23,23,23,23,11,11,11,11,11,11,
 						11,11,11,11,11,11,11,11,11,11,11
 					],
 					"autoLayerTiles": [],
@@ -1293,6 +1453,141 @@
 				}
 			],
 			"__neighbours": []
+		},
+		{
+			"identifier": "Coffee_Shop",
+			"iid": "98fdcfb0-8560-11f0-9f39-736f8c57795f",
+			"uid": 27,
+			"worldX": 518,
+			"worldY": -256,
+			"worldDepth": 0,
+			"pxWid": 256,
+			"pxHei": 256,
+			"__bgColor": "#696A79",
+			"bgColor": null,
+			"useAutoIdentifier": false,
+			"bgRelPath": null,
+			"bgPos": null,
+			"bgPivotX": 0.5,
+			"bgPivotY": 0.5,
+			"__smartColor": "#ADADB5",
+			"__bgPos": null,
+			"externalRelPath": null,
+			"fieldInstances": [
+				{ "__identifier": "spawnRate", "__type": "Float", "__value": 0, "__tile": null, "defUid": 23, "realEditorValues": [{ "id": "V_Float", "params": [0] }] },
+				{ "__identifier": "spawnTypes", "__type": "Array<String>", "__value": [], "__tile": null, "defUid": 24, "realEditorValues": [] },
+				{ "__identifier": "spawnWeights", "__type": "Array<Float>", "__value": [], "__tile": null, "defUid": 25, "realEditorValues": [] },
+				{ "__identifier": "maxEnemies", "__type": "Int", "__value": 8, "__tile": null, "defUid": 26, "realEditorValues": [] }
+			],
+			"layerInstances": [
+				{
+					"__identifier": "Entities",
+					"__type": "Entities",
+					"__cWid": 16,
+					"__cHei": 16,
+					"__gridSize": 16,
+					"__opacity": 1,
+					"__pxTotalOffsetX": 0,
+					"__pxTotalOffsetY": 0,
+					"__tilesetDefUid": null,
+					"__tilesetRelPath": null,
+					"iid": "98fdf6c0-8560-11f0-9f39-9974c7cc98a4",
+					"levelId": 27,
+					"layerDefUid": 2,
+					"pxOffsetX": 0,
+					"pxOffsetY": 0,
+					"visible": true,
+					"optionalRules": [],
+					"intGridCsv": [],
+					"autoLayerTiles": [],
+					"seed": 7709153,
+					"overrideTilesetUid": null,
+					"gridTiles": [],
+					"entityInstances": [
+						{
+							"__identifier": "NPC",
+							"__grid": [8,1],
+							"__pivot": [0,0],
+							"__tags": [],
+							"__tile": null,
+							"__smartColor": "#D77643",
+							"iid": "b7ba2890-8560-11f0-9f39-6fad4fa7b35b",
+							"width": 16,
+							"height": 16,
+							"defUid": 6,
+							"px": [128,16],
+							"fieldInstances": [{ "__identifier": "npc_type", "__type": "String", "__value": "elder", "__tile": null, "defUid": 7, "realEditorValues": [{
+								"id": "V_String",
+								"params": ["elder"]
+							}] }],
+							"__worldX": 646,
+							"__worldY": -240
+						},
+						{
+							"__identifier": "Transition",
+							"__grid": [7,8],
+							"__pivot": [0,0],
+							"__tags": [],
+							"__tile": null,
+							"__smartColor": "#EAD4AA",
+							"iid": "eba37ee0-8560-11f0-9f39-258e28148c21",
+							"width": 16,
+							"height": 16,
+							"defUid": 8,
+							"px": [112,128],
+							"fieldInstances": [
+								{ "__identifier": "to_map", "__type": "String", "__value": "Overworld", "__tile": null, "defUid": 9, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["Overworld"]
+								}] },
+								{ "__identifier": "to_x", "__type": "Int", "__value": 13, "__tile": null, "defUid": 10, "realEditorValues": [{ "id": "V_Int", "params": [13] }] },
+								{ "__identifier": "to_y", "__type": "Int", "__value": 6, "__tile": null, "defUid": 11, "realEditorValues": [{ "id": "V_Int", "params": [6] }] },
+								{ "__identifier": "message", "__type": "String", "__value": "You step out into the street.", "__tile": null, "defUid": 12, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["You step out into the street."]
+								}] }
+							],
+							"__worldX": 630,
+							"__worldY": -128
+						}
+					]
+				},
+				{
+					"__identifier": "Tiles",
+					"__type": "IntGrid",
+					"__cWid": 16,
+					"__cHei": 16,
+					"__gridSize": 16,
+					"__opacity": 1,
+					"__pxTotalOffsetX": 0,
+					"__pxTotalOffsetY": 0,
+					"__tilesetDefUid": null,
+					"__tilesetRelPath": null,
+					"iid": "98fe1dd0-8560-11f0-9f39-53fb7e50c7ee",
+					"levelId": 27,
+					"layerDefUid": 1,
+					"pxOffsetX": 0,
+					"pxOffsetY": 0,
+					"visible": true,
+					"optionalRules": [],
+					"intGridCsv": [
+						0,0,0,0,0,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,2,0,0,0,0,0,0,0,0,0,
+						0,0,2,13,0,0,2,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,2,
+						13,0,0,2,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,
+						2,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,2,2,5,2,2,0,0,
+						0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+						0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+						0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+						0,0,0,0,0,0,0,0,0,0,0
+					],
+					"autoLayerTiles": [],
+					"seed": 420576,
+					"overrideTilesetUid": null,
+					"gridTiles": [],
+					"entityInstances": []
+				}
+			],
+			"__neighbours": [{ "levelIid": "e951d6c0-8560-11f0-84ce-0d4226b0a931", "dir": "s" }]
 		}
 	],
 	"worlds": [],

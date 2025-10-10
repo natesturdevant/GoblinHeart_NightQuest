@@ -189,15 +189,19 @@ async function loadLDtkProject(jsonPath) {
                             break;
                             
                         case 'Special':
-                            const msg = getField('message');
-                            const requiresSearch = getField('requires_search') || false;
-                            if (msg) {
-                                convertedSpecialLocations[mapId][key] = {
-                                    message: msg,
-                                    requiresSearch: requiresSearch
-                                };
-                            }
-                            break;
+							const msg = getField('message');
+							const requiresSearch = getField('requires_search') || false;
+							const journalEntry = getField('journal_entry') || false;
+							const journalTitle = getField('journal_title') || 'Discovery';
+							if (msg) {
+								convertedSpecialLocations[mapId][key] = {
+								message: msg,
+								requiresSearch: requiresSearch,
+								journalEntry: journalEntry,
+								journalTitle: journalTitle
+								};
+							}
+						break;
                     }
                 });
             }
@@ -740,11 +744,28 @@ function movePlayer(dx, dy) {
 	const locs = specialLocations[gameState.currentMap];
 	
 	
-	if (locs && locs[key]) {
+	/* if (locs && locs[key]) {
 		const special = locs[key];
 		const revealKey = `${gameState.currentMap}:${key}`;
 		if (!special.requiresSearch && !gameState.revealedSpecials[revealKey]) {
 			addMessage(special.message);
+			gameState.revealedSpecials[revealKey] = true;
+		}
+	} */
+	
+	if (locs && locs[key]) {
+    const special = locs[key];
+    const revealKey = `${gameState.currentMap}:${key}`;
+		if (!special.requiresSearch && !gameState.revealedSpecials[revealKey]) {
+			addMessage(special.message);
+			
+			// Add journal entry if flagged
+			if (special.journalEntry) {
+				addJournalEntry(special.journalTitle, [
+					{ type: 'text', content: special.message }
+				]);
+			}
+			
 			gameState.revealedSpecials[revealKey] = true;
 		}
 	}
@@ -907,7 +928,21 @@ function searchLocation() {
     if (locs && locs[key]) {
         const special = locs[key];
         if (special.requiresSearch) {
-            addMessage(special.message);
+            const revealKey = `${gameState.currentMap}:${key}`;
+            if (!gameState.revealedSpecials[revealKey]) {
+                addMessage(special.message);
+                
+                // Add journal entry if flagged
+                if (special.journalEntry) {
+                    addJournalEntry(special.journalTitle, [
+                        { type: 'text', content: special.message }
+                    ]);
+                }
+                
+                gameState.revealedSpecials[revealKey] = true;
+            } else {
+                addMessage("You've already searched here.");
+            }
         } else {
             addMessage("Something special here...");
         }
@@ -1625,15 +1660,15 @@ function castDirectionalSpell(dx, dy) {
 }
 
 // ===== JOURNAL =====
-function addJournalEntry(title, text) {
+/* function addJournalEntry(title, text) {
     gameState.journal.entries.push({
         title: title,
         text: text,
         timestamp: Date.now()
     });
-}
+} */
 
-function toggleJournal() {
+/*  function toggleJournal() {
     gameState.journal.open = !gameState.journal.open;
     gameState.viewMode = gameState.journal.open ? 'journal' : 'game';
     
@@ -1647,7 +1682,7 @@ function toggleJournal() {
         }
         renderWorld();
     }
-}
+}  */
 
 // ===== JOURNAL =====
 function addJournalEntry(title, blocks) {
@@ -1738,7 +1773,7 @@ function renderJournal() {
     
     // Title
     ctx.fillStyle = '#000';
-    ctx.font = 'bold 10px "Press Start 2P"';
+    ctx.font = '10px "Press Start 2P"';
     ctx.textAlign = 'left';
     ctx.fillText(entry.title, contentX, contentY);
     contentY += 20;
