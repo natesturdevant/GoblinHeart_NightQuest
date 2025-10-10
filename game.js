@@ -2021,7 +2021,7 @@ function newGame() {
             currentShopkeeper: null,
             currentMap: 'Overworld', 
             mapStates: {},
-            world: { width: gameState.world,width, height: gameState.world.height, tiles: [...maps.Overworld.tiles] }
+            world: { width: gameState.world.width, height: gameState.world.height, tiles: [...maps.Overworld.tiles] }
         };
         document.getElementById('messageBox').innerHTML = '';
         document.getElementById('inventoryPanel').classList.remove('active');
