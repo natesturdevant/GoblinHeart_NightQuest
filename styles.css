@@ -171,6 +171,12 @@ h1 {
     min-height: 40px;
 }
 
+.item-common { color: #AAAAAA; }
+.item-magic { color: #4444FF; }
+.item-rare { color: #FFFF00; }
+.item-set { color: #00FF00; }
+.item-unique { color: #FF8000; }
+
 .slot-label {
     color: #ff0;
     font-size: 8px;

@@ -4,8 +4,17 @@ const TILE_SIZE = 24;
 const VIEWPORT_WIDTH = 20;
 const VIEWPORT_HEIGHT = 15;
 
-// At the top of game.js, after spriteImages
+
 const journalImages = {};
+
+// Rarity colors (shared with equipment.js)
+/* const RARITY_COLORS = {
+    common: '#AAAAAA',
+    magic: '#4444FF',
+    rare: '#FFFF00',
+    set: '#00FF00',
+    unique: '#FF8000'
+}; */
 
 function loadJournalImage(id, path) {
     const img = new Image();
@@ -371,39 +380,253 @@ function spawnNPCAt(type, x, y) {
     });
 }
 
+// Add these functions after the spawnNPCAt function in game.js:
+
+function spawnEncounter(encounterType, centerX, centerY) {
+    const encounter = encounterTypes[encounterType];
+    if (!encounter) {
+        console.error(`Unknown encounter type: ${encounterType}`);
+        return;
+    }
+    
+    // Calculate total enemy count
+    const totalCount = encounter.enemies.reduce((sum, e) => sum + e.count, 0);
+    
+    // Generate formation positions
+    const positions = generateFormation(encounter.formation, centerX, centerY, totalCount);
+    
+    if (positions.length === 0) {
+        console.warn('Could not find valid positions for encounter');
+        return;
+    }
+    
+    // Spawn enemies
+    let posIndex = 0;
+    let spawnedCount = 0;
+    
+    encounter.enemies.forEach(enemyGroup => {
+        for (let i = 0; i < enemyGroup.count; i++) {
+            if (posIndex < positions.length) {
+                const pos = positions[posIndex++];
+                spawnEnemyAt(enemyGroup.type, pos.x, pos.y);
+                spawnedCount++;
+            }
+        }
+    });
+    
+    if (spawnedCount > 0) {
+        addMessage(`${spawnedCount} enemies appear!`);
+    }
+}
+
+function generateFormation(formationType, centerX, centerY, count) {
+    const positions = [];
+    const maxAttempts = 50;
+    
+    switch(formationType) {
+        case 'cluster': // Tight group around center
+            const radius = Math.ceil(Math.sqrt(count) / 2) + 1;
+            for (let dy = -radius; dy <= radius; dy++) {
+                for (let dx = -radius; dx <= radius; dx++) {
+                    if (positions.length >= count) break;
+                    const x = centerX + dx;
+                    const y = centerY + dy;
+                    if (isValidSpawnPosition(x, y)) {
+                        positions.push({ x, y });
+                    }
+                }
+                if (positions.length >= count) break;
+            }
+            break;
+            
+        case 'wave': // Line formation
+            const direction = Math.random() > 0.5 ? 'horizontal' : 'vertical';
+            const lineLength = Math.ceil(count / 2);
+            
+            for (let row = 0; row < 3 && positions.length < count; row++) {
+                for (let i = -lineLength; i <= lineLength && positions.length < count; i++) {
+                    const x = direction === 'horizontal' ? centerX + i : centerX + row;
+                    const y = direction === 'vertical' ? centerY + i : centerY + row;
+                    if (isValidSpawnPosition(x, y)) {
+                        positions.push({ x, y });
+                    }
+                }
+            }
+            break;
+            
+        case 'loose': // Spread out in area
+            let attempts = 0;
+            while (positions.length < count && attempts < maxAttempts) {
+                const x = centerX + Math.floor(Math.random() * 10) - 5;
+                const y = centerY + Math.floor(Math.random() * 10) - 5;
+                if (isValidSpawnPosition(x, y) && !positions.some(p => p.x === x && p.y === y)) {
+                    positions.push({ x, y });
+                }
+                attempts++;
+            }
+            break;
+            
+        case 'chaos': // Random scatter in large area
+            let chaosAttempts = 0;
+            while (positions.length < count && chaosAttempts < maxAttempts) {
+                const x = centerX + Math.floor(Math.random() * 16) - 8;
+                const y = centerY + Math.floor(Math.random() * 16) - 8;
+                if (isValidSpawnPosition(x, y) && !positions.some(p => p.x === x && p.y === y)) {
+                    positions.push({ x, y });
+                }
+                chaosAttempts++;
+            }
+            break;
+    }
+    
+    return positions;
+}
+
+function isValidSpawnPosition(x, y) {
+    // Check bounds
+    if (x < 0 || x >= gameState.world.width || y < 0 || y >= gameState.world.height) {
+        return false;
+    }
+    
+    // Check tile passability
+    const tile = gameState.world.tiles[y][x];
+    if (!tileTypes[tile]?.passable) {
+        return false;
+    }
+    
+    // Check if enemy already there
+    if (gameState.enemies.some(e => e.x === x && e.y === y)) {
+        return false;
+    }
+    
+    // Check if player there
+    if (gameState.player.x === x && gameState.player.y === y) {
+        return false;
+    }
+    
+    // Check if NPC there
+    if (gameState.npcs.some(npc => npc.x === x && npc.y === y)) {
+        return false;
+    }
+    
+    return true;
+}
+
+function getAvailableEncountersForLevel(playerLevel, encounterList) {
+    return Object.entries(encounterTypes)
+        .filter(([id, encounter]) => {
+            return encounter.minPlayerLevel <= playerLevel && 
+                   encounterList.includes(id);
+        })
+        .map(([id, encounter]) => ({ id, weight: encounter.weight }));
+}
+
+function selectRandomEncounter(encounters) {
+    const totalWeight = encounters.reduce((sum, e) => sum + e.weight, 0);
+    let roll = Math.random() * totalWeight;
+    
+    for (const encounter of encounters) {
+        roll -= encounter.weight;
+        if (roll <= 0) {
+            return encounter.id;
+        }
+    }
+    
+    return encounters[0]?.id;
+}
+
 function trySpawnEnemy() {
     const mapData = maps[gameState.currentMap];
     if (!mapData.spawnRate || mapData.spawnRate === 0) return;
     if (gameState.enemies.length >= mapData.maxEnemies) return;
+    
     if (Math.random() < mapData.spawnRate) {
-        const roll = Math.random();
-        let cumulative = 0;
-        let selectedType = mapData.spawnTypes[0];
-        for (let i = 0; i < mapData.spawnTypes.length; i++) {
-            cumulative += mapData.spawnWeights[i];
-            if (roll < cumulative) { selectedType = mapData.spawnTypes[i]; break; }
-        }
-        let attempts = 0;
-        while (attempts < 20) {
-            const x = Math.floor(Math.random() * gameState.world.width);
-            const y = Math.floor(Math.random() * gameState.world.height);
-            const distX = Math.abs(x - gameState.player.x);
-            const distY = Math.abs(y - gameState.player.y);
-            const distance = Math.sqrt(distX * distX + distY * distY);
-            const tile = gameState.world.tiles[y][x];
-            const occupied = gameState.enemies.some(e => e.x === x && e.y === y);
-            if (distance >= 5 && tileTypes[tile].passable && !occupied) {
-				if (!enemyDatabase[selectedType]) {
-					console.error(`Missing enemy in database: ${selectedType}`);
-					console.log('Available enemies:', Object.keys(enemyDatabase));
-					return;
-				}
-                spawnEnemyAt(selectedType, x, y);
-                addMessage(`${enemyDatabase[selectedType].name} appears!`);
-                break;
+        // 60% single spawn, 40% encounter
+        if (Math.random() < 0.4) {
+            // ENCOUNTER SPAWN
+            
+            // Define which encounters are available for this map
+            let availableEncounterIds = [];
+            
+            if (gameState.currentMap === 'Overworld') {
+                availableEncounterIds = ['goblin_scouts', 'goblin_patrol', 'goblin_warband', 'slime_colony'];
+            } else if (gameState.currentMap === 'Dungeon1') {
+                availableEncounterIds = ['skeleton_patrol', 'skeleton_horde', 'spider_nest', 'bat_swarm', 'mixed_dungeon_mob', 'undead_legion'];
+            } else if (gameState.currentMap === 'town') {
+                // No spawns in town
+                return;
+            } else {
+                // Default dungeon encounters
+                availableEncounterIds = ['skeleton_patrol', 'goblin_patrol', 'spider_nest'];
             }
-            attempts++;
+            
+            // Filter by player level
+            const viableEncounters = getAvailableEncountersForLevel(gameState.player.level, availableEncounterIds);
+            
+            if (viableEncounters.length === 0) {
+                // Fall back to single spawn if no encounters available
+                spawnSingleEnemy();
+                return;
+            }
+            
+            const encounterType = selectRandomEncounter(viableEncounters);
+            
+            // Find spawn location far from player
+            let attempts = 0;
+            while (attempts < 20) {
+                const x = Math.floor(Math.random() * gameState.world.width);
+                const y = Math.floor(Math.random() * gameState.world.height);
+                const distX = Math.abs(x - gameState.player.x);
+                const distY = Math.abs(y - gameState.player.y);
+                const distance = Math.sqrt(distX * distX + distY * distY);
+                
+                // Spawn encounters far away
+                if (distance >= 8 && isValidSpawnPosition(x, y)) {
+                    spawnEncounter(encounterType, x, y);
+                    break;
+                }
+                attempts++;
+            }
+        } else {
+            // SINGLE SPAWN (existing logic)
+            spawnSingleEnemy();
         }
+    }
+}
+
+function spawnSingleEnemy() {
+    const mapData = maps[gameState.currentMap];
+    const roll = Math.random();
+    let cumulative = 0;
+    let selectedType = mapData.spawnTypes[0];
+    
+    for (let i = 0; i < mapData.spawnTypes.length; i++) {
+        cumulative += mapData.spawnWeights[i];
+        if (roll < cumulative) {
+            selectedType = mapData.spawnTypes[i];
+            break;
+        }
+    }
+    
+    let attempts = 0;
+    while (attempts < 20) {
+        const x = Math.floor(Math.random() * gameState.world.width);
+        const y = Math.floor(Math.random() * gameState.world.height);
+        const distX = Math.abs(x - gameState.player.x);
+        const distY = Math.abs(y - gameState.player.y);
+        const distance = Math.sqrt(distX * distX + distY * distY);
+        
+        if (distance >= 5 && isValidSpawnPosition(x, y)) {
+            if (!enemyDatabase[selectedType]) {
+                console.error(`Missing enemy in database: ${selectedType}`);
+                console.log('Available enemies:', Object.keys(enemyDatabase));
+                return;
+            }
+            spawnEnemyAt(selectedType, x, y);
+            addMessage(`${enemyDatabase[selectedType].name} appears!`);
+            break;
+        }
+        attempts++;
     }
 }
 
@@ -488,16 +711,24 @@ function renderWorld() {
     });
     
     // Render enemies
-    gameState.enemies.forEach(enemy => {
-        const viewX = enemy.x - camera.x;
-        const viewY = enemy.y - camera.y;
-        if (viewX >= 0 && viewX < VIEWPORT_WIDTH && viewY >= 0 && viewY < VIEWPORT_HEIGHT) {
-            const img = spriteImages[enemy.sprite];
-            if (img && img.complete) {
-                ctx.drawImage(img, viewX * TILE_SIZE, viewY * TILE_SIZE, TILE_SIZE, TILE_SIZE);
-            }
-        }
-    });
+    // Render enemies
+	gameState.enemies.forEach(enemy => {
+    const viewX = enemy.x - camera.x;
+    const viewY = enemy.y - camera.y;
+		if (viewX >= 0 && viewX < VIEWPORT_WIDTH && viewY >= 0 && viewY < VIEWPORT_HEIGHT) {
+			const img = spriteImages[enemy.sprite];
+			if (img && img.complete) {
+				ctx.drawImage(img, viewX * TILE_SIZE, viewY * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+				
+				// Elite indicator - red border
+				if (enemy.isElite) {
+					ctx.strokeStyle = '#FF0000';
+					ctx.lineWidth = 2;
+					ctx.strokeRect(viewX * TILE_SIZE + 1, viewY * TILE_SIZE + 1, TILE_SIZE - 2, TILE_SIZE - 2);
+				}
+			}
+		}
+	});
     
     // Render player
     const playerViewX = gameState.player.x - camera.x;
@@ -685,9 +916,22 @@ function getXpForNextLevel() {
     return CONFIG.leveling.xpFormula(gameState.player.level);
 }
 
-function addMessage(msg) {
+/* function addMessage(msg) {
     const mb = document.getElementById('messageBox');
     mb.innerHTML += msg + '<br>';
+    const lines = mb.innerHTML.split('<br>');
+    if (lines.length > 9) {
+        mb.innerHTML = lines.slice(-9).join('<br>');
+    }
+} */
+
+function addMessage(msg, color = null) {
+    const mb = document.getElementById('messageBox');
+    if (color) {
+        mb.innerHTML += `<span style="color: ${color};">${msg}</span><br>`;
+    } else {
+        mb.innerHTML += msg + '<br>';
+    }
     const lines = mb.innerHTML.split('<br>');
     if (lines.length > 9) {
         mb.innerHTML = lines.slice(-9).join('<br>');
@@ -869,6 +1113,12 @@ function performAction() {
         const treas = mapTreas ? mapTreas[key] : null;
         if (treas) {
             addMessage("Opened chest!");
+			
+			console.log('Chest items:', treas.items);
+			console.log('itemDatabase keys:', Object.keys(itemDatabase).slice(0, 20)); // First 20 items
+			console.log('shadowfang exists?', itemDatabase['shadowfang']);
+			console.log('uniqueItems exists?', typeof uniqueItems);
+			
             if (treas.gold > 0) { gameState.player.gold += treas.gold; addMessage(`+${treas.gold} gold!`); }
             if (treas.items && treas.items.length > 0) {
                 treas.items.forEach(itemId => {
@@ -1026,6 +1276,13 @@ function dealDamage(attacker, defender, isBump = false) {
     const aStats = attacker === gameState.player ? calculateStats() : attacker;
     const dStats = defender === gameState.player ? calculateStats() : defender;
     let dmg = Math.max(1, (aStats.strength * 2) - dStats.vitality);
+	
+	
+    
+    // Apply enrage bonus
+    if (attacker.enraged?.active) {
+        dmg = Math.floor(dmg * attacker.enraged.damageBonus);
+    }
     
     if (attacker.weakened) {
         dmg = Math.floor(dmg * (1 - attacker.weakenAmount));
@@ -1067,48 +1324,74 @@ function dealDamage(attacker, defender, isBump = false) {
 }
 
 
-function rollLoot(tierWeights) {
-    const roll = Math.random();
-    let cumulative = 0;
-    for (const [tier, weight] of Object.entries(tierWeights)) {
-        cumulative += weight;
-        if (roll < cumulative) {
-            const pool = lootPools[tier];
-            if (pool && pool.length > 0) {
-                return pool[Math.floor(Math.random() * pool.length)];
-            }
-        }
-    }
-    return null;
-}
 
 function handleEnemyDefeat(enemy) {
     addMessage(`${enemy.name} defeated!`);
     const eData = enemyDatabase[enemy.type];
+    
+    console.log('Enemy defeated:', enemy.type);
+    console.log('Enemy data:', eData);
+    console.log('Loot chance:', eData.lootChance);
+    
     gameState.player.xp += eData.xp;
     addMessage(`+${eData.xp} XP!`);
     checkLevelUp();
     
-    if (Math.random() < eData.lootChance) {
-        const loot = eData.loot;
-        const gold = Math.floor(Math.random() * (loot.gold[1] - loot.gold[0] + 1)) + loot.gold[0];
+    const lootRoll = Math.random();
+    console.log('Loot roll:', lootRoll, 'vs', eData.lootChance);
+    
+    if (lootRoll < eData.lootChance) {
+        console.log('LOOT DROPPED!');
+        const lootConfig = eData.loot;
+        console.log('Loot config:', lootConfig);
+        
+        const gold = Math.floor(Math.random() * (lootConfig.gold[1] - lootConfig.gold[0] + 1)) + lootConfig.gold[0];
         const items = [];
         
-        // Roll for items based on tier system
-        for (let i = 0; i < loot.rolls; i++) {
-            const item = rollLoot(loot.tierWeights);
+        for (let i = 0; i < lootConfig.rolls; i++) {
+            console.log('Rolling for item', i + 1);
+            const item = rollLoot(lootConfig.tierWeights);
+            console.log('Rolled item:', item);
             if (item) items.push(item);
         }
         
+        console.log('Total gold:', gold, 'Total items:', items);
+        
         if (gold > 0 || items.length > 0) {
-            gameState.lootBags.push({ x: enemy.x, y: enemy.y, gold: gold, items: items });
-            addMessage("Enemy dropped loot!");
+            gameState.lootBags.push({ 
+                x: enemy.x, 
+                y: enemy.y, 
+                gold: gold, 
+                items: items 
+            });
+            
+            console.log('Loot bag created at', enemy.x, enemy.y);
+            console.log('Current loot bags:', gameState.lootBags);
+            
+            if (gold > 0) {
+                addMessage(`+${gold} gold!`);
+            }
+            
+            items.forEach(itemId => {
+                const item = itemDatabase[itemId];
+                console.log('Item from database:', item);
+                if (item) {
+                    const rarity = item.rarity || 'common';
+                    const color = RARITY_COLORS[rarity];
+                    console.log('Adding message for', item.name, 'with color', color);
+                    addMessage(`${item.name} dropped!`, color);
+                }
+            });
         }
+    } else {
+        console.log('No loot this time');
     }
+    
     gameState.enemies = gameState.enemies.filter(e => e.id !== enemy.id);
 }
 
 function enemyTurn() {
+    // Handle player barrier duration
     if (gameState.player.barrierTurns > 0) {
         gameState.player.barrierTurns--;
         if (gameState.player.barrierTurns <= 0) {
@@ -1116,7 +1399,25 @@ function enemyTurn() {
         }
     }
     
+    // Process each enemy
     gameState.enemies.forEach(enemy => {
+        // Handle enraged status
+        if (enemy.enraged?.active) {
+            enemy.enraged.turnsRemaining--;
+            if (enemy.enraged.turnsRemaining <= 0) {
+                enemy.enraged.active = false;
+                addMessage(`${enemy.name}'s rage subsides.`);
+            }
+        }
+        
+        // Try to use special ability first
+        if (enemy.specialAbility?.effect) {
+            if (enemy.specialAbility.effect(enemy)) {
+                return; // Skip normal turn if ability activated
+            }
+        }
+        
+        // Handle weaken status
         if (enemy.weakenTurns > 0) {
             enemy.weakenTurns--;
             if (enemy.weakenTurns <= 0) {
@@ -1125,32 +1426,46 @@ function enemyTurn() {
             }
         }
         
+        // Calculate distance to player
         const distX = Math.abs(enemy.x - gameState.player.x);
         const distY = Math.abs(enemy.y - gameState.player.y);
         const adj = (distX <= 1 && distY <= 1) && !(distX === 0 && distY === 0);
+        
+        // If adjacent and aggressive, attack
         if (adj && enemy.aggressive) {
             dealDamage(enemy, gameState.player, false);
         } else if (!adj) {
+            // Not adjacent, so try to move
             let mx = 0, my = 0;
+            
             if (enemy.aggressive) {
+                // Move toward player
                 mx = enemy.x < gameState.player.x ? 1 : (enemy.x > gameState.player.x ? -1 : 0);
                 my = enemy.y < gameState.player.y ? 1 : (enemy.y > gameState.player.y ? -1 : 0);
             } else {
+                // Random movement
                 if (Math.random() < 0.3) {
                     const dirs = [[-1,0], [1,0], [0,-1], [0,1]];
                     const dir = dirs[Math.floor(Math.random() * dirs.length)];
-                    mx = dir[0]; my = dir[1];
+                    mx = dir[0]; 
+                    my = dir[1];
                 }
             }
+            
+            // Try to move if we have a direction
             if (mx !== 0 || my !== 0) {
                 const nx = enemy.x + mx;
                 const ny = enemy.y + my;
+                
+                // Check if new position is valid
                 if (nx >= 0 && nx < gameState.world.width && ny >= 0 && ny < gameState.world.height) {
                     const tile = gameState.world.tiles[ny][nx];
                     const occ = gameState.enemies.some(e => e.x === nx && e.y === ny);
                     const pThere = nx === gameState.player.x && ny === gameState.player.y;
+                    
                     if (tileTypes[tile].passable && !occ && !pThere) {
-                        enemy.x = nx; enemy.y = ny;
+                        enemy.x = nx; 
+                        enemy.y = ny;
                     }
                 }
             }
@@ -1206,6 +1521,60 @@ function updateInventoryDisplay() {
     document.getElementById('statSpirit').textContent = stats.spirit;
     document.getElementById('statAgility').textContent = stats.agility;
     document.getElementById('statLuck').textContent = stats.luck;
+	
+	   if (gameState.player.inventory.length === 0) {
+        inv.innerHTML = '<div class="slot-empty">No items</div>';
+        gameState.selectedItemIndex = -1;
+    } else {
+        inv.innerHTML = '';
+        
+        const equippedItemIds = new Set(Object.values(gameState.equipment).filter(x => x !== null));
+        const alreadyMarked = new Set();
+        
+        gameState.player.inventory.forEach((itemId, idx) => {
+            const item = itemDatabase[itemId];
+            const div = document.createElement('div');
+            div.className = 'inventory-item';
+            if (idx === gameState.selectedItemIndex) div.classList.add('selected');
+            
+            const isEquipped = equippedItemIds.has(itemId) && !alreadyMarked.has(itemId);
+            if (isEquipped) alreadyMarked.add(itemId);
+            
+            const eqText = isEquipped ? ' [EQUIPPED]' : '';
+            let typeText = '';
+            if (item.type === 'weapon' && item.weaponType) typeText = ` (${item.weaponType})`;
+            else if (item.type === 'consumable' && item.onUse) typeText = ' [USE: U]';
+            
+            // GET RARITY COLOR
+            const rarity = item.rarity || 'common';
+            const rarityClass = `item-${rarity}`;
+            
+            let statsText = '';
+            if (item.canEquip) {
+                const parts = [];
+                if (item.stats.strength !== 0) parts.push(`STR${item.stats.strength > 0 ? '+' : ''}${item.stats.strength}`);
+                if (item.stats.vitality !== 0) parts.push(`VIT${item.stats.vitality > 0 ? '+' : ''}${item.stats.vitality}`);
+                if (item.stats.intelligence !== 0) parts.push(`INT${item.stats.intelligence > 0 ? '+' : ''}${item.stats.intelligence}`);
+                if (item.stats.spirit !== 0) parts.push(`SPR${item.stats.spirit > 0 ? '+' : ''}${item.stats.spirit}`);
+                if (item.stats.agility !== 0) parts.push(`AGI${item.stats.agility > 0 ? '+' : ''}${item.stats.agility}`);
+                if (item.stats.luck !== 0) parts.push(`LUK${item.stats.luck > 0 ? '+' : ''}${item.stats.luck}`);
+                if (parts.length > 0) statsText = `<div class="item-stats">${parts.join(', ')}</div>`;
+            }
+            
+            // COLOR THE ITEM NAME
+            div.innerHTML = `
+                <div class="item-name ${rarityClass}">${item.name}${typeText}${eqText}</div>
+                ${statsText}
+                <div class="item-desc">${item.description}</div>
+            `;
+            
+            div.addEventListener('click', () => { 
+                gameState.selectedItemIndex = idx; 
+                updateInventoryDisplay(); 
+            });
+            inv.appendChild(div);
+        });
+    }
     
     if (gameState.player.inventory.length === 0) {
         inv.innerHTML = '<div class="slot-empty">No items</div>';
