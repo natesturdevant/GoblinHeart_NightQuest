@@ -885,30 +885,35 @@ function animateReveal() {
 // ===== STATS & STATUS =====
 function calculateStats() {
     const stats = { ...gameState.player.baseStats };
+    
     Object.values(gameState.equipment).forEach(itemId => {
         if (itemId && itemDatabase[itemId]) {
             const item = itemDatabase[itemId];
-            stats.strength += item.stats.strength;
-            stats.vitality += item.stats.vitality;
-            stats.intelligence += item.stats.intelligence;
-            stats.spirit += item.stats.spirit;
-            stats.agility += item.stats.agility;
-            stats.luck += item.stats.luck;
+            if (item.stats) {
+                // Use || 0 to handle undefined stats
+                stats.strength += (item.stats.strength || 0);
+                stats.vitality += (item.stats.vitality || 0);
+                stats.intelligence += (item.stats.intelligence || 0);
+                stats.spirit += (item.stats.spirit || 0);
+                stats.agility += (item.stats.agility || 0);
+                stats.luck += (item.stats.luck || 0);
+            }
         }
     });
+    
     return stats;
 }
 
 function updateStatus() {
     const stats = calculateStats();
-    document.getElementById('playerHp').textContent = gameState.player.hp;
-    document.getElementById('playerMaxHp').textContent = gameState.player.maxHp;
-    document.getElementById('playerMp').textContent = gameState.player.mp;
-    document.getElementById('playerMaxMp').textContent = gameState.player.maxMp;
-    document.getElementById('playerLevel').textContent = gameState.player.level;
-    document.getElementById('statusStrength').textContent = stats.strength;
-    document.getElementById('playerGold').textContent = gameState.player.gold;
-    document.getElementById('playerXp').textContent = gameState.player.xp;
+    document.getElementById('playerHp').textContent = gameState.player.hp || 0;
+    document.getElementById('playerMaxHp').textContent = gameState.player.maxHp || 0;
+    document.getElementById('playerMp').textContent = gameState.player.mp || 0;
+    document.getElementById('playerMaxMp').textContent = gameState.player.maxMp || 0;
+    document.getElementById('playerLevel').textContent = gameState.player.level || 1;
+    document.getElementById('statusStrength').textContent = stats.strength || 0;
+    document.getElementById('playerGold').textContent = gameState.player.gold || 0;
+    document.getElementById('playerXp').textContent = gameState.player.xp || 0;
     document.getElementById('playerXpNext').textContent = getXpForNextLevel();
 }
 
@@ -1515,14 +1520,17 @@ function toggleInventory() {
 function updateInventoryDisplay() {
     const inv = document.getElementById('inventoryItems');
     const stats = calculateStats();
-    document.getElementById('statAttack').textContent = stats.strength;
-    document.getElementById('statDefense').textContent = stats.vitality;
-    document.getElementById('statMagic').textContent = stats.intelligence;
-    document.getElementById('statSpirit').textContent = stats.spirit;
-    document.getElementById('statAgility').textContent = stats.agility;
-    document.getElementById('statLuck').textContent = stats.luck;
-	
-	   if (gameState.player.inventory.length === 0) {
+   
+    // Update player stats display
+    document.getElementById('statAttack').textContent = stats.strength || 0;
+    document.getElementById('statDefense').textContent = stats.vitality || 0;
+    document.getElementById('statMagic').textContent = stats.intelligence || 0;
+    document.getElementById('statSpirit').textContent = stats.spirit || 0;
+    document.getElementById('statAgility').textContent = stats.agility || 0;
+    document.getElementById('statLuck').textContent = stats.luck || 0;
+    
+    // Display inventory items
+    if (gameState.player.inventory.length === 0) {
         inv.innerHTML = '<div class="slot-empty">No items</div>';
         gameState.selectedItemIndex = -1;
     } else {
@@ -1545,27 +1553,23 @@ function updateInventoryDisplay() {
             if (item.type === 'weapon' && item.weaponType) typeText = ` (${item.weaponType})`;
             else if (item.type === 'consumable' && item.onUse) typeText = ' [USE: U]';
             
-            // GET RARITY COLOR
-            const rarity = item.rarity || 'common';
-            const rarityClass = `item-${rarity}`;
-            
+            // Build stats text - only show non-zero stats
             let statsText = '';
-            if (item.canEquip) {
+            if (item.canEquip && item.stats) {
                 const parts = [];
-                if (item.stats.strength !== 0) parts.push(`STR${item.stats.strength > 0 ? '+' : ''}${item.stats.strength}`);
-                if (item.stats.vitality !== 0) parts.push(`VIT${item.stats.vitality > 0 ? '+' : ''}${item.stats.vitality}`);
-                if (item.stats.intelligence !== 0) parts.push(`INT${item.stats.intelligence > 0 ? '+' : ''}${item.stats.intelligence}`);
-                if (item.stats.spirit !== 0) parts.push(`SPR${item.stats.spirit > 0 ? '+' : ''}${item.stats.spirit}`);
-                if (item.stats.agility !== 0) parts.push(`AGI${item.stats.agility > 0 ? '+' : ''}${item.stats.agility}`);
-                if (item.stats.luck !== 0) parts.push(`LUK${item.stats.luck > 0 ? '+' : ''}${item.stats.luck}`);
+                if ((item.stats.strength || 0) !== 0) parts.push(`STR${item.stats.strength > 0 ? '+' : ''}${item.stats.strength}`);
+                if ((item.stats.vitality || 0) !== 0) parts.push(`VIT${item.stats.vitality > 0 ? '+' : ''}${item.stats.vitality}`);
+                if ((item.stats.intelligence || 0) !== 0) parts.push(`INT${item.stats.intelligence > 0 ? '+' : ''}${item.stats.intelligence}`);
+                if ((item.stats.spirit || 0) !== 0) parts.push(`SPR${item.stats.spirit > 0 ? '+' : ''}${item.stats.spirit}`);
+                if ((item.stats.agility || 0) !== 0) parts.push(`AGI${item.stats.agility > 0 ? '+' : ''}${item.stats.agility}`);
+                if ((item.stats.luck || 0) !== 0) parts.push(`LUK${item.stats.luck > 0 ? '+' : ''}${item.stats.luck}`);
                 if (parts.length > 0) statsText = `<div class="item-stats">${parts.join(', ')}</div>`;
             }
             
-            // COLOR THE ITEM NAME
             div.innerHTML = `
-                <div class="item-name ${rarityClass}">${item.name}${typeText}${eqText}</div>
+                <div class="item-name">${item.name}${typeText}${eqText}</div>
                 ${statsText}
-                <div class="item-desc">${item.description}</div>
+                <div class="item-desc">${item.description || ''}</div>
             `;
             
             div.addEventListener('click', () => { 
@@ -1576,57 +1580,23 @@ function updateInventoryDisplay() {
         });
     }
     
-    if (gameState.player.inventory.length === 0) {
-        inv.innerHTML = '<div class="slot-empty">No items</div>';
-        gameState.selectedItemIndex = -1;
-    } else {
-        inv.innerHTML = '';
-        
-        // Track which itemIds are equipped and which we've already marked
-        const equippedItemIds = new Set(Object.values(gameState.equipment).filter(x => x !== null));
-        const alreadyMarked = new Set();
-        
-        gameState.player.inventory.forEach((itemId, idx) => {
-            const item = itemDatabase[itemId];
-            const div = document.createElement('div');
-            div.className = 'inventory-item';
-            if (idx === gameState.selectedItemIndex) div.classList.add('selected');
-            
-            // Check if this itemId is equipped AND we haven't marked it yet
-            const isEquipped = equippedItemIds.has(itemId) && !alreadyMarked.has(itemId);
-            if (isEquipped) alreadyMarked.add(itemId);
-            
-            const eqText = isEquipped ? ' [EQUIPPED]' : '';
-            let typeText = '';
-            if (item.type === 'weapon' && item.weaponType) typeText = ` (${item.weaponType})`;
-            else if (item.type === 'consumable' && item.onUse) typeText = ' [USE: U]';
-            let statsText = '';
-            if (item.canEquip) {
-                const parts = [];
-                if (item.stats.strength !== 0) parts.push(`STR${item.stats.strength > 0 ? '+' : ''}${item.stats.strength}`);
-                if (item.stats.vitality !== 0) parts.push(`VIT${item.stats.vitality > 0 ? '+' : ''}${item.stats.vitality}`);
-                if (item.stats.intelligence !== 0) parts.push(`INT${item.stats.intelligence > 0 ? '+' : ''}${item.stats.intelligence}`);
-                if (item.stats.spirit !== 0) parts.push(`SPR${item.stats.spirit > 0 ? '+' : ''}${item.stats.spirit}`);
-                if (item.stats.agility !== 0) parts.push(`AGI${item.stats.agility > 0 ? '+' : ''}${item.stats.agility}`);
-                if (item.stats.luck !== 0) parts.push(`LUK${item.stats.luck > 0 ? '+' : ''}${item.stats.luck}`);
-                if (parts.length > 0) statsText = `<div class="item-stats">${parts.join(', ')}</div>`;
-            }
-            div.innerHTML = `<div class="item-name">${item.name}${typeText}${eqText}</div>${statsText}<div class="item-desc">${item.description}</div>`;
-            div.addEventListener('click', () => { gameState.selectedItemIndex = idx; updateInventoryDisplay(); });
-            inv.appendChild(div);
-        });
-    }
-    
-    const slots = ['weapon', 'armor', 'accessory', 'special'];
+    // Update equipment slots display
+    const slots = ['weapon', 'offhand', 'helmet', 'armor', 'gloves', 'boots', 'ring1', 'ring2'];
     slots.forEach(slot => {
         const el = document.getElementById(`${slot}Slot`);
         const eqId = gameState.equipment[slot];
         if (eqId) {
             const item = itemDatabase[eqId];
-            el.className = 'slot-equipped';
-            el.textContent = item.name;
+            if (item) {
+                const rarity = item.rarity || 'common';
+                const color = RARITY_COLORS[rarity];
+                el.className = 'slot-equipped';
+                el.style.color = color;
+                el.textContent = item.name;
+            }
         } else {
             el.className = 'slot-empty';
+            el.style.color = '';
             el.textContent = 'None';
         }
     });
@@ -2375,7 +2345,16 @@ function newGame() {
                 barrier: 0, 
                 barrierTurns: 0 
             },
-            equipment: { weapon: null, armor: null, accessory: null, special: null },
+            equipment: { 
+				weapon: null, 
+				offhand: null,    // NEW
+				helmet: null,     // NEW
+				armor: null, 
+				gloves: null,     // NEW
+				boots: null,      // NEW
+				ring1: null,      // NEW
+				ring2: null       // RENAMED from accessory
+			},
             combat: { inCombat: false, turnCount: 0 },
             spellCasting: { active: false, selectedSpellIndex: 0, pendingSpell: null },
             enemies: [], 

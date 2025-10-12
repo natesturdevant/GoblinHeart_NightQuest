@@ -82,13 +82,15 @@ h1 {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 500px;
+    width: 600px;  /* Wider - was 500px */
+    max-height: 85vh;  /* Limit height to viewport */
     background-color: #000;
     border: 3px solid #0f0;
     padding: 15px;
     display: none;
     z-index: 1000;
     box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+    overflow-y: auto;  /* Make whole panel scrollable if needed */
 }
 
 .inventory-panel.active {
@@ -118,14 +120,16 @@ h1 {
     background-color: #001;
     border: 1px solid #0f0;
     padding: 10px;
-    min-height: 80px;
+    min-height: 200px;  /* Much bigger - was 80px */
+    max-height: 400px;  /* Add max height */
+    overflow-y: auto;   /* Make items scrollable */
     font-size: 9px;
     line-height: 1.8;
 }
 
 .inventory-item {
-    padding: 4px;
-    margin: 2px 0;
+    padding: 6px;  /* Slightly bigger - was 4px */
+    margin: 4px 0;  /* More space between items - was 2px */
     background-color: #002;
     border: 1px solid #050;
     cursor: pointer;
@@ -143,32 +147,38 @@ h1 {
 
 .item-name {
     color: #0ff;
+    font-size: 10px;  /* Slightly bigger so colors are more visible */
+    font-weight: bold;
+    margin-bottom: 3px;
 }
 
 .item-stats {
     color: #ff0;
     font-size: 8px;
     margin-left: 10px;
+    margin-top: 2px;
 }
 
 .item-desc {
     color: #0a0;
-    font-size: 8px;
+    font-size: 7px;  /* Smaller */
     margin-left: 10px;
+    margin-top: 2px;
 }
 
 .equipment-slots {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    font-size: 9px;
+    grid-template-columns: 1fr 1fr 1fr;  /* 3 columns instead of 2 */
+    gap: 5px;  /* Smaller gap */
+    font-size: 8px;  /* Smaller text */
+    margin-bottom: 10px;  /* Space before inventory items */
 }
 
 .equipment-slot {
     background-color: #001;
     border: 1px solid #0f0;
-    padding: 8px;
-    min-height: 40px;
+    padding: 5px;  /* Smaller padding - was 8px */
+    min-height: 35px;  /* Smaller - was 40px */
 }
 
 .item-common { color: #AAAAAA; }
@@ -179,8 +189,8 @@ h1 {
 
 .slot-label {
     color: #ff0;
-    font-size: 8px;
-    margin-bottom: 4px;
+    font-size: 7px;  /* Smaller - was 8px */
+    margin-bottom: 2px;
 }
 
 .slot-empty {
