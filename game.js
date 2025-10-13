@@ -7,14 +7,17 @@ const VIEWPORT_HEIGHT = 15;
 
 const journalImages = {};
 
-// Rarity colors (shared with equipment.js)
-/* const RARITY_COLORS = {
-    common: '#AAAAAA',
-    magic: '#4444FF',
-    rare: '#FFFF00',
-    set: '#00FF00',
-    unique: '#FF8000'
-}; */
+// ===== BALANCE KNOBS (tweak difficulty on the fly) =====
+const BALANCE_KNOBS = {
+    enemyDamageMultiplier: 1.0,      // Enemy attacks deal X times damage
+    playerHealingMultiplier: 1.0,    // Healing effects X times as effective
+    enemyHpMultiplier: 1.0,          // Enemies spawn with X times HP
+    magicItemChance: 0.35,           // Base chance for magic+ items (35%)
+    xpMultiplier: 1.0,               // XP gains X times as much
+    goldMultiplier: 1.0,             // Gold drops X times as much
+    potionEffectiveness: 1.0         // Potions heal X times as much
+};
+
 
 function loadJournalImage(id, path) {
     const img = new Image();
@@ -354,8 +357,8 @@ function spawnEnemyAt(type, x, y) {
         sprite: t.sprite, 
         x: x, 
         y: y,
-        hp: t.hp, 
-        maxHp: t.maxHp, 
+        hp: Math.floor(t.hp * BALANCE_KNOBS.enemyHpMultiplier),        // FIXED: was eData, now t
+        maxHp: Math.floor(t.maxHp * BALANCE_KNOBS.enemyHpMultiplier),  // FIXED: was eData, now t
         strength: t.strength, 
         vitality: t.vitality, 
         intelligence: t.intelligence,
@@ -646,9 +649,9 @@ function getCameraPosition() {
     camX = Math.max(0, Math.min(camX, gameState.world.width - VIEWPORT_WIDTH));
     camY = Math.max(0, Math.min(camY, gameState.world.height - VIEWPORT_HEIGHT));
 	
-	console.log('Player:', gameState.player.x, gameState.player.y);
-    console.log('World size:', gameState.world.width, gameState.world.height);
-    console.log('Camera:', camX, camY);
+	//console.log('Player:', gameState.player.x, gameState.player.y);
+    //console.log('World size:', gameState.world.width, gameState.world.height);
+    //console.log('Camera:', camX, camY);
 	
     return { x: camX, y: camY };
 }
@@ -843,26 +846,38 @@ function animateReveal() {
     
     const mapKey = gameState.currentMap;
     const revealing = gameState.revealingTiles[mapKey];
+    
     if (!revealing || revealing.size === 0) {
         gameState.revealAnimationRunning = false;
         return;
     }
     
+    // THROTTLE: Only render every 50ms (20 FPS instead of 60)
     const now = Date.now();
+    if (!gameState.lastRevealRender) gameState.lastRevealRender = 0;
+    const timeSinceLastRender = now - gameState.lastRevealRender;
+    
+    if (timeSinceLastRender < 50) { // 50ms = 20 FPS
+        // Skip this frame, but keep animating
+        requestAnimationFrame(animateReveal);
+        return;
+    }
+    
+    gameState.lastRevealRender = now;
     let stillAnimating = false;
     
     // Update progress for all revealing tiles
     revealing.forEach((data, key) => {
         if (now >= data.startTime) {
             const elapsed = now - data.startTime;
-            const duration = 200; // 200ms reveal duration per tile
+            const duration = 200; // 200ms reveal duration
             data.progress = Math.min(1, elapsed / duration);
             
             if (data.progress < 1) {
                 stillAnimating = true;
             }
         } else {
-            stillAnimating = true; // Still waiting for delay
+            stillAnimating = true;
         }
     });
     
@@ -873,7 +888,7 @@ function animateReveal() {
         }
     });
     
-    renderWorld();
+    renderWorld(); // Only renders at 20 FPS now
     
     if (stillAnimating) {
         requestAnimationFrame(animateReveal);
@@ -993,14 +1008,7 @@ function movePlayer(dx, dy) {
 	const locs = specialLocations[gameState.currentMap];
 	
 	
-	/* if (locs && locs[key]) {
-		const special = locs[key];
-		const revealKey = `${gameState.currentMap}:${key}`;
-		if (!special.requiresSearch && !gameState.revealedSpecials[revealKey]) {
-			addMessage(special.message);
-			gameState.revealedSpecials[revealKey] = true;
-		}
-	} */
+	
 	
 	if (locs && locs[key]) {
     const special = locs[key];
@@ -1281,8 +1289,11 @@ function dealDamage(attacker, defender, isBump = false) {
     const aStats = attacker === gameState.player ? calculateStats() : attacker;
     const dStats = defender === gameState.player ? calculateStats() : defender;
     let dmg = Math.max(1, (aStats.strength * 2) - dStats.vitality);
-	
-	
+    
+    // ADD THIS: Apply enemy damage knob when enemy attacks player
+    if (attacker !== gameState.player && defender === gameState.player) {
+        dmg = Math.floor(dmg * BALANCE_KNOBS.enemyDamageMultiplier);
+    }
     
     // Apply enrage bonus
     if (attacker.enraged?.active) {
@@ -1338,8 +1349,10 @@ function handleEnemyDefeat(enemy) {
     console.log('Enemy data:', eData);
     console.log('Loot chance:', eData.lootChance);
     
-    gameState.player.xp += eData.xp;
-    addMessage(`+${eData.xp} XP!`);
+    // ADD XP MULTIPLIER HERE:
+    const xpGain = Math.floor(eData.xp * BALANCE_KNOBS.xpMultiplier);
+    gameState.player.xp += xpGain;
+    addMessage(`+${xpGain} XP!`);
     checkLevelUp();
     
     const lootRoll = Math.random();
@@ -1350,7 +1363,9 @@ function handleEnemyDefeat(enemy) {
         const lootConfig = eData.loot;
         console.log('Loot config:', lootConfig);
         
-        const gold = Math.floor(Math.random() * (lootConfig.gold[1] - lootConfig.gold[0] + 1)) + lootConfig.gold[0];
+        // ADD GOLD MULTIPLIER HERE:
+        const baseGold = Math.floor(Math.random() * (lootConfig.gold[1] - lootConfig.gold[0] + 1)) + lootConfig.gold[0];
+        const gold = Math.floor(baseGold * BALANCE_KNOBS.goldMultiplier);
         const items = [];
         
         for (let i = 0; i < lootConfig.rolls; i++) {
@@ -1602,7 +1617,7 @@ function updateInventoryDisplay() {
     });
 }
 
-function equipItem() {
+/* function equipItem() {
 	
 	console.log('Current equipment:', JSON.stringify(gameState.equipment));
     console.log('Trying to equip:', gameState.player.inventory[gameState.selectedItemIndex]);
@@ -1625,6 +1640,75 @@ function equipItem() {
     // Check if this itemId is equipped in ANY slot (prevent duplicates)
     else if (Object.values(gameState.equipment).includes(itemId)) {
         addMessage(`You already have a ${item.name} equipped!`);
+        return;
+    }
+    // Something else is in this slot
+    else if (gameState.equipment[slot]) {
+        const old = itemDatabase[gameState.equipment[slot]];
+        addMessage(`Unequipped ${old.name}.`);
+        gameState.equipment[slot] = itemId;
+        addMessage(`Equipped ${item.name}!`);
+    } 
+    // Slot is empty
+    else {
+        gameState.equipment[slot] = itemId;
+        addMessage(`Equipped ${item.name}!`);
+    }
+    
+    updateInventoryDisplay();
+} */
+
+function equipItem() {
+    console.log('Current equipment:', JSON.stringify(gameState.equipment));
+    console.log('Trying to equip:', gameState.player.inventory[gameState.selectedItemIndex]);
+    
+    if (gameState.selectedItemIndex < 0 || gameState.selectedItemIndex >= gameState.player.inventory.length) {
+        addMessage("No item selected.");
+        return;
+    }
+    const itemId = gameState.player.inventory[gameState.selectedItemIndex];
+    const item = itemDatabase[itemId];
+    if (!item.canEquip) { addMessage(`Cannot equip ${item.name}.`); return; }
+    
+    let slot = item.slot;
+    
+    // SPECIAL CASE: Rings can go in ring1 OR ring2
+    if (item.type === 'ring') {
+        // If clicking an already equipped ring, unequip it
+        if (gameState.equipment.ring1 === itemId) {
+            gameState.equipment.ring1 = null;
+            addMessage(`Unequipped ${item.name}.`);
+            updateInventoryDisplay();
+            return;
+        }
+        if (gameState.equipment.ring2 === itemId) {
+            gameState.equipment.ring2 = null;
+            addMessage(`Unequipped ${item.name}.`);
+            updateInventoryDisplay();
+            return;
+        }
+        
+        // Try to find an empty ring slot
+        if (!gameState.equipment.ring1) {
+            slot = 'ring1';
+        } else if (!gameState.equipment.ring2) {
+            slot = 'ring2';
+        } else {
+            // Both slots full - replace ring1
+            const old = itemDatabase[gameState.equipment.ring1];
+            addMessage(`Unequipped ${old.name}.`);
+            slot = 'ring1';
+        }
+    }
+    
+    // If THIS item is already equipped in this slot, unequip it
+    if (gameState.equipment[slot] === itemId) {
+        gameState.equipment[slot] = null;
+        addMessage(`Unequipped ${item.name}.`);
+    } 
+    // Check if this itemId is equipped in ANY slot (prevent duplicates)
+    else if (Object.values(gameState.equipment).includes(itemId)) {
+        addMessage(`You already have that item equipped!`);
         return;
     }
     // Something else is in this slot
@@ -1714,13 +1798,57 @@ function moveSelection(dir) {
 }
 
 // ===== SHOP =====
-function openShop(shopkeeperType) {
+
+// Generate shop inventory on game start
+function generateShopInventory() {
+    const inventory = [];
+    
+    // Always have consumables
+    inventory.push(
+        { itemId: 'health_potion', price: 50 },
+        { itemId: 'mana_potion', price: 40 },
+        { itemId: 'town_portal', price: 100 }
+    );
+    
+    // Add 3-5 random common/magic items - FIXED BASE IDS
+    const commonBases = ['dagger', 'sword', 'leather_armor', 'cap', 'gloves', 'boots', 'ring'];
+    for (let i = 0; i < 5; i++) {
+        const baseId = commonBases[Math.floor(Math.random() * commonBases.length)];
+        const rarity = Math.random() < 0.3 ? 'magic' : 'common';
+        const generatedItem = generateMagicItem(baseId, rarity);
+        
+        if (generatedItem) {
+            itemDatabase[generatedItem.id] = generatedItem;
+            const basePrice = (generatedItem.tier + 1) * 50;
+            const rarityMult = rarity === 'magic' ? 2 : 1;
+            inventory.push({
+                itemId: generatedItem.id,
+                price: basePrice * rarityMult
+            });
+        }
+    }
+    
+    // Add 1-2 spell scrolls
+    const spells = ['spell_fire_bolt', 'spell_heal', 'spell_barrier', 'spell_weaken', 'spell_lightning'];
+    const spell1 = spells[Math.floor(Math.random() * spells.length)];
+    inventory.push({ itemId: spell1, price: 150 });
+    
+    return inventory;
+}
+
+function openShop(shopkeeperId) {
+    // Generate fresh inventory if not already generated
+    if (!gameState.generatedShops) gameState.generatedShops = {};
+    if (!gameState.generatedShops[shopkeeperId]) {
+        gameState.generatedShops[shopkeeperId] = generateShopInventory();
+    }
+    
+    gameState.currentShopkeeper = shopkeeperId;
     gameState.shopOpen = true;
     gameState.shopMode = 'buy';
     gameState.shopSelectedIndex = 0;
-    gameState.currentShopkeeper = shopkeeperType;
-    const panel = document.getElementById('shopPanel');
-    panel.classList.add('active');
+    
+    document.getElementById('shopPanel').classList.add('active');
     updateShopDisplay();
 }
 
@@ -1740,44 +1868,69 @@ function switchShopMode(mode) {
 }
 
 function updateShopDisplay() {
+    console.log('updateShopDisplay called');
+    console.log('shopMode:', gameState.shopMode);
+    console.log('currentShopkeeper:', gameState.currentShopkeeper);
+    console.log('generatedShops:', gameState.generatedShops);
+
     const shopItems = document.getElementById('shopItems');
     document.getElementById('shopGold').textContent = gameState.player.gold;
+
     if (gameState.shopMode === 'buy') {
-        const inventory = shopInventory[gameState.currentShopkeeper];
+        // Use generated shop inventory instead of shopInventory constant
+        const inventory = gameState.generatedShops ? gameState.generatedShops[gameState.currentShopkeeper] : [];
+
         if (!inventory || inventory.length === 0) {
             shopItems.innerHTML = '<div class="slot-empty">No items available</div>';
             return;
         }
+
         shopItems.innerHTML = '';
         inventory.forEach((shopItem, idx) => {
+            console.log('Processing item:', shopItem, 'idx:', idx);
             const item = itemDatabase[shopItem.itemId];
+            console.log('Item from database:', item);
+
+            if (!item) {
+                console.error('ITEM NOT FOUND:', shopItem.itemId);
+                return;
+            }
+
             const div = document.createElement('div');
             div.className = 'shop-item';
             if (idx === gameState.shopSelectedIndex) div.classList.add('selected');
+
             const canAfford = gameState.player.gold >= shopItem.price;
             const priceColor = canAfford ? '#0f0' : '#f00';
+
             div.innerHTML = `
                 <span class="shop-item-name">${item.name}</span>
                 <span class="shop-item-price" style="color: ${priceColor};">${shopItem.price}G</span>
                 <div class="item-desc">${item.description}</div>
             `;
+
             div.addEventListener('click', () => {
                 gameState.shopSelectedIndex = idx;
                 updateShopDisplay();
             });
+
             shopItems.appendChild(div);
+            console.log('Appended div, shopItems now has', shopItems.children.length, 'children');
         });
+
     } else {
         if (gameState.player.inventory.length === 0) {
             shopItems.innerHTML = '<div class="slot-empty">No items to sell</div>';
             return;
         }
+
         shopItems.innerHTML = '';
         gameState.player.inventory.forEach((itemId, idx) => {
             const item = itemDatabase[itemId];
             const div = document.createElement('div');
             div.className = 'shop-item';
             if (idx === gameState.shopSelectedIndex) div.classList.add('selected');
+
             const isEquipped = Object.values(gameState.equipment).includes(itemId);
             let sellPrice = 0;
             const shopInv = shopInventory[gameState.currentShopkeeper];
@@ -1787,21 +1940,27 @@ function updateShopDisplay() {
             } else {
                 sellPrice = 25;
             }
+
             const equippedText = isEquipped ? ' [EQUIPPED - CANNOT SELL]' : '';
             const priceColor = isEquipped ? '#888' : '#0f0';
+
             div.innerHTML = `
                 <span class="shop-item-name">${item.name}${equippedText}</span>
                 <span class="shop-item-price" style="color: ${priceColor};">${sellPrice}G</span>
                 <div class="item-desc">${item.description}</div>
             `;
+
             div.addEventListener('click', () => {
                 gameState.shopSelectedIndex = idx;
                 updateShopDisplay();
             });
+
             shopItems.appendChild(div);
         });
     }
 }
+
+
 
 function moveShopSelection(direction) {
     const maxIndex = gameState.shopMode === 'buy' 
@@ -2383,7 +2542,79 @@ function newGame() {
 
 // ===== EVENT HANDLERS =====
 document.addEventListener('keydown', function(e) {
-    // Spell panel controls
+    // ===== BALANCE KNOBS - ALWAYS CHECK FIRST =====
+    if (e.shiftKey && e.code === 'Digit1') {
+        e.preventDefault();
+        BALANCE_KNOBS.enemyDamageMultiplier = Math.round((BALANCE_KNOBS.enemyDamageMultiplier + 0.1) * 10) / 10;
+        addMessage(`Enemy Damage: ${BALANCE_KNOBS.enemyDamageMultiplier.toFixed(1)}x`, '#f00');
+        return;
+    }
+    if (e.shiftKey && e.code === 'Digit2') {
+        e.preventDefault();
+        BALANCE_KNOBS.enemyDamageMultiplier = Math.max(0.1, Math.round((BALANCE_KNOBS.enemyDamageMultiplier - 0.1) * 10) / 10);
+        addMessage(`Enemy Damage: ${BALANCE_KNOBS.enemyDamageMultiplier.toFixed(1)}x`, '#f00');
+        return;
+    }
+    if (e.shiftKey && e.code === 'Digit3') {
+        e.preventDefault();
+        BALANCE_KNOBS.enemyHpMultiplier = Math.round((BALANCE_KNOBS.enemyHpMultiplier + 0.1) * 10) / 10;
+        addMessage(`Enemy HP: ${BALANCE_KNOBS.enemyHpMultiplier.toFixed(1)}x`, '#f00');
+        return;
+    }
+    if (e.shiftKey && e.code === 'Digit4') {
+        e.preventDefault();
+        BALANCE_KNOBS.enemyHpMultiplier = Math.max(0.1, Math.round((BALANCE_KNOBS.enemyHpMultiplier - 0.1) * 10) / 10);
+        addMessage(`Enemy HP: ${BALANCE_KNOBS.enemyHpMultiplier.toFixed(1)}x`, '#f00');
+        return;
+    }
+    if (e.shiftKey && e.code === 'Digit5') {
+        e.preventDefault();
+        BALANCE_KNOBS.playerHealingMultiplier = Math.round((BALANCE_KNOBS.playerHealingMultiplier + 0.1) * 10) / 10;
+        addMessage(`Healing: ${BALANCE_KNOBS.playerHealingMultiplier.toFixed(1)}x`, '#0f0');
+        return;
+    }
+    if (e.shiftKey && e.code === 'Digit6') {
+        e.preventDefault();
+        BALANCE_KNOBS.playerHealingMultiplier = Math.max(0.1, Math.round((BALANCE_KNOBS.playerHealingMultiplier - 0.1) * 10) / 10);
+        addMessage(`Healing: ${BALANCE_KNOBS.playerHealingMultiplier.toFixed(1)}x`, '#0f0');
+        return;
+    }
+    if (e.shiftKey && e.code === 'Digit7') {
+        e.preventDefault();
+        BALANCE_KNOBS.magicItemChance = Math.min(1.0, Math.round((BALANCE_KNOBS.magicItemChance + 0.05) * 100) / 100);
+        addMessage(`Magic Items: ${(BALANCE_KNOBS.magicItemChance * 100).toFixed(0)}%`, '#00f');
+        return;
+    }
+    if (e.shiftKey && e.code === 'Digit8') {
+        e.preventDefault();
+        BALANCE_KNOBS.magicItemChance = Math.max(0, Math.round((BALANCE_KNOBS.magicItemChance - 0.05) * 100) / 100);
+        addMessage(`Magic Items: ${(BALANCE_KNOBS.magicItemChance * 100).toFixed(0)}%`, '#00f');
+        return;
+    }
+    if (e.shiftKey && (e.key === 'B' || e.key === 'b')) {
+        e.preventDefault();
+        addMessage('======= BALANCE KNOBS =======', '#ff0');
+        addMessage(`Shift+1/2: Enemy Damage ${BALANCE_KNOBS.enemyDamageMultiplier.toFixed(1)}x`, '#f00');
+        addMessage(`Shift+3/4: Enemy HP ${BALANCE_KNOBS.enemyHpMultiplier.toFixed(1)}x`, '#f00');
+        addMessage(`Shift+5/6: Healing ${BALANCE_KNOBS.playerHealingMultiplier.toFixed(1)}x`, '#0f0');
+        addMessage(`Shift+7/8: Magic Drops ${(BALANCE_KNOBS.magicItemChance * 100).toFixed(0)}%`, '#00f');
+        addMessage(`XP: ${BALANCE_KNOBS.xpMultiplier.toFixed(1)}x | Gold: ${BALANCE_KNOBS.goldMultiplier.toFixed(1)}x`, '#ff0');
+        return;
+    }
+    if (e.shiftKey && e.code === 'Digit0') {
+        e.preventDefault();
+        BALANCE_KNOBS.enemyDamageMultiplier = 1.0;
+        BALANCE_KNOBS.playerHealingMultiplier = 1.0;
+        BALANCE_KNOBS.enemyHpMultiplier = 1.0;
+        BALANCE_KNOBS.magicItemChance = 0.35;
+        BALANCE_KNOBS.xpMultiplier = 1.0;
+        BALANCE_KNOBS.goldMultiplier = 1.0;
+        BALANCE_KNOBS.potionEffectiveness = 1.0;
+        addMessage('Balance knobs RESET to 1.0x', '#ff0');
+        return;
+    }
+    
+    // ===== SPELL PANEL CONTROLS =====
     if (gameState.spellCasting.active) {
         switch(e.key) {
             case 'ArrowUp': e.preventDefault(); moveSpellSelection(-1); break;
@@ -2394,7 +2625,7 @@ document.addEventListener('keydown', function(e) {
         return;
     }
     
-    // Directional spell targeting
+    // ===== DIRECTIONAL SPELL TARGETING =====
     if (gameState.spellCasting.pendingSpell) {
         switch(e.key) {
             case 'ArrowUp': e.preventDefault(); castDirectionalSpell(0, -1); break;
@@ -2406,28 +2637,31 @@ document.addEventListener('keydown', function(e) {
         return;
     }
     
+    // ===== SHOP CONTROLS =====
     if (gameState.shopOpen) {
-        switch(e.key) {
-            case 'ArrowUp': e.preventDefault(); moveShopSelection(-1); break;
-            case 'ArrowDown': e.preventDefault(); moveShopSelection(1); break;
-            case 'Enter': case 'a': case 'A': e.preventDefault(); shopConfirm(); break;
-            case 'Escape': e.preventDefault(); closeShop(); break;
-        }
-        return;
+    switch(e.key) {
+        case 'ArrowUp': e.preventDefault(); moveShopSelection(-1); break;
+        case 'ArrowDown': e.preventDefault(); moveShopSelection(1); break;
+        case 'Enter': e.preventDefault(); shopConfirm(); break;  // REMOVED 'a' and 'A'
+        case 'Escape': e.preventDefault(); closeShop(); break;
     }
+    return;
+}
     
+    // ===== INVENTORY CONTROLS =====
     if (gameState.inventoryOpen) {
         switch(e.key) {
             case 'ArrowUp': e.preventDefault(); moveSelection(-1); break;
             case 'ArrowDown': e.preventDefault(); moveSelection(1); break;
             case 'e': case 'E': e.preventDefault(); equipItem(); break;
             case 'u': case 'U': e.preventDefault(); useItem(); break;
-			case 'd': case 'D': e.preventDefault(); dropItem(); break;
+            case 'd': case 'D': e.preventDefault(); dropItem(); break;
             case 'i': case 'I': e.preventDefault(); toggleInventory(); break;
         }
         return;
     }
     
+    // ===== COMBAT CONTROLS =====
     if (gameState.combat.inCombat) {
         switch(e.key) {
             case 'ArrowUp': e.preventDefault(); attemptAttack(0, -1); break;
@@ -2438,17 +2672,18 @@ document.addEventListener('keydown', function(e) {
         }
         return;
     }
-	
-	// Add this in the main switch statement (not inside any if blocks)
-	if (gameState.journal.open) {
-		switch(e.key) {
-			case 'ArrowLeft': e.preventDefault(); prevJournalPage(); break;
-			case 'ArrowRight': e.preventDefault(); nextJournalPage(); break;
-			case 'j': case 'J': case 'Escape': e.preventDefault(); toggleJournal(); break;
-    }
-    return;
-}
     
+    // ===== JOURNAL CONTROLS =====
+    if (gameState.journal.open) {
+        switch(e.key) {
+            case 'ArrowLeft': e.preventDefault(); prevJournalPage(); break;
+            case 'ArrowRight': e.preventDefault(); nextJournalPage(); break;
+            case 'j': case 'J': case 'Escape': e.preventDefault(); toggleJournal(); break;
+        }
+        return;
+    }
+    
+    // ===== NORMAL GAMEPLAY CONTROLS =====
     switch(e.key) {
         case 'ArrowUp': e.preventDefault(); movePlayer(0, -1); break;
         case 'ArrowDown': e.preventDefault(); movePlayer(0, 1); break;
@@ -2461,16 +2696,34 @@ document.addEventListener('keydown', function(e) {
         case 'm': case 'M': e.preventDefault(); toggleSpellPanel(); break;
         case 'c': case 'C': e.preventDefault(); toggleCombatMode(); break;
         case 'w': case 'W': case ' ': e.preventDefault(); waitTurn(); break;
-		case 'j': case 'J': e.preventDefault(); toggleJournal(); break;
-		case 'f': case 'F': e.preventDefault(); gameState.fogOfWarEnabled = !gameState.fogOfWarEnabled; addMessage(gameState.fogOfWarEnabled ? "Fog of war ON" : "Fog of war OFF"); renderWorld(); break;
+        case 'j': case 'J': e.preventDefault(); toggleJournal(); break;
+        case 'f': case 'F': 
+            e.preventDefault(); 
+            gameState.fogOfWarEnabled = !gameState.fogOfWarEnabled; 
+            addMessage(gameState.fogOfWarEnabled ? "Fog of war ON" : "Fog of war OFF"); 
+            renderWorld(); 
+            break;
     }
-	
-	
 });
 
-document.getElementById('exportBtn').addEventListener('click', exportSave);
+/* document.getElementById('exportBtn').addEventListener('click', exportSave);
 document.getElementById('importBtn').addEventListener('click', importSave);
 document.getElementById('newGameBtn').addEventListener('click', newGame);
 document.getElementById('buyModeBtn').addEventListener('click', () => switchShopMode('buy'));
-document.getElementById('sellModeBtn').addEventListener('click', () => switchShopMode('sell'));
+document.getElementById('sellModeBtn').addEventListener('click', () => switchShopMode('sell')); */
+
+const exportBtn = document.getElementById('exportBtn');
+if (exportBtn) exportBtn.addEventListener('click', exportSave);
+
+const importBtn = document.getElementById('importBtn');
+if (importBtn) importBtn.addEventListener('click', importSave);
+
+const newGameBtn = document.getElementById('newGameBtn');
+if (newGameBtn) newGameBtn.addEventListener('click', newGame);
+
+const buyModeBtn = document.getElementById('buyModeBtn');
+if (buyModeBtn) buyModeBtn.addEventListener('click', () => switchShopMode('buy'));
+
+const sellModeBtn = document.getElementById('sellModeBtn');
+if (sellModeBtn) sellModeBtn.addEventListener('click', () => switchShopMode('sell'));
 

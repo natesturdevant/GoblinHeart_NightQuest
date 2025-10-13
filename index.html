@@ -11,36 +11,37 @@
     <h1>Goblinheart: Night Quest</h1>
     
     <div class="game-container">
-    <!-- Canvas and Message Box side-by-side -->
-    <div class="game-layout">
-        <canvas id="gameCanvas" width="480" height="360"></canvas>
+        <!-- Canvas and Message Box side-by-side -->
+        <div class="game-layout">
+            <canvas id="gameCanvas" width="480" height="360"></canvas>
+            
+            <div class="message-box" id="messageBox">
+                Welcome to Goblinheart: Night Quest!
+            </div>
+        </div>
         
-        <div class="message-box" id="messageBox">
-            Welcome to Goblinheart: Night Quest!
+        <!-- Status bar below (full width) -->
+        <div class="status-bar">
+            <span>HP: <span id="playerHp">100</span>/<span id="playerMaxHp">100</span></span>
+            <span>MP: <span id="playerMp">50</span>/<span id="playerMaxMp">50</span></span>
+            <span>Lv: <span id="playerLevel">1</span></span>
+            <span>STR: <span id="statusStrength">10</span></span>
+            <span>Gold: <span id="playerGold">0</span></span>
+            <span>XP: <span id="playerXp">0</span>/<span id="playerXpNext">31</span></span>
+            <span class="map-indicator">Map: <span id="currentMapName">Overworld</span></span>
+        </div>
+        
+        <!-- Controls below -->
+        <div class="controls">
+            <button id="exportBtn">Export Save</button>
+            <button id="importBtn">Import Save</button>
+            <button id="newGameBtn">New Game</button>
+            <br><br>
+            Arrows: Move | C: Tactical | A: Action | W: Wait | I: Inventory | M: Spells | S: Search | L: Look | F: Toggle Fog
         </div>
     </div>
-    
-    <!-- Status bar below (full width) -->
-    <div class="status-bar">
-        <span>HP: <span id="playerHp">100</span>/<span id="playerMaxHp">100</span></span>
-        <span>MP: <span id="playerMp">50</span>/<span id="playerMaxMp">50</span></span>
-        <span>Lv: <span id="playerLevel">1</span></span>
-        <span>STR: <span id="statusStrength">10</span></span>
-        <span>Gold: <span id="playerGold">0</span></span>
-        <span>XP: <span id="playerXp">0</span>/<span id="playerXpNext">31</span></span>
-        <span class="map-indicator">Map: <span id="currentMapName">Overworld</span></span>
-    </div>
-    
-    <!-- Controls below -->
-    <div class="controls">
-        <button id="exportBtn">Export Save</button>
-        <button id="importBtn">Import Save</button>
-        <button id="newGameBtn">New Game</button>
-        <br><br>
-        Arrows: Move | C: Tactical | A: Action | W: Wait | I: Inventory | M: Spells | S: Search | L: Look | F: Toggle Fog
-    </div>
-</div>
 
+    <!-- Inventory Panel -->
     <div class="inventory-panel" id="inventoryPanel">
         <div class="inventory-header">INVENTORY & EQUIPMENT</div>
         
@@ -65,92 +66,91 @@
 
         <div class="inventory-section">
             <h3>Equipment</h3>
-            <div id="inventoryPanel" class="panel">
-    <h3>INVENTORY</h3>
-    
-    <!-- Stats section stays the same -->
-    <div class="equipment-grid">
-        <div class="equip-slot">
-            <span class="slot-label">WEAPON:</span>
-            <span id="weaponSlot" class="slot-empty">None</span>
-        </div>
-        <div class="equip-slot">
-            <span class="slot-label">OFFHAND:</span>
-            <span id="offhandSlot" class="slot-empty">None</span>
-        </div>
-        <div class="equip-slot">
-            <span class="slot-label">HELMET:</span>
-            <span id="helmetSlot" class="slot-empty">None</span>
-        </div>
-        <div class="equip-slot">
-            <span class="slot-label">ARMOR:</span>
-            <span id="armorSlot" class="slot-empty">None</span>
-        </div>
-        <div class="equip-slot">
-            <span class="slot-label">GLOVES:</span>
-            <span id="glovesSlot" class="slot-empty">None</span>
-        </div>
-        <div class="equip-slot">
-            <span class="slot-label">BOOTS:</span>
-            <span id="bootsSlot" class="slot-empty">None</span>
-        </div>
-        <div class="equip-slot">
-            <span class="slot-label">RING 1:</span>
-            <span id="ring1Slot" class="slot-empty">None</span>
-        </div>
-        <div class="equip-slot">
-            <span class="slot-label">RING 2:</span>
-            <span id="ring2Slot" class="slot-empty">None</span>
-        </div>
-    </div>
+            <div class="equipment-grid">
+                <div class="equip-slot">
+                    <span class="slot-label">WEAPON:</span>
+                    <span id="weaponSlot" class="slot-empty">None</span>
+                </div>
+                <div class="equip-slot">
+                    <span class="slot-label">OFFHAND:</span>
+                    <span id="offhandSlot" class="slot-empty">None</span>
+                </div>
+                <div class="equip-slot">
+                    <span class="slot-label">HELMET:</span>
+                    <span id="helmetSlot" class="slot-empty">None</span>
+                </div>
+                <div class="equip-slot">
+                    <span class="slot-label">ARMOR:</span>
+                    <span id="armorSlot" class="slot-empty">None</span>
+                </div>
+                <div class="equip-slot">
+                    <span class="slot-label">GLOVES:</span>
+                    <span id="glovesSlot" class="slot-empty">None</span>
+                </div>
+                <div class="equip-slot">
+                    <span class="slot-label">BOOTS:</span>
+                    <span id="bootsSlot" class="slot-empty">None</span>
+                </div>
+                <div class="equip-slot">
+                    <span class="slot-label">RING 1:</span>
+                    <span id="ring1Slot" class="slot-empty">None</span>
+                </div>
+                <div class="equip-slot">
+                    <span class="slot-label">RING 2:</span>
+                    <span id="ring2Slot" class="slot-empty">None</span>
+                </div>
+            </div>
         </div>
 
         <div class="inventory-close">Press I to close | Arrows: Select | E: Equip | U: Use | D: Drop</div>
     </div>
 
-    <div class="shop-panel" id="shopPanel">
-        <div class="shop-header">MERCHANT SHOP</div>
+    <!-- Shop Panel -->
+    <div id="shopPanel" class="shop-panel">
+        <div class="shop-header">
+            <h2>MERCHANT</h2>
+            <div>Gold: <span id="shopGold">0</span></div>
+        </div>
         
         <div class="shop-mode-buttons">
-            <button class="shop-mode-btn active" id="buyModeBtn">BUY</button>
-            <button class="shop-mode-btn" id="sellModeBtn">SELL</button>
+            <button id="shopBuyBtn" class="shop-mode-btn active" onclick="switchShopMode('buy')">BUY</button>
+            <button id="shopSellBtn" class="shop-mode-btn" onclick="switchShopMode('sell')">SELL</button>
         </div>
-
-        <div class="shop-items" id="shopItems">
-            <div class="slot-empty">Loading...</div>
-        </div>
-
-        <div class="shop-footer">
-            <div style="margin-bottom: 8px;">Your Gold: <span id="shopGold" style="color: #0f0;">0</span></div>
-            <div>Arrows: Select | Enter/A: Confirm | ESC: Close</div>
-        </div>
-    </div>
-
-    <div class="spell-panel" id="spellPanel">
-        <div class="spell-header">SPELLBOOK</div>
         
-        <div class="spell-list" id="spellList">
-            <div class="slot-empty">No spells learned</div>
+        <div id="shopItems" class="shop-items">
+            <!-- Items will be added here by JavaScript -->
         </div>
-
-        <div class="spell-footer">
-            <div style="margin-bottom: 8px;">MP: <span id="spellMp" style="color: #00f;">0</span>/<span id="spellMaxMp" style="color: #00f;">0</span></div>
-            <div>Arrows: Select | Enter/C: Cast | ESC/M: Close</div>
+        
+        <div class="shop-footer">
+            Arrow Keys: Select | Enter: Confirm | Escape: Close
         </div>
     </div>
 
-	
-	<script src="data.js?v=3"></script>
-	<script src="equipment.js"></script>
-	<script src="game.js?v=3"></script>
+    <!-- Spell Panel -->
+    <div id="spellPanel" class="spell-panel">
+        <div class="spell-header">
+            <h2>SPELLS</h2>
+            <div>MP: <span id="spellCurrentMp">0</span> / <span id="spellMaxMp">0</span></div>
+        </div>
+        
+        <div id="spellList" class="spell-list">
+            <!-- Spells will be added here by JavaScript -->
+        </div>
+        
+        <div class="spell-footer">
+            Arrow Keys: Select | Enter/C: Cast | Escape/M: Close
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="data.js?v=3"></script>
+    <script src="equipment.js"></script>
+    <script src="game.js?v=3"></script>
     
-	<script>
+    <script>
         // Start the game after loading LDtk
         initializeGameWithLDtk();
     </script>
-	
+
 </body>
-
 </html>
-
-
