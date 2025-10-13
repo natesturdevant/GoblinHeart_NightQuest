@@ -713,7 +713,7 @@ function renderWorld() {
         }
     });
     
-    // Render enemies
+    
     // Render enemies
 	gameState.enemies.forEach(enemy => {
     const viewX = enemy.x - camera.x;
@@ -742,160 +742,148 @@ function renderWorld() {
     }
     
     // RENDER FOG OF WAR
-    if (gameState.fogOfWarEnabled) {
-        const mapKey = gameState.currentMap;
-        const explored = gameState.exploredTiles[mapKey] || new Set();
-        const revealing = gameState.revealingTiles?.[mapKey] || new Map();
-        
-        for (let viewY = 0; viewY < VIEWPORT_HEIGHT; viewY++) {
-            for (let viewX = 0; viewX < VIEWPORT_WIDTH; viewX++) {
-                const worldX = viewX + camera.x;
-                const worldY = viewY + camera.y;
-                const key = `${worldX},${worldY}`;
-                
-                if (!explored.has(key)) {
-                    // Completely unexplored - solid black
-                    ctx.fillStyle = '#000000';
-                    ctx.fillRect(viewX * TILE_SIZE, viewY * TILE_SIZE, TILE_SIZE, TILE_SIZE);
-                } else if (revealing.has(key)) {
-                    // Currently revealing - fade in
-                    const data = revealing.get(key);
-                    const now = Date.now();
-                    
-                    if (now >= data.startTime) {
-                        const alpha = 1 - data.progress; // Fade from black (1) to clear (0)
-                        ctx.fillStyle = `rgba(0, 0, 0, ${alpha})`;
-                        ctx.fillRect(viewX * TILE_SIZE, viewY * TILE_SIZE, TILE_SIZE, TILE_SIZE);
-                    } else {
-                        // Not started yet - still black
-                        ctx.fillStyle = '#000000';
-                        ctx.fillRect(viewX * TILE_SIZE, viewY * TILE_SIZE, TILE_SIZE, TILE_SIZE);
-                    }
-                }
-                // else: fully revealed, draw nothing (tile is visible)
-            }
-        }
-    }
+    // RENDER FOG OF WAR
+	if (gameState.fogOfWarEnabled) {
+		const mapKey = gameState.currentMap;
+		// Explored tiles are permanent reveals (no more 'revealing' map needed)
+		const explored = gameState.exploredTiles[mapKey] || new Set(); 
+		const camera = getCameraPosition();
+
+		// Iterate over the viewport tiles
+		for (let viewY = 0; viewY < VIEWPORT_HEIGHT; viewY++) {
+			for (let viewX = 0; viewX < VIEWPORT_WIDTH; viewX++) {
+				const worldX = viewX + camera.x;
+				const worldY = viewY + camera.y;
+				const key = `${worldX},${worldY}`;
+				
+				// Only draw fog if the tile is on the map and has *not* been explored
+				// (We skip checking map bounds here, assuming the outer tile loop handles it)
+				if (!explored.has(key)) {
+					// Fully cover with black fog
+					ctx.fillStyle = '#000000';
+					ctx.fillRect(viewX * TILE_SIZE, viewY * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+				}
+			}
+		}
+	}
 }
 
-function updateExploration() {
-    if (!gameState.fogOfWarEnabled) return;
+/**
+ * Triggers a cascading reveal by setting a long, staggered timer for each distance tier.
+ * Only the setTimeout call is allowed to mark a tile as explored.
+ * @param {string[]} newTilesToReveal - An array of map keys (e.g., "15,20")
+ */
+function applyReveals(newTilesToReveal) {
+    if (newTilesToReveal.length === 0) return;
     
     const mapKey = gameState.currentMap;
+    
+    // 1. Group tiles by distance tier
+    const groupedByDistance = new Map();
+    newTilesToReveal.forEach(key => {
+        const [ax, ay] = key.split(',').map(Number);
+        
+        // Calculate the distance (rounded to the nearest whole tile for tiering)
+        const distance = Math.round(Math.hypot(ax - gameState.player.x, ay - gameState.player.y));
+        
+        if (!groupedByDistance.has(distance)) {
+            groupedByDistance.set(distance, []);
+        }
+        groupedByDistance.get(distance).push(key);
+    });
+    
+    // 2. Sort the distance tiers
+    const sortedDistances = Array.from(groupedByDistance.keys()).sort((a, b) => a - b);
+
+    let delay = 0;
+    // Set a very obvious delay, let's use 500ms (half a second) per tier for testing.
+    // Once this works, you can set it back to a lower value like 100 or 150.
+    const tierDelay = 500; 
+    
+    sortedDistances.forEach(distance => {
+        const tilesInTier = groupedByDistance.get(distance);
+
+        // Schedule the reveal for all tiles in this tier
+        setTimeout(() => {
+            if (gameState.currentMap !== mapKey) return; // Safety check
+            
+            // !!! KEY CHANGE: Mark tiles as explored HERE, when the timer fires !!!
+            tilesInTier.forEach(key => {
+                gameState.exploredTiles[mapKey].add(key);
+            });
+            
+            // Only call renderWorld() once per tier
+            renderWorld(); 
+        }, delay);
+        
+        // Increment the delay for the next, farther tier
+        delay += tierDelay;
+    });
+}
+
+/**
+ * Checks for tiles that *should* be revealed based on the circular radius.
+ * These tiles are NOT marked as explored yet, only queued for animation.
+ */
+function updateExploration() {
+    const mapKey = gameState.currentMap;
+    const mapData = maps[mapKey];
+
+    if (!mapData) return;
+    
     if (!gameState.exploredTiles[mapKey]) {
         gameState.exploredTiles[mapKey] = new Set();
     }
-    if (!gameState.revealingTiles) {
-        gameState.revealingTiles = {};
+    const explored = gameState.exploredTiles[mapKey];
+    const newTilesToReveal = [];
+    const radius = 5; // Fixed radius
+    
+    const mapWidth = mapData.tiles[0].length;
+    const mapHeight = mapData.tiles.length;
+    
+    // FOW Disabled Logic: Mark everything as explored and return
+    if (!gameState.fogOfWarEnabled) {
+         for (let y = 0; y < mapHeight; y++) {
+            for (let x = 0; x < mapWidth; x++) {
+                explored.add(`${x},${y}`);
+            }
+        }
+        return;
     }
-    if (!gameState.revealingTiles[mapKey]) {
-        gameState.revealingTiles[mapKey] = new Map();
-    }
-    
-    const radius = gameState.explorationRadius;
-    const px = gameState.player.x;
-    const py = gameState.player.y;
-    
-    const newlyRevealed = [];
-    
-    // Mark all tiles within radius as explored
-    for (let dy = -radius; dy <= radius; dy++) {
-        for (let dx = -radius; dx <= radius; dx++) {
-            const x = px + dx;
-            const y = py + dy;
-            const distance = Math.sqrt(dx * dx + dy * dy);
-            const key = `${x},${y}`;
+
+    // Iterate through a square region that encompasses the circle
+    for (let yOffset = -radius; yOffset <= radius; yOffset++) {
+        for (let xOffset = -radius; xOffset <= radius; xOffset++) {
             
-            if (distance <= radius && 
-                x >= 0 && x < gameState.world.width && 
-                y >= 0 && y < gameState.world.height) {
+            // Circular distance check
+            if (Math.hypot(xOffset, yOffset) > radius) {
+                continue; 
+            }
+            
+            const tileX = gameState.player.x + xOffset;
+            const tileY = gameState.player.y + yOffset;
+            const key = `${tileX},${tileY}`;
+
+            // Check map bounds
+            if (tileX >= 0 && tileX < mapWidth && tileY >= 0 && tileY < mapHeight) {
                 
-                // If not already explored, add to revealing animation
-                if (!gameState.exploredTiles[mapKey].has(key)) {
-                    newlyRevealed.push({ key, distance });
+                // If the tile is NOT explored, add it to the queue.
+                if (!explored.has(key)) {
+                    newTilesToReveal.push(key);
                 }
-                gameState.exploredTiles[mapKey].add(key);
+                
+                // !!! KEY CHANGE: DO NOT call explored.add(key) here !!!
+                // The tile will only be added to 'explored' inside the applyReveals setTimeout.
             }
         }
     }
     
-    // Add newly revealed tiles to animation queue with staggered timing
-    if (newlyRevealed.length > 0) {
-        newlyRevealed.forEach(({ key, distance }) => {
-            // Stagger based on distance from player (cascade effect)
-            const delay = distance * 30; // 30ms per tile of distance
-            gameState.revealingTiles[mapKey].set(key, {
-                progress: 0,
-                startTime: Date.now() + delay
-            });
-        });
-        
-        // Start animation loop if not already running
-        if (!gameState.revealAnimationRunning) {
-            gameState.revealAnimationRunning = true;
-            animateReveal();
-        }
+    // Pass only the new tiles to the cascade scheduler
+    if (newTilesToReveal.length > 0) {
+        applyReveals(newTilesToReveal);
     }
 }
 
-function animateReveal() {
-    if (!gameState.fogOfWarEnabled) {
-        gameState.revealAnimationRunning = false;
-        return;
-    }
-    
-    const mapKey = gameState.currentMap;
-    const revealing = gameState.revealingTiles[mapKey];
-    
-    if (!revealing || revealing.size === 0) {
-        gameState.revealAnimationRunning = false;
-        return;
-    }
-    
-    // THROTTLE: Only render every 50ms (20 FPS instead of 60)
-    const now = Date.now();
-    if (!gameState.lastRevealRender) gameState.lastRevealRender = 0;
-    const timeSinceLastRender = now - gameState.lastRevealRender;
-    
-    if (timeSinceLastRender < 50) { // 50ms = 20 FPS
-        // Skip this frame, but keep animating
-        requestAnimationFrame(animateReveal);
-        return;
-    }
-    
-    gameState.lastRevealRender = now;
-    let stillAnimating = false;
-    
-    // Update progress for all revealing tiles
-    revealing.forEach((data, key) => {
-        if (now >= data.startTime) {
-            const elapsed = now - data.startTime;
-            const duration = 200; // 200ms reveal duration
-            data.progress = Math.min(1, elapsed / duration);
-            
-            if (data.progress < 1) {
-                stillAnimating = true;
-            }
-        } else {
-            stillAnimating = true;
-        }
-    });
-    
-    // Remove completed animations
-    revealing.forEach((data, key) => {
-        if (data.progress >= 1) {
-            revealing.delete(key);
-        }
-    });
-    
-    renderWorld(); // Only renders at 20 FPS now
-    
-    if (stillAnimating) {
-        requestAnimationFrame(animateReveal);
-    } else {
-        gameState.revealAnimationRunning = false;
-    }
-}
 
 // ===== STATS & STATUS =====
 function calculateStats() {
