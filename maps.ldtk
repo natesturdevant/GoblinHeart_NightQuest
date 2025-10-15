@@ -1158,9 +1158,9 @@
 							"height": 16,
 							"defUid": 6,
 							"px": [240,80],
-							"fieldInstances": [{ "__identifier": "npc_type", "__type": "String", "__value": "merchant", "__tile": null, "defUid": 7, "realEditorValues": [{
+							"fieldInstances": [{ "__identifier": "npc_type", "__type": "String", "__value": "merchant_marcus", "__tile": null, "defUid": 7, "realEditorValues": [{
 								"id": "V_String",
-								"params": ["merchant"]
+								"params": ["merchant_marcus"]
 							}] }],
 							"__worldX": 240,
 							"__worldY": 80
@@ -1516,9 +1516,9 @@
 							"height": 16,
 							"defUid": 6,
 							"px": [128,16],
-							"fieldInstances": [{ "__identifier": "npc_type", "__type": "String", "__value": "elder", "__tile": null, "defUid": 7, "realEditorValues": [{
+							"fieldInstances": [{ "__identifier": "npc_type", "__type": "String", "__value": "elder_aldric", "__tile": null, "defUid": 7, "realEditorValues": [{
 								"id": "V_String",
-								"params": ["elder"]
+								"params": ["elder_aldric"]
 							}] }],
 							"__worldX": 646,
 							"__worldY": -240
@@ -1549,6 +1549,25 @@
 							],
 							"__worldX": 630,
 							"__worldY": -128
+						},
+						{
+							"__identifier": "NPC",
+							"__grid": [6,3],
+							"__pivot": [0,0],
+							"__tags": [],
+							"__tile": null,
+							"__smartColor": "#D77643",
+							"iid": "9c71c0a0-8560-11f0-9f39-ffa744b8ae1a",
+							"width": 16,
+							"height": 16,
+							"defUid": 6,
+							"px": [96,48],
+							"fieldInstances": [{ "__identifier": "npc_type", "__type": "String", "__value": "guard_sarah", "__tile": null, "defUid": 7, "realEditorValues": [{
+								"id": "V_String",
+								"params": ["guard_sarah"]
+							}] }],
+							"__worldX": 614,
+							"__worldY": -208
 						}
 					]
 				},

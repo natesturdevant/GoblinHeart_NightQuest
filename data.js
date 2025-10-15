@@ -100,7 +100,198 @@ const spritePatterns = {
     skeleton: [['0','0','W','W','W','W','0','0'],['0','W','0','W','W','0','W','0'],['0','W','W','W','W','W','W','0'],['0','0','W','W','W','W','0','0'],['0','0','W','0','0','W','0','0'],['0','W','W','W','W','W','W','0'],['0','W','0','0','0','0','W','0'],['W','0','0','0','0','0','0','W']].map(row => row.map(p => p === 'W' ? CGA.WHITE : '0')),
     slime: [['0','0','0','C','C','0','0','0'],['0','0','C','C','C','C','0','0'],['0','C','M','W','M','W','C','0'],['C','C','C','C','C','C','C','C'],['C','M','M','M','M','M','C','C'],['C','C','M','M','M','M','C','C'],['0','C','C','C','C','C','C','0'],['0','0','C','0','0','C','0','0']].map(row => row.map(p => { if (p === 'W') return CGA.WHITE; if (p === 'M') return CGA.MAGENTA; if (p === 'C') return CGA.CYAN; return '0'; })),
     lootbag: [['0','0','0','0','0','0','0','0'],['0','0','M','M','M','M','0','0'],['0','M','M','M','M','M','M','0'],['M','M','W','M','M','W','M','M'],['M','M','M','M','M','M','M','M'],['M','M','M','M','M','M','M','M'],['0','M','M','M','M','M','M','0'],['0','0','M','M','M','M','0','0']].map(row => row.map(p => { if (p === 'M') return CGA.MAGENTA; if (p === 'W') return CGA.WHITE; return '0'; })),
-    villager: [['0','0','0','W','W','0','0','0'],['0','0','W','C','C','W','0','0'],['0','0','W','C','C','W','0','0'],['0','0','W','W','W','W','0','0'],['0','0','W','C','W','C','0','0'],['0','0','C','C','C','C','0','0'],['0','0','C','0','0','C','0','0'],['0','C','C','0','0','C','C','0']].map(row => row.map(p => { if (p === 'W') return CGA.WHITE; if (p === 'C') return CGA.CYAN; return '0'; })),
+    // Add these to your spritePatterns object in data.js
+
+// VILLAGER VARIATIONS
+
+villager_female: [
+    ['0','0','0','M','M','0','0','0'],  // Magenta hair/headwrap
+    ['0','0','M','C','C','M','0','0'],
+    ['0','0','M','C','C','M','0','0'],
+    ['0','0','W','W','W','W','0','0'],
+    ['0','C','W','C','W','C','0','0'],  // Cyan dress
+    ['0','0','C','C','C','C','0','0'],
+    ['0','0','C','0','0','C','0','0'],
+    ['0','C','C','0','0','C','C','0']
+].map(row => row.map(p => { 
+    if (p === 'W') return CGA.WHITE; 
+    if (p === 'C') return CGA.CYAN; 
+    if (p === 'M') return CGA.MAGENTA;
+    return '0'; 
+})),
+
+villager_old: [
+    ['0','0','0','L','L','0','0','0'],  // Gray hair
+    ['0','0','L','C','C','L','0','0'],
+    ['0','0','L','C','C','L','0','0'],
+    ['0','0','L','L','L','L','0','0'],
+    ['0','W','L','W','L','W','0','0'],  // White/gray clothing
+    ['0','0','W','W','W','W','0','0'],
+    ['0','0','W','0','0','W','0','0'],
+    ['0','W','W','0','0','W','W','0']
+].map(row => row.map(p => { 
+    if (p === 'W') return CGA.WHITE; 
+    if (p === 'L') return CGA.LIGHTGRAY; 
+    if (p === 'C') return CGA.CYAN;
+    return '0'; 
+})),
+
+villager_child: [
+    ['0','0','0','0','0','0','0','0'],
+    ['0','0','W','W','W','W','0','0'],  // Smaller, lower on sprite
+    ['0','0','W','C','C','W','0','0'],  // Cyan eyes
+    ['0','0','W','C','C','W','0','0'],
+    ['0','0','W','W','W','W','0','0'],
+    ['0','0','M','W','W','M','0','0'],  // Magenta shirt
+    ['0','0','M','0','0','M','0','0'],
+    ['0','M','M','0','0','M','M','0']
+].map(row => row.map(p => { 
+    if (p === 'W') return CGA.WHITE; 
+    if (p === 'C') return CGA.CYAN;
+    if (p === 'M') return CGA.MAGENTA;
+    return '0'; 
+})),
+
+villager_worker: [
+    ['0','0','0','B','B','0','0','0'],  // Brown cap/hair
+    ['0','0','B','W','W','B','0','0'],
+    ['0','0','B','W','W','B','0','0'],
+    ['0','0','W','W','W','W','0','0'],
+    ['0','B','W','B','W','B','0','0'],  // Brown work clothes
+    ['0','0','B','B','B','B','0','0'],
+    ['0','0','B','0','0','B','0','0'],
+    ['0','B','B','0','0','B','B','0']
+].map(row => row.map(p => { 
+    if (p === 'W') return CGA.WHITE; 
+    if (p === 'B') return CGA.BROWN;
+    return '0'; 
+})),
+
+villager_wealthy: [
+    ['0','0','0','W','W','0','0','0'],  // White hair/hat
+    ['0','0','W','M','M','W','0','0'],
+    ['0','0','W','M','M','W','0','0'],
+    ['0','M','W','W','W','W','M','0'],  // Fancy magenta cloak
+    ['0','0','M','M','M','M','0','0'],
+    ['0','0','W','M','M','W','0','0'],  // White and magenta outfit
+    ['0','0','W','0','0','W','0','0'],
+    ['0','W','W','0','0','W','W','0']
+].map(row => row.map(p => { 
+    if (p === 'W') return CGA.WHITE; 
+    if (p === 'M') return CGA.MAGENTA;
+    return '0'; 
+})),
+
+villager_hooded: [
+    ['0','0','L','L','L','L','0','0'],  // Gray hood
+    ['0','L','L','L','L','L','L','0'],
+    ['0','L','0','C','C','0','L','0'],  // Eyes in shadow
+    ['0','L','L','L','L','L','L','0'],
+    ['0','0','L','L','L','L','0','0'],
+    ['0','0','L','L','L','L','0','0'],
+    ['0','0','L','0','0','L','0','0'],
+    ['0','L','L','0','0','L','L','0']
+].map(row => row.map(p => { 
+    if (p === 'L') return CGA.LIGHTGRAY; 
+    if (p === 'C') return CGA.CYAN;
+    return '0'; 
+})),
+
+villager_farmer: [
+    ['0','0','0','B','B','0','0','0'],  // Brown straw hat
+    ['0','B','B','B','B','B','B','0'],
+    ['0','0','B','W','W','B','0','0'],
+    ['0','0','W','W','W','W','0','0'],
+    ['0','C','W','C','W','C','0','0'],  // Cyan overalls
+    ['0','0','C','C','C','C','0','0'],
+    ['0','0','B','0','0','B','0','0'],  // Brown boots
+    ['0','B','B','0','0','B','B','0']
+].map(row => row.map(p => { 
+    if (p === 'W') return CGA.WHITE; 
+    if (p === 'C') return CGA.CYAN;
+    if (p === 'B') return CGA.BROWN;
+    return '0'; 
+})),
+
+villager_priest: [
+    ['0','0','0','W','W','0','0','0'],  // White hood
+    ['0','0','W','C','C','W','0','0'],
+    ['0','0','W','C','C','W','0','0'],
+    ['0','0','W','W','W','W','0','0'],
+    ['0','W','W','M','W','M','0','0'],  // White robes with magenta cross
+    ['0','0','W','W','W','W','0','0'],
+    ['0','0','W','0','0','W','0','0'],
+    ['0','W','W','0','0','W','W','0']
+].map(row => row.map(p => { 
+    if (p === 'W') return CGA.WHITE; 
+    if (p === 'C') return CGA.CYAN;
+    if (p === 'M') return CGA.MAGENTA;
+    return '0'; 
+})),
+
+villager_mage: [
+    ['0','0','M','M','M','M','0','0'],  // Pointed wizard hat
+    ['0','0','0','M','M','0','0','0'],
+    ['0','0','M','C','C','M','0','0'],  // Magenta hat, cyan eyes
+    ['0','0','M','M','M','M','0','0'],
+    ['0','M','M','W','W','M','0','0'],  // Magenta robes with white trim
+    ['0','0','M','M','M','M','0','0'],
+    ['0','0','M','0','0','M','0','0'],
+    ['0','M','M','0','0','M','M','0']
+].map(row => row.map(p => { 
+    if (p === 'W') return CGA.WHITE; 
+    if (p === 'C') return CGA.CYAN;
+    if (p === 'M') return CGA.MAGENTA;
+    return '0'; 
+})),
+
+villager_traveler: [
+    ['0','0','0','B','B','0','0','0'],  // Brown traveling hat
+    ['0','0','B','C','C','B','0','0'],
+    ['0','0','B','C','C','B','0','0'],
+    ['0','0','L','L','L','L','0','0'],  // Gray cloak
+    ['0','L','L','B','L','B','0','0'],  // Backpack straps
+    ['0','0','L','L','L','L','0','0'],
+    ['0','0','B','0','0','B','0','0'],
+    ['0','B','B','0','0','B','B','0']
+].map(row => row.map(p => { 
+    if (p === 'L') return CGA.LIGHTGRAY; 
+    if (p === 'C') return CGA.CYAN;
+    if (p === 'B') return CGA.BROWN;
+    return '0'; 
+})),
+
+villager_innkeeper: [
+    ['0','0','0','W','W','0','0','0'],  // White apron over head
+    ['0','0','W','M','M','W','0','0'],
+    ['0','0','W','M','M','W','0','0'],
+    ['0','W','W','W','W','W','W','0'],  // Big white apron
+    ['0','C','W','C','W','C','0','0'],  // Cyan clothes underneath
+    ['0','0','W','W','W','W','0','0'],
+    ['0','0','C','0','0','C','0','0'],
+    ['0','C','C','0','0','C','C','0']
+].map(row => row.map(p => { 
+    if (p === 'W') return CGA.WHITE; 
+    if (p === 'C') return CGA.CYAN;
+    if (p === 'M') return CGA.MAGENTA;
+    return '0'; 
+})),
+
+villager_blacksmith: [
+    ['0','0','0','L','L','0','0','0'],  // Gray from soot
+    ['0','0','L','W','W','L','0','0'],
+    ['0','0','L','W','W','L','0','0'],
+    ['0','B','L','L','L','L','B','0'],  // Brown leather apron
+    ['0','0','B','B','B','B','0','0'],
+    ['0','0','L','B','B','L','0','0'],  // Muscular arms
+    ['0','0','L','0','0','L','0','0'],
+    ['0','L','L','0','0','L','L','0']
+].map(row => row.map(p => { 
+    if (p === 'W') return CGA.WHITE; 
+    if (p === 'L') return CGA.LIGHTGRAY;
+    if (p === 'B') return CGA.BROWN;
+    return '0'; 
+})),
     merchant: [['0','0','0','W','W','0','0','0'],['0','0','W','M','M','W','0','0'],['0','0','W','M','M','W','0','0'],['0','0','W','W','W','W','0','0'],['0','M','W','M','W','M','W','0'],['0','0','M','M','M','M','0','0'],['0','0','M','0','0','M','0','0'],['0','M','M','0','0','M','M','0']].map(row => row.map(p => { if (p === 'W') return CGA.WHITE; if (p === 'M') return CGA.MAGENTA; return '0'; })),
     stairsdown: [['0','0','0','0','0','0','0','0'],['B','B','B','B','B','B','B','B'],['0','B','B','B','B','B','B','0'],['0','0','B','B','B','B','0','0'],['0','0','0','B','B','0','0','0'],['0','0','0','0','B','0','0','0'],['0','0','0','0','0','0','0','0'],['0','0','0','0','0','0','0','0']].map(row => row.map(p => p === 'B' ? CGA.BROWN : '0')),
     stairsup: [['0','0','0','0','0','0','0','0'],['0','0','0','0','B','0','0','0'],['0','0','0','B','B','0','0','0'],['0','0','B','B','B','B','0','0'],['0','B','B','B','B','B','B','0'],['B','B','B','B','B','B','B','B'],['0','0','0','0','0','0','0','0'],['0','0','0','0','0','0','0','0']].map(row => row.map(p => p === 'B' ? CGA.BROWN : '0')),

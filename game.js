@@ -60,6 +60,7 @@ let gameState = {
     enemies: [], 
     npcs: [],
     lootBags: [], 
+	flags: {},
     selectedItemIndex: -1, 
     collectedTreasures: {}, 
     inventoryOpen: false, 
@@ -371,19 +372,27 @@ function spawnEnemyAt(type, x, y) {
 }
 
 function spawnNPCAt(type, x, y) {
-    const npcTemplate = npcDatabase[type];
+    // Get NPC data from new dialogue system
+    const npcData = getNPCData(type);
+    
+    if (!npcData) {
+        console.error(`NPC "${type}" not found in dialogue database`);
+        console.log('Available NPCs:', Object.keys(dialogueDatabase));
+        return;
+    }
+    
     gameState.npcs.push({
         id: Math.random().toString(36).substr(2, 9),
-        type: type,
-        name: npcTemplate.name,
-        sprite: npcTemplate.sprite,
+        type: type,  // This is the unique NPC ID we look up in dialogueDatabase
+        name: npcData.name,
+        sprite: npcData.sprite,
         x: x,
-        y: y,
-        dialogue: npcTemplate.dialogue
+        y: y
+        // No more dialogue stored here - we look it up dynamically!
     });
 }
 
-// Add these functions after the spawnNPCAt function in game.js:
+
 
 function spawnEncounter(encounterType, centerX, centerY) {
     const encounter = encounterTypes[encounterType];
@@ -1146,23 +1155,25 @@ function performAction() {
     });
     
     if (adjacentNPC) {
-        const npcTemplate = npcDatabase[adjacentNPC.type];
-        if (npcTemplate.isShopkeeper) {
-            openShop(adjacentNPC.type);
-            return;
-        }
-        
-        let selectedDialogue = adjacentNPC.dialogue[0].text;
-        for (let i = adjacentNPC.dialogue.length - 1; i >= 0; i--) {
-            const dialogueOption = adjacentNPC.dialogue[i];
-            if (!dialogueOption.condition || dialogueOption.condition(gameState)) {
-                selectedDialogue = dialogueOption.text;
-                break;
-            }
-        }
-        addMessage(`${adjacentNPC.name}: "${selectedDialogue}"`);
+    const npcData = getNPCData(adjacentNPC.type);
+    
+    // Handle shopkeepers
+    if (npcData && npcData.isShopkeeper) {
+        openShop(adjacentNPC.type);
         return;
     }
+    
+    // Get appropriate dialogue based on game state
+    const dialogue = getDialogue(adjacentNPC.type, gameState);
+    
+    if (dialogue) {
+        addMessage(`${adjacentNPC.name}: "${dialogue.text}"`);
+    } else {
+        addMessage(`${adjacentNPC.name}: "..."`);
+    }
+    
+    return;
+}
     
     addMessage("Nothing here.");
 }
@@ -2507,6 +2518,7 @@ function newGame() {
             enemies: [], 
             npcs: [],
             lootBags: [], 
+			flags: {},
             selectedItemIndex: -1, 
             collectedTreasures: {}, 
             inventoryOpen: false, 
