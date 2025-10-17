@@ -19,13 +19,6 @@ const BALANCE_KNOBS = {
 };
 
 
-/* function loadJournalImage(id, path) {
-    const img = new Image();
-    img.src = path;
-    journalImages[id] = img;
-    return img;
-} */
-
 function loadJournalImage(id, path) {
     const img = new Image();
     img.onload = () => {
@@ -42,7 +35,7 @@ function loadJournalImage(id, path) {
 // Load your journal images
 loadJournalImage('goblin_full', 'journal-images/goblin.png');
 loadJournalImage('video_store', 'journal-images/video_store.png');
-//loadJournalImage('dungeon_entrance', 'journal-images/dungeon.png');
+
 // etc.
 
 
@@ -292,9 +285,9 @@ function initGame() {
     renderWorld();
 	updateExploration()
     updateStatus();
-    addMessage("Your quest begins!");
+    addMessage("Mansfield, Ohio. 1985.");
     addMessage("BUMP enemies or use TACTICAL mode (C)!");
-    addMessage("Press M to open spellbook!");
+    addMessage("Another in a long string of days.");
     
     addJournalEntry('First Blood', [
         { type: 'text', content: 'Encountered a fearsome goblin. Barely escaped!' },
@@ -345,7 +338,7 @@ function loadMap(mapName) {
     document.getElementById('currentMapName').textContent = mapData.name;
 }
 
-function checkTransition() {
+/* function checkTransition() {
     const key = `${gameState.player.x},${gameState.player.y}`;
     const trans = mapTransitions[gameState.currentMap];
     if (trans && trans[key]) {
@@ -359,6 +352,32 @@ function checkTransition() {
         renderWorld();
 		updateExploration()
         updateStatus();
+    }
+} */
+
+function checkTransition() {
+    const key = `${gameState.player.x},${gameState.player.y}`;
+    const trans = mapTransitions[gameState.currentMap];
+    if (trans && trans[key]) {
+        const t = trans[key];
+        
+        // Fade out before transition
+        fadeToBlack(() => {
+            addMessage("===================");
+            addMessage(t.message);
+            addMessage("===================");
+            loadMap(t.map);
+            gameState.player.x = t.x;
+            gameState.player.y = t.y;
+            
+            // Fade in after transition
+            setTimeout(() => {
+                clearFade();
+                renderWorld();
+                updateExploration();
+                updateStatus();
+            }, 150);
+        });
     }
 }
 
@@ -678,6 +697,175 @@ function getCameraPosition() {
 	
     return { x: camX, y: camY };
 }
+
+// ===== FADE EFFECTS =====
+// Add these functions to game.js
+
+/**
+ * Fade effect that progressively covers tiles in a color
+ * @param {string} color - CGA color name: 'BLACK', 'WHITE', 'CYAN', 'MAGENTA'
+ * @param {boolean} inward - true = fade to player, false = fade from player
+ * @param {number} speed - milliseconds between tiers (default 100)
+ * @param {function} callback - optional callback when fade completes
+ */
+function fadeEffect(color = 'BLACK', inward = true, speed = 100, callback = null) {
+    const mapKey = gameState.currentMap;
+    const mapData = maps[mapKey];
+    if (!mapData) return;
+    
+    // Lock player input during fade
+    gameState.fadeInProgress = true;
+    
+    const fadeColor = CGA[color] || CGA.BLACK;
+    
+    // Create temporary fade overlay storage
+    if (!gameState.fadeOverlay) {
+        gameState.fadeOverlay = {};
+    }
+    gameState.fadeOverlay[mapKey] = new Set();
+    
+    // Get camera bounds
+    const camera = getCameraPosition();
+    const viewMinX = camera.x;
+    const viewMinY = camera.y;
+    const viewMaxX = camera.x + VIEWPORT_WIDTH;
+    const viewMaxY = camera.y + VIEWPORT_HEIGHT;
+    
+    // Group ONLY VISIBLE tiles by distance from player
+    const groupedByDistance = new Map();
+    
+    for (let y = viewMinY; y < viewMaxY; y++) {
+        for (let x = viewMinX; x < viewMaxX; x++) {
+            // Make sure we're within map bounds
+            if (x >= 0 && x < mapData.tiles[0].length && 
+                y >= 0 && y < mapData.tiles.length) {
+                
+                const key = `${x},${y}`;
+                const distance = Math.round(Math.hypot(x - gameState.player.x, y - gameState.player.y));
+                
+                if (!groupedByDistance.has(distance)) {
+                    groupedByDistance.set(distance, []);
+                }
+                groupedByDistance.get(distance).push(key);
+            }
+        }
+    }
+    
+    // Sort distances
+    const sortedDistances = Array.from(groupedByDistance.keys()).sort((a, b) => 
+        inward ? b - a : a - b  // Reverse order if fading inward
+    );
+    
+    let delay = 0;
+    
+    sortedDistances.forEach(distance => {
+        const tilesInTier = groupedByDistance.get(distance);
+        
+        setTimeout(() => {
+            if (gameState.currentMap !== mapKey) return;
+            
+            // Add tiles to fade overlay
+            tilesInTier.forEach(key => {
+                gameState.fadeOverlay[mapKey].add(key);
+            });
+            
+            // Render with fade overlay
+            renderWorldWithFade(fadeColor);
+            
+            // If this is the last tier, call callback
+            if (distance === sortedDistances[sortedDistances.length - 1]) {
+                if (callback) {
+                    setTimeout(() => {
+                        callback();
+                        // Unlock player input after callback completes
+                        gameState.fadeInProgress = false;
+                    }, speed);
+                } else {
+                    // No callback, unlock immediately after last tier
+                    setTimeout(() => {
+                        gameState.fadeInProgress = false;
+                    }, speed);
+                }
+            }
+        }, delay);
+        
+        delay += speed;
+    });
+}
+
+/**
+ * Clear the fade overlay
+ */
+function clearFade() {
+    if (gameState.fadeOverlay) {
+        gameState.fadeOverlay[gameState.currentMap] = new Set();
+    }
+    gameState.fadeInProgress = false; // Unlock when manually clearing
+    renderWorld();
+}
+
+/**
+ * Render world with fade overlay applied
+ */
+function renderWorldWithFade(fadeColor) {
+    // Call normal render first
+    renderWorld();
+    
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const camera = getCameraPosition();
+    const mapKey = gameState.currentMap;
+    
+    if (!gameState.fadeOverlay || !gameState.fadeOverlay[mapKey]) return;
+    
+    const fadedTiles = gameState.fadeOverlay[mapKey];
+    
+    // Draw fade overlay
+    for (let viewY = 0; viewY < VIEWPORT_HEIGHT; viewY++) {
+        for (let viewX = 0; viewX < VIEWPORT_WIDTH; viewX++) {
+            const worldX = viewX + camera.x;
+            const worldY = viewY + camera.y;
+            const key = `${worldX},${worldY}`;
+            
+            if (fadedTiles.has(key)) {
+                ctx.fillStyle = fadeColor;
+                ctx.fillRect(viewX * TILE_SIZE, viewY * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+            }
+        }
+    }
+}
+
+/**
+ * Convenience functions for common fades
+ */
+function fadeToBlack(callback) {
+    fadeEffect('BLACK', true, 80, callback);
+}
+
+function fadeFromBlack(callback) {
+    fadeEffect('BLACK', false, 80, callback);
+}
+
+function fadeToWhite(callback) {
+    fadeEffect('WHITE', true, 80, callback);
+}
+
+function fadeFromWhite(callback) {
+    fadeEffect('WHITE', false, 80, callback);
+}
+
+/**
+ * Fade out then fade in (useful for transitions)
+ */
+function fadeOutIn(color = 'BLACK', callback = null) {
+    fadeEffect(color, true, 80, () => {
+        setTimeout(() => {
+            clearFade();
+            if (callback) callback();
+        }, 200);
+    });
+}
+
 
 function renderWorld() {
 	
@@ -1026,7 +1214,7 @@ function movePlayer(dx, dy) {
 	const key = `${newX},${newY}`;
 	const locs = specialLocations[gameState.currentMap];
 	
-	
+	if (gameState.fadeInProgress) return;
 	
 	
 	if (locs && locs[key]) {
@@ -1244,7 +1432,7 @@ function lookAround() {
     } else if (gameState.currentMap === 'town') {
         addMessage("Haven Village - a peaceful settlement. Cottages line the streets, smoke rises from chimneys. The townsfolk go about their daily lives. A safe haven from the dangers beyond.");
     }
-	else if (gameState.currentMap === 'Video_Store') {
+	/* else if (gameState.currentMap === 'Video_Store') {
 		addMessage("Aisles and aisles of sweet sweet VHS");
 		addMessage("Horror, sci-fi, classics, and much more.");
 		addMessage("You wonder how many you have seen...");
@@ -1254,7 +1442,24 @@ function lookAround() {
         { type: 'image', imageId: 'video_store', width: 100, height: 100 },
         { type: 'text', content: "Plus I get to use the lamination machine whenever I want! Which isn't as often as you might think but it's enough." }
 		]);
-	}
+	} */
+	else if (gameState.currentMap === 'Video_Store') {
+    addMessage("Aisles and aisles of sweet sweet VHS");
+    addMessage("Horror, sci-fi, classics, and much more.");
+    addMessage("You wonder how many you have seen...");
+    
+    // Only add journal entry if it doesn't exist
+    const entryAdded = addJournalEntry('The Video Store', [
+        { type: 'text', content: "It's my kind of place. You can really smell the atmosphere." },
+        { type: 'image', imageId: 'video_store', width: 100, height: 100 },
+        { type: 'text', content: "Plus I get to use the lamination machine whenever I want! Which isn't as often as you might think but it's enough." }
+    ]);
+    
+    // Only show "Journal updated..." if we actually added it
+    if (entryAdded) {
+        addMessage("Journal updated...");
+    }
+}
 }
 
 // ===== COMBAT =====
@@ -2215,13 +2420,52 @@ function castDirectionalSpell(dx, dy) {
 }  */
 
 // ===== JOURNAL =====
-function addJournalEntry(title, blocks) {
+/* function addJournalEntry(title, blocks) {
     // blocks format: [{ type: 'text', content: '...' }, { type: 'image', sprite: 'goblin', width: 2, height: 2 }]
     gameState.journal.entries.push({
         title: title,
         timestamp: Date.now(),
         blocks: blocks
     });
+} */
+
+// ===== JOURNAL ENTRY FIX =====
+// Replace your existing addJournalEntry function with this one:
+
+/**
+ * Add journal entry only if it doesn't already exist
+ * @param {string} title - Entry title
+ * @param {array} blocks - Array of content blocks
+ * @returns {boolean} - true if added, false if duplicate
+ */
+function addJournalEntry(title, blocks) {
+    // Check if entry with this title already exists
+    const existingEntry = gameState.journal.entries.find(entry => entry.title === title);
+    
+    if (existingEntry) {
+        // Entry already exists, don't add duplicate
+        console.log(`Journal entry "${title}" already exists, skipping duplicate`);
+        return false;
+    }
+    
+    // Add new entry
+    gameState.journal.entries.push({
+        title: title,
+        timestamp: Date.now(),
+        blocks: blocks
+    });
+    
+    console.log(`Added journal entry: "${title}"`);
+    return true;
+}
+
+/**
+ * Check if journal entry exists (helper function)
+ * @param {string} title - Entry title to check
+ * @returns {boolean} - true if exists
+ */
+function hasJournalEntry(title) {
+    return gameState.journal.entries.some(entry => entry.title === title);
 }
 
 function toggleJournal() {
@@ -2308,7 +2552,7 @@ function renderJournal() {
     
     // Title
     ctx.fillStyle = '#000';
-    ctx.font = '10px "Press Start 2P"';
+    ctx.font = '12px "Press Start 2P"';
     ctx.textAlign = 'left';
     ctx.fillText(entry.title, contentX, contentY);
     contentY += 20;
@@ -2543,13 +2787,13 @@ function newGame() {
             },
             equipment: { 
 				weapon: null, 
-				offhand: null,    // NEW
-				helmet: null,     // NEW
+				offhand: null,    
+				helmet: null,     
 				armor: null, 
-				gloves: null,     // NEW
-				boots: null,      // NEW
-				ring1: null,      // NEW
-				ring2: null       // RENAMED from accessory
+				gloves: null,     
+				boots: null,    
+				ring1: null,     
+				ring2: null      
 			},
             combat: { inCombat: false, turnCount: 0 },
             spellCasting: { active: false, selectedSpellIndex: 0, pendingSpell: null },
@@ -2580,7 +2824,13 @@ function newGame() {
 
 // ===== EVENT HANDLERS =====
 document.addEventListener('keydown', function(e) {
-    // ===== BALANCE KNOBS - ALWAYS CHECK FIRST =====
+	
+	if (gameState.fadeInProgress) {
+        e.preventDefault();
+        return;
+    }
+	
+    // ===== BALANCE KNOBS =====
     if (e.shiftKey && e.code === 'Digit1') {
         e.preventDefault();
         BALANCE_KNOBS.enemyDamageMultiplier = Math.round((BALANCE_KNOBS.enemyDamageMultiplier + 0.1) * 10) / 10;
@@ -2743,12 +2993,6 @@ document.addEventListener('keydown', function(e) {
             break;
     }
 });
-
-/* document.getElementById('exportBtn').addEventListener('click', exportSave);
-document.getElementById('importBtn').addEventListener('click', importSave);
-document.getElementById('newGameBtn').addEventListener('click', newGame);
-document.getElementById('buyModeBtn').addEventListener('click', () => switchShopMode('buy'));
-document.getElementById('sellModeBtn').addEventListener('click', () => switchShopMode('sell')); */
 
 const exportBtn = document.getElementById('exportBtn');
 if (exportBtn) exportBtn.addEventListener('click', exportSave);
