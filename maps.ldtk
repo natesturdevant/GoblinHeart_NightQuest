@@ -11,7 +11,7 @@
 	"iid": "e950ec60-8560-11f0-84ce-89b2d14cf2b8",
 	"jsonVersion": "1.5.3",
 	"appBuildId": 473703,
-	"nextUid": 29,
+	"nextUid": 30,
 	"identifierStyle": "Capitalize",
 	"toc": [],
 	"worldLayout": "Free",
@@ -1191,6 +1191,33 @@
 							],
 							"__worldX": 208,
 							"__worldY": 80
+						},
+						{
+							"__identifier": "Transition",
+							"__grid": [18,5],
+							"__pivot": [0,0],
+							"__tags": [],
+							"__tile": null,
+							"__smartColor": "#EAD4AA",
+							"iid": "3b7e0440-8560-11f0-9f39-2163f82559d0",
+							"width": 16,
+							"height": 16,
+							"defUid": 8,
+							"px": [288,80],
+							"fieldInstances": [
+								{ "__identifier": "to_map", "__type": "String", "__value": "Video_Store", "__tile": null, "defUid": 9, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["Video_Store"]
+								}] },
+								{ "__identifier": "to_x", "__type": "Int", "__value": 6, "__tile": null, "defUid": 10, "realEditorValues": [{ "id": "V_Int", "params": [6] }] },
+								{ "__identifier": "to_y", "__type": "Int", "__value": 12, "__tile": null, "defUid": 11, "realEditorValues": [{ "id": "V_Int", "params": [12] }] },
+								{ "__identifier": "message", "__type": "String", "__value": "You open the door to the video store.", "__tile": null, "defUid": 12, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["You open the door to the video store."]
+								}] }
+							],
+							"__worldX": 288,
+							"__worldY": 80
 						}
 					]
 				},
@@ -1549,25 +1576,6 @@
 							],
 							"__worldX": 630,
 							"__worldY": -128
-						},
-						{
-							"__identifier": "NPC",
-							"__grid": [6,3],
-							"__pivot": [0,0],
-							"__tags": [],
-							"__tile": null,
-							"__smartColor": "#D77643",
-							"iid": "9c71c0a0-8560-11f0-9f39-ffa744b8ae1a",
-							"width": 16,
-							"height": 16,
-							"defUid": 6,
-							"px": [96,48],
-							"fieldInstances": [{ "__identifier": "npc_type", "__type": "String", "__value": "guard_sarah", "__tile": null, "defUid": 7, "realEditorValues": [{
-								"id": "V_String",
-								"params": ["guard_sarah"]
-							}] }],
-							"__worldX": 614,
-							"__worldY": -208
 						}
 					]
 				},
@@ -1590,11 +1598,11 @@
 					"visible": true,
 					"optionalRules": [],
 					"intGridCsv": [
-						0,0,0,0,0,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,2,0,0,0,0,0,0,0,0,0,
-						0,0,2,13,0,0,2,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,2,
-						13,0,0,2,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,
-						2,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,2,2,5,2,2,0,0,
-						0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+						0,0,0,0,0,2,2,2,2,2,2,2,2,2,2,2,0,0,0,0,0,2,22,0,0,20,8,0,0,0,22,2,0,0,0,
+						0,0,2,0,0,24,24,24,24,24,24,24,2,0,0,0,0,0,2,0,0,0,0,0,0,13,0,13,2,0,0,0,0,0,2,
+						0,0,0,0,11,11,11,11,11,2,0,0,0,0,0,2,0,0,0,0,0,0,0,0,24,2,0,0,0,0,0,2,0,0,0,
+						0,11,11,11,11,11,2,0,0,0,0,0,2,0,0,0,0,0,0,13,0,13,2,0,0,0,0,0,2,2,5,2,2,2,2,
+						2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 						0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 						0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 						0,0,0,0,0,0,0,0,0,0,0
@@ -1607,6 +1615,122 @@
 				}
 			],
 			"__neighbours": [{ "levelIid": "e951d6c0-8560-11f0-84ce-0d4226b0a931", "dir": "s" }]
+		},
+		{
+			"identifier": "Video_Store",
+			"iid": "d7844c10-8560-11f0-9f39-cf834b3e4dee",
+			"uid": 29,
+			"worldX": 801,
+			"worldY": -314,
+			"worldDepth": 0,
+			"pxWid": 256,
+			"pxHei": 256,
+			"__bgColor": "#696A79",
+			"bgColor": null,
+			"useAutoIdentifier": false,
+			"bgRelPath": null,
+			"bgPos": null,
+			"bgPivotX": 0.5,
+			"bgPivotY": 0.5,
+			"__smartColor": "#ADADB5",
+			"__bgPos": null,
+			"externalRelPath": null,
+			"fieldInstances": [
+				{ "__identifier": "spawnRate", "__type": "Float", "__value": 0, "__tile": null, "defUid": 23, "realEditorValues": [{ "id": "V_Float", "params": [0] }] },
+				{ "__identifier": "spawnTypes", "__type": "Array<String>", "__value": [], "__tile": null, "defUid": 24, "realEditorValues": [] },
+				{ "__identifier": "spawnWeights", "__type": "Array<Float>", "__value": [], "__tile": null, "defUid": 25, "realEditorValues": [] },
+				{ "__identifier": "maxEnemies", "__type": "Int", "__value": 8, "__tile": null, "defUid": 26, "realEditorValues": [] }
+			],
+			"layerInstances": [
+				{
+					"__identifier": "Entities",
+					"__type": "Entities",
+					"__cWid": 16,
+					"__cHei": 16,
+					"__gridSize": 16,
+					"__opacity": 1,
+					"__pxTotalOffsetX": 0,
+					"__pxTotalOffsetY": 0,
+					"__tilesetDefUid": null,
+					"__tilesetRelPath": null,
+					"iid": "d7847320-8560-11f0-9f39-993ed14d4fb3",
+					"levelId": 29,
+					"layerDefUid": 2,
+					"pxOffsetX": 0,
+					"pxOffsetY": 0,
+					"visible": true,
+					"optionalRules": [],
+					"intGridCsv": [],
+					"autoLayerTiles": [],
+					"seed": 4692954,
+					"overrideTilesetUid": null,
+					"gridTiles": [],
+					"entityInstances": [
+						{
+							"__identifier": "Transition",
+							"__grid": [6,13],
+							"__pivot": [0,0],
+							"__tags": [],
+							"__tile": null,
+							"__smartColor": "#EAD4AA",
+							"iid": "862f4350-8560-11f0-9f39-9fecdd9b67ae",
+							"width": 16,
+							"height": 16,
+							"defUid": 8,
+							"px": [107,220],
+							"fieldInstances": [
+								{ "__identifier": "to_map", "__type": "String", "__value": "Overworld", "__tile": null, "defUid": 9, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["Overworld"]
+								}] },
+								{ "__identifier": "to_x", "__type": "Int", "__value": 18, "__tile": null, "defUid": 10, "realEditorValues": [{ "id": "V_Int", "params": [18] }] },
+								{ "__identifier": "to_y", "__type": "Int", "__value": 5, "__tile": null, "defUid": 11, "realEditorValues": [{ "id": "V_Int", "params": [5] }] },
+								{ "__identifier": "message", "__type": "String", "__value": "You step out into the street.", "__tile": null, "defUid": 12, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["You step out into the street."]
+								}] }
+							],
+							"__worldX": 908,
+							"__worldY": -94
+						}
+					]
+				},
+				{
+					"__identifier": "Tiles",
+					"__type": "IntGrid",
+					"__cWid": 16,
+					"__cHei": 16,
+					"__gridSize": 16,
+					"__opacity": 1,
+					"__pxTotalOffsetX": 0,
+					"__pxTotalOffsetY": 0,
+					"__tilesetDefUid": null,
+					"__tilesetRelPath": null,
+					"iid": "d7847321-8560-11f0-9f39-99e4982fd76c",
+					"levelId": 29,
+					"layerDefUid": 1,
+					"pxOffsetX": 0,
+					"pxOffsetY": 0,
+					"visible": true,
+					"optionalRules": [],
+					"intGridCsv": [
+						0,0,2,2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,23,22,0,0,0,8,0,0,22,23,0,0,0,0,0,0,23,
+						16,0,16,16,16,16,16,16,23,0,0,0,0,0,0,23,0,0,11,11,11,11,11,11,23,0,0,0,0,0,0,23,0,0,0,
+						0,0,0,0,0,23,0,0,0,0,0,0,23,2,2,0,0,2,2,2,0,23,0,0,0,0,0,0,23,11,11,0,0,11,11,
+						11,0,23,0,0,0,0,0,0,23,2,2,0,0,2,2,2,0,23,0,0,0,0,0,0,23,11,11,0,0,11,11,11,0,23,
+						0,0,0,0,0,0,23,0,0,0,0,0,0,0,17,23,0,0,0,0,0,0,2,2,2,0,0,0,2,2,2,2,0,0,0,
+						0,0,0,0,2,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,2,0,0,0,0,0,0,0,
+						0,2,12,2,5,2,12,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+						0,0,0,0,0,0,0,0,0,0,0
+					],
+					"autoLayerTiles": [],
+					"seed": 613023,
+					"overrideTilesetUid": null,
+					"gridTiles": [],
+					"entityInstances": []
+				}
+			],
+			"__neighbours": []
 		}
 	],
 	"worlds": [],

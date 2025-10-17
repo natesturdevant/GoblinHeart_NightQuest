@@ -19,8 +19,21 @@ const BALANCE_KNOBS = {
 };
 
 
+/* function loadJournalImage(id, path) {
+    const img = new Image();
+    img.src = path;
+    journalImages[id] = img;
+    return img;
+} */
+
 function loadJournalImage(id, path) {
     const img = new Image();
+    img.onload = () => {
+        console.log(`✓ Loaded journal image: ${id} from ${path}`);
+    };
+    img.onerror = () => {
+        console.error(`✗ FAILED to load journal image: ${id} from ${path}`);
+    };
     img.src = path;
     journalImages[id] = img;
     return img;
@@ -28,6 +41,7 @@ function loadJournalImage(id, path) {
 
 // Load your journal images
 loadJournalImage('goblin_full', 'journal-images/goblin.png');
+loadJournalImage('video_store', 'journal-images/video_store.png');
 //loadJournalImage('dungeon_entrance', 'journal-images/dungeon.png');
 // etc.
 
@@ -666,6 +680,14 @@ function getCameraPosition() {
 }
 
 function renderWorld() {
+	
+	//ctx.imageSmoothingEnabled = false;
+   // ctx.webkitImageSmoothingEnabled = false;
+    //ctx.mozImageSmoothingEnabled = false;
+   // ctx.msImageSmoothingEnabled = false;
+   
+   
+	
     if (gameState.viewMode === 'journal') {
         renderJournal();
         return;
@@ -1222,6 +1244,17 @@ function lookAround() {
     } else if (gameState.currentMap === 'town') {
         addMessage("Haven Village - a peaceful settlement. Cottages line the streets, smoke rises from chimneys. The townsfolk go about their daily lives. A safe haven from the dangers beyond.");
     }
+	else if (gameState.currentMap === 'Video_Store') {
+		addMessage("Aisles and aisles of sweet sweet VHS");
+		addMessage("Horror, sci-fi, classics, and much more.");
+		addMessage("You wonder how many you have seen...");
+		addMessage("Journal updated...");
+		addJournalEntry('The Video Store', [
+        { type: 'text', content: "It's my kind of place. You can really smell the atmosphere." },
+        { type: 'image', imageId: 'video_store', width: 100, height: 100 },
+        { type: 'text', content: "Plus I get to use the lamination machine whenever I want! Which isn't as often as you might think but it's enough." }
+		]);
+	}
 }
 
 // ===== COMBAT =====
@@ -2228,6 +2261,11 @@ function renderJournal() {
     // Clear and draw dimmed background
     //ctx.fillStyle = '#001100';
     //ctx.fillRect(0, 0, canvas.width, canvas.height);
+	
+	ctx.imageSmoothingEnabled = false;
+    ctx.webkitImageSmoothingEnabled = false;
+    ctx.mozImageSmoothingEnabled = false;
+    ctx.msImageSmoothingEnabled = false;
     
     // Journal dimensions (in tiles)
     const jx = 2, jy = 1, jw = 16, jh = 13;
