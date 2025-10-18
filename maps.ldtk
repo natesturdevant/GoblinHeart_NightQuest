@@ -11,7 +11,7 @@
 	"iid": "e950ec60-8560-11f0-84ce-89b2d14cf2b8",
 	"jsonVersion": "1.5.3",
 	"appBuildId": 473703,
-	"nextUid": 31,
+	"nextUid": 32,
 	"identifierStyle": "Capitalize",
 	"toc": [],
 	"worldLayout": "Free",
@@ -804,7 +804,7 @@
 				}
 			]
 		}
-	], "tilesets": [], "enums": [], "externalEnums": [], "levelFields": [
+	], "tilesets": [], "enums": [{ "identifier": "Npc_type", "uid": 31, "values": [{ "id": "Enum0", "tileRect": null, "color": 12470831 }], "iconTilesetUid": null, "externalRelPath": null, "externalFileChecksum": null, "tags": [] }], "externalEnums": [], "levelFields": [
 		{
 			"identifier": "spawnRate",
 			"doc": null,
@@ -1808,7 +1808,24 @@
 					"seed": 4170168,
 					"overrideTilesetUid": null,
 					"gridTiles": [],
-					"entityInstances": []
+					"entityInstances": [
+						{
+							"__identifier": "NPC",
+							"__grid": [6,1],
+							"__pivot": [0,0],
+							"__tags": [],
+							"__tile": null,
+							"__smartColor": "#D77643",
+							"iid": "c2a23840-8560-11f0-9f39-2fce4c6ad97f",
+							"width": 16,
+							"height": 16,
+							"defUid": 6,
+							"px": [96,17],
+							"fieldInstances": [{ "__identifier": "npc_type", "__type": "String", "__value": null, "__tile": null, "defUid": 7, "realEditorValues": [] }],
+							"__worldX": 514,
+							"__worldY": -1293
+						}
+					]
 				},
 				{
 					"__identifier": "Tiles",
