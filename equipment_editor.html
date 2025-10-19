@@ -1,0 +1,1379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Goblinheart Equipment Editor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; }
+        
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: 'Press Start 2P', monospace;
+            background-color: #000;
+            color: #0f0;
+            font-size: 10px;
+            line-height: 1.6;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #0ff;
+            font-size: 16px;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 0 #055;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 20px;
+        }
+        
+        .panel {
+            background-color: #001;
+            border: 2px solid #0f0;
+            padding: 15px;
+        }
+        
+        .panel h2 {
+            font-size: 11px;
+            color: #0ff;
+            margin: 0 0 15px 0;
+            border-bottom: 1px solid #0f0;
+            padding-bottom: 8px;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 8px;
+            background-color: #002;
+            border: 2px solid #050;
+            cursor: pointer;
+            font-size: 7px;
+            text-align: center;
+            color: #0a0;
+        }
+        
+        .tab:hover {
+            background-color: #003;
+            border-color: #0a0;
+        }
+        
+        .tab.active {
+            background-color: #004;
+            border-color: #0ff;
+            color: #0ff;
+        }
+        
+        .item-list {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .list-item {
+            padding: 8px;
+            margin: 5px 0;
+            background-color: #002;
+            border: 1px solid #050;
+            cursor: pointer;
+            font-size: 8px;
+        }
+        
+        .list-item:hover {
+            background-color: #003;
+            border-color: #0a0;
+        }
+        
+        .list-item.selected {
+            background-color: #004;
+            border: 2px solid #0ff;
+        }
+        
+        .button {
+            background-color: #003;
+            color: #0f0;
+            border: 2px solid #0f0;
+            padding: 8px 15px;
+            margin: 5px;
+            cursor: pointer;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 8px;
+        }
+        
+        .button:hover {
+            background-color: #005;
+            border-color: #0ff;
+        }
+        
+        .button.danger {
+            border-color: #f00;
+            color: #f00;
+        }
+        
+        .button.danger:hover {
+            background-color: #300;
+        }
+        
+        input, textarea, select {
+            width: 100%;
+            background-color: #001;
+            color: #0f0;
+            border: 1px solid #0f0;
+            padding: 8px;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 8px;
+            margin: 5px 0;
+        }
+        
+        input[type="number"] {
+            width: 80px;
+        }
+        
+        input[type="checkbox"] {
+            width: auto;
+        }
+        
+        label {
+            display: block;
+            color: #ff0;
+            font-size: 8px;
+            margin: 10px 0 5px 0;
+        }
+        
+        .inline-label {
+            display: inline;
+            margin-left: 5px;
+        }
+        
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin: 10px 0;
+        }
+        
+        .stat-input {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .property-item {
+            background-color: #002;
+            border: 1px solid #050;
+            padding: 8px;
+            margin: 5px 0;
+            position: relative;
+        }
+        
+        .property-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .small-button {
+            padding: 4px 8px;
+            font-size: 7px;
+        }
+        
+        .export-area {
+            margin-top: 20px;
+        }
+        
+        textarea.export {
+            min-height: 300px;
+            font-family: 'Courier New', monospace;
+            font-size: 9px;
+        }
+        
+        .button-row {
+            display: flex;
+            gap: 10px;
+            margin: 10px 0;
+            flex-wrap: wrap;
+        }
+        
+        .help {
+            background-color: #002;
+            border: 1px solid #050;
+            padding: 10px;
+            margin: 15px 0;
+            font-size: 7px;
+            color: #888;
+            line-height: 1.8;
+        }
+        
+        .empty-state {
+            text-align: center;
+            color: #555;
+            padding: 40px;
+            font-size: 9px;
+        }
+        
+        .preview-section {
+            background-color: #002;
+            border: 2px solid #ff0;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        
+        .preview-item {
+            background-color: #001;
+            border: 1px solid #050;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 8px;
+        }
+        
+        .rarity-common { color: #AAAAAA; }
+        .rarity-magic { color: #4444FF; }
+        .rarity-rare { color: #FFFF00; }
+        .rarity-set { color: #00FF00; }
+        .rarity-unique { color: #FF8000; }
+        
+        .slot-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin: 10px 0;
+        }
+        
+        .slot-tag {
+            background-color: #003;
+            border: 1px solid #0a0;
+            padding: 4px 8px;
+            font-size: 7px;
+            cursor: pointer;
+        }
+        
+        .slot-tag.active {
+            background-color: #005;
+            border-color: #0ff;
+        }
+    </style>
+</head>
+<body>
+    <h1>GOBLINHEART EQUIPMENT EDITOR</h1>
+    
+    <div class="container">
+        <!-- Left Panel -->
+        <div class="panel">
+            <h2>EQUIPMENT DATABASE</h2>
+            
+            <div class="tabs">
+                <div class="tab active" data-tab="base">BASE</div>
+                <div class="tab" data-tab="prefix">PREFIX</div>
+                <div class="tab" data-tab="suffix">SUFFIX</div>
+                <div class="tab" data-tab="unique">UNIQUE</div>
+                <div class="tab" data-tab="set">SET</div>
+            </div>
+            
+            <div class="button-row">
+                <button class="button small-button" onclick="addItem()">+ NEW</button>
+                <button class="button small-button danger" onclick="deleteItem()">DELETE</button>
+            </div>
+            
+            <div class="item-list" id="itemList"></div>
+            
+            <div class="export-area">
+                <h2>IMPORT/EXPORT</h2>
+                <button class="button" onclick="loadFromEquipmentJS()">LOAD FROM equipment.js</button>
+                <button class="button" style="background-color: #030; border-color: #0ff;" onclick="generateFullEquipmentJS()">💾 DOWNLOAD equipment.js</button>
+                <button class="button" onclick="exportData()">EXPORT JSON</button>
+                <button class="button" onclick="importData()">IMPORT JSON</button>
+                <textarea class="export" id="exportArea" placeholder="JSON will appear here..."></textarea>
+            </div>
+        </div>
+        
+        <!-- Right Panel -->
+        <div class="panel">
+            <div id="editorArea">
+                <div class="empty-state">
+                    Select an item from the list or create a new one
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const WEAPON_TYPES = ['DAGGER', 'SWORD', 'AXE', 'MACE', 'BOW', 'STAFF', 'FLAIL'];
+        const SLOTS = ['all', 'weapon', 'offhand', 'armor', 'helmet', 'gloves', 'boots', 'ring1', 'ring2'];
+        const PROPERTY_TYPES = [
+            'critChance', 'critDamage', 'damageBonus', 'damageReduction', 
+            'dodge', 'blockChance', 'spellDamage', 'mpCostReduction',
+            'attackSpeed', 'lifesteal', 'goldFind', 'magicFind',
+            'maxHpBonus', 'maxMpBonus', 'mpRegen', 'survivalChance'
+        ];
+        
+        let data = {
+            baseItems: {},
+            prefixes: {},
+            suffixes: {},
+            uniqueItems: {},
+            setItems: {},
+            itemSets: {}
+        };
+        
+        let currentTab = 'base';
+        let selectedId = null;
+        
+        // Initialize
+        function init() {
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', () => switchTab(tab.dataset.tab));
+            });
+            renderList();
+        }
+        
+        function switchTab(tab) {
+            currentTab = tab;
+            selectedId = null;
+            document.querySelectorAll('.tab').forEach(t => {
+                t.classList.toggle('active', t.dataset.tab === tab);
+            });
+            renderList();
+            document.getElementById('editorArea').innerHTML = '<div class="empty-state">Select an item from the list or create a new one</div>';
+        }
+        
+        function getCurrentData() {
+            switch(currentTab) {
+                case 'base': return data.baseItems;
+                case 'prefix': return data.prefixes;
+                case 'suffix': return data.suffixes;
+                case 'unique': return data.uniqueItems;
+                case 'set': return data.setItems;
+            }
+        }
+        
+        function renderList() {
+            const list = document.getElementById('itemList');
+            list.innerHTML = '';
+            
+            const items = getCurrentData();
+            Object.keys(items).sort().forEach(id => {
+                const div = document.createElement('div');
+                div.className = 'list-item' + (id === selectedId ? ' selected' : '');
+                
+                const item = items[id];
+                let displayName = id;
+                if (currentTab === 'base' || currentTab === 'unique' || currentTab === 'set') {
+                    displayName = item.baseName || item.name || id;
+                } else {
+                    displayName = item.name || id;
+                }
+                
+                div.textContent = displayName;
+                div.onclick = () => selectItem(id);
+                list.appendChild(div);
+            });
+        }
+        
+        function selectItem(id) {
+            selectedId = id;
+            renderList();
+            renderEditor();
+        }
+        
+        function addItem() {
+            const id = prompt(`Enter ${currentTab} item ID (e.g., 'steel_sword'):`);
+            if (!id) return;
+            
+            const items = getCurrentData();
+            if (items[id]) {
+                alert("Item with this ID already exists!");
+                return;
+            }
+            
+            // Create default item based on type
+            let newItem = {};
+            switch(currentTab) {
+                case 'base':
+                    newItem = {
+                        baseName: id.replace(/_/g, ' '),
+                        type: 'weapon',
+                        weaponType: 'SWORD',
+                        tier: 0,
+                        slot: 'weapon',
+                        baseStats: { strength: 0, vitality: 0, intelligence: 0, spirit: 0, agility: 0, luck: 0 }
+                    };
+                    break;
+                case 'prefix':
+                case 'suffix':
+                    newItem = {
+                        name: id.replace(/_/g, ' '),
+                        minTier: 0,
+                        maxTier: 2,
+                        stats: { strength: 0, vitality: 0, intelligence: 0, spirit: 0, agility: 0, luck: 0 },
+                        properties: [],
+                        slots: ['all']
+                    };
+                    break;
+                case 'unique':
+                    newItem = {
+                        name: id.replace(/_/g, ' '),
+                        rarity: 'unique',
+                        type: 'weapon',
+                        weaponType: 'SWORD',
+                        tier: 5,
+                        slot: 'weapon',
+                        description: '',
+                        canEquip: true,
+                        stats: { strength: 0, vitality: 0, intelligence: 0, spirit: 0, agility: 0, luck: 0 },
+                        properties: []
+                    };
+                    break;
+                case 'set':
+                    newItem = {
+                        name: id.replace(/_/g, ' '),
+                        rarity: 'set',
+                        setId: 'unnamed_set',
+                        tier: 2,
+                        slot: 'weapon',
+                        canEquip: true,
+                        stats: { strength: 0, vitality: 0, intelligence: 0, spirit: 0, agility: 0, luck: 0 },
+                        properties: []
+                    };
+                    break;
+            }
+            
+            items[id] = newItem;
+            selectItem(id);
+        }
+        
+        function deleteItem() {
+            if (!selectedId) {
+                alert("No item selected!");
+                return;
+            }
+            
+            if (confirm(`Delete ${selectedId}?`)) {
+                delete getCurrentData()[selectedId];
+                selectedId = null;
+                renderList();
+                document.getElementById('editorArea').innerHTML = '<div class="empty-state">Item deleted. Select another or create new.</div>';
+            }
+        }
+        
+        function renderEditor() {
+            const editor = document.getElementById('editorArea');
+            const item = getCurrentData()[selectedId];
+            
+            if (!item) return;
+            
+            let html = `<h2>${selectedId}</h2>`;
+            
+            switch(currentTab) {
+                case 'base':
+                    html += renderBaseEditor(item);
+                    break;
+                case 'prefix':
+                case 'suffix':
+                    html += renderAffixEditor(item);
+                    break;
+                case 'unique':
+                    html += renderUniqueEditor(item);
+                    break;
+                case 'set':
+                    html += renderSetEditor(item);
+                    break;
+            }
+            
+            editor.innerHTML = html;
+            
+            // Attach event listeners
+            attachEditorListeners();
+        }
+        
+        function renderBaseEditor(item) {
+            return `
+                <label>Base Name:</label>
+                <input type="text" id="baseName" value="${item.baseName || ''}" onchange="updateField('baseName', this.value)">
+                
+                <label>Type:</label>
+                <select id="type" onchange="updateField('type', this.value)">
+                    <option value="weapon" ${item.type === 'weapon' ? 'selected' : ''}>Weapon</option>
+                    <option value="shield" ${item.type === 'shield' ? 'selected' : ''}>Shield</option>
+                    <option value="focus" ${item.type === 'focus' ? 'selected' : ''}>Focus</option>
+                    <option value="armor" ${item.type === 'armor' ? 'selected' : ''}>Armor</option>
+                    <option value="helmet" ${item.type === 'helmet' ? 'selected' : ''}>Helmet</option>
+                    <option value="gloves" ${item.type === 'gloves' ? 'selected' : ''}>Gloves</option>
+                    <option value="boots" ${item.type === 'boots' ? 'selected' : ''}>Boots</option>
+                    <option value="ring" ${item.type === 'ring' ? 'selected' : ''}>Ring</option>
+                </select>
+                
+                ${item.type === 'weapon' ? `
+                    <label>Weapon Type:</label>
+                    <select id="weaponType" onchange="updateField('weaponType', this.value)">
+                        ${WEAPON_TYPES.map(wt => `<option value="${wt}" ${item.weaponType === wt ? 'selected' : ''}>${wt}</option>`).join('')}
+                    </select>
+                ` : ''}
+                
+                <label>Tier (0-5):</label>
+                <input type="number" id="tier" min="0" max="5" value="${item.tier || 0}" onchange="updateField('tier', parseInt(this.value))">
+                
+                <label>Slot:</label>
+                <select id="slot" onchange="updateField('slot', this.value)">
+                    ${SLOTS.filter(s => s !== 'all').map(s => `<option value="${s}" ${item.slot === s ? 'selected' : ''}>${s}</option>`).join('')}
+                </select>
+                
+                <h3>Base Stats</h3>
+                ${renderStatGrid(item.baseStats || {})}
+                
+                <div class="preview-section">
+                    <h3>PREVIEW: Generate Random Item</h3>
+                    <button class="button" onclick="previewItem('common')">COMMON</button>
+                    <button class="button" onclick="previewItem('magic')">MAGIC</button>
+                    <button class="button" onclick="previewItem('rare')">RARE</button>
+                    <div id="previewOutput"></div>
+                </div>
+            `;
+        }
+        
+        function renderAffixEditor(item) {
+            return `
+                <label>Name:</label>
+                <input type="text" id="name" value="${item.name || ''}" onchange="updateField('name', this.value)">
+                
+                <label>Min Tier:</label>
+                <input type="number" id="minTier" min="0" max="99" value="${item.minTier || 0}" onchange="updateField('minTier', parseInt(this.value))">
+                
+                <label>Max Tier:</label>
+                <input type="number" id="maxTier" min="0" max="99" value="${item.maxTier || 99}" onchange="updateField('maxTier', parseInt(this.value))">
+                
+                <h3>Stats</h3>
+                ${renderStatGrid(item.stats || {})}
+                
+                <h3>Valid Slots</h3>
+                <div class="slot-tags" id="slotTags">
+                    ${SLOTS.map(s => `
+                        <div class="slot-tag ${(item.slots || []).includes(s) ? 'active' : ''}" 
+                             onclick="toggleSlot('${s}')">${s}</div>
+                    `).join('')}
+                </div>
+                
+                <h3>Properties</h3>
+                <div id="propertiesList">${renderPropertiesList(item.properties || [])}</div>
+                <button class="button small-button" onclick="addProperty()">+ Add Property</button>
+            `;
+        }
+        
+        function renderUniqueEditor(item) {
+            return `
+                <label>Name:</label>
+                <input type="text" id="name" value="${item.name || ''}" onchange="updateField('name', this.value)">
+                
+                <label>Description:</label>
+                <textarea id="description" rows="3" onchange="updateField('description', this.value)">${item.description || ''}</textarea>
+                
+                <label>Type:</label>
+                <select id="type" onchange="updateField('type', this.value)">
+                    <option value="weapon" ${item.type === 'weapon' ? 'selected' : ''}>Weapon</option>
+                    <option value="armor" ${item.type === 'armor' ? 'selected' : ''}>Armor</option>
+                    <option value="ring" ${item.type === 'ring' ? 'selected' : ''}>Ring</option>
+                </select>
+                
+                ${item.type === 'weapon' ? `
+                    <label>Weapon Type:</label>
+                    <select id="weaponType" onchange="updateField('weaponType', this.value)">
+                        ${WEAPON_TYPES.map(wt => `<option value="${wt}" ${item.weaponType === wt ? 'selected' : ''}>${wt}</option>`).join('')}
+                    </select>
+                ` : ''}
+                
+                <label>Tier:</label>
+                <input type="number" id="tier" min="0" max="5" value="${item.tier || 5}" onchange="updateField('tier', parseInt(this.value))">
+                
+                <label>Slot:</label>
+                <select id="slot" onchange="updateField('slot', this.value)">
+                    ${SLOTS.filter(s => s !== 'all').map(s => `<option value="${s}" ${item.slot === s ? 'selected' : ''}>${s}</option>`).join('')}
+                </select>
+                
+                <h3>Stats</h3>
+                ${renderStatGrid(item.stats || {})}
+                
+                <h3>Properties</h3>
+                <div id="propertiesList">${renderPropertiesList(item.properties || [])}</div>
+                <button class="button small-button" onclick="addProperty()">+ Add Property</button>
+            `;
+        }
+        
+        function renderSetEditor(item) {
+            return `
+                <label>Name:</label>
+                <input type="text" id="name" value="${item.name || ''}" onchange="updateField('name', this.value)">
+                
+                <label>Set ID:</label>
+                <input type="text" id="setId" value="${item.setId || ''}" onchange="updateField('setId', this.value)">
+                
+                <label>Tier:</label>
+                <input type="number" id="tier" min="0" max="5" value="${item.tier || 2}" onchange="updateField('tier', parseInt(this.value))">
+                
+                <label>Slot:</label>
+                <select id="slot" onchange="updateField('slot', this.value)">
+                    ${SLOTS.filter(s => s !== 'all').map(s => `<option value="${s}" ${item.slot === s ? 'selected' : ''}>${s}</option>`).join('')}
+                </select>
+                
+                ${item.slot === 'weapon' ? `
+                    <label>Type:</label>
+                    <select id="type" onchange="updateField('type', this.value)">
+                        <option value="weapon" selected>Weapon</option>
+                    </select>
+                    <label>Weapon Type:</label>
+                    <select id="weaponType" onchange="updateField('weaponType', this.value)">
+                        ${WEAPON_TYPES.map(wt => `<option value="${wt}" ${item.weaponType === wt ? 'selected' : ''}>${wt}</option>`).join('')}
+                    </select>
+                ` : ''}
+                
+                <h3>Stats</h3>
+                ${renderStatGrid(item.stats || {})}
+                
+                <h3>Properties</h3>
+                <div id="propertiesList">${renderPropertiesList(item.properties || [])}</div>
+                <button class="button small-button" onclick="addProperty()">+ Add Property</button>
+                
+                <div class="help">
+                    NOTE: Set bonuses are configured separately. Use the SET tab to manage set pieces, 
+                    then export and manually add set bonuses to itemSets in equipment.js.
+                </div>
+            `;
+        }
+        
+        function renderStatGrid(stats) {
+            const statNames = ['strength', 'vitality', 'intelligence', 'spirit', 'agility', 'luck'];
+            return `
+                <div class="stat-grid">
+                    ${statNames.map(stat => `
+                        <div class="stat-input">
+                            <label style="font-size: 7px;">${stat.toUpperCase()}</label>
+                            <input type="number" value="${stats[stat] || 0}" 
+                                   onchange="updateStat('${stat}', parseInt(this.value))">
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+        
+        function renderPropertiesList(properties) {
+            if (properties.length === 0) {
+                return '<div style="color: #555; font-size: 7px;">No properties</div>';
+            }
+            
+            return properties.map((prop, idx) => `
+                <div class="property-item">
+                    <div class="property-header">
+                        <span style="color: #0ff; font-size: 8px;">Property ${idx + 1}</span>
+                        <button class="button danger small-button" onclick="deleteProperty(${idx})">X</button>
+                    </div>
+                    <label>Type:</label>
+                    <select onchange="updateProperty(${idx}, 'type', this.value)">
+                        ${PROPERTY_TYPES.map(pt => `<option value="${pt}" ${prop.type === pt ? 'selected' : ''}>${pt}</option>`).join('')}
+                    </select>
+                    <label>Value (decimal, e.g., 0.15 for 15%):</label>
+                    <input type="number" step="0.01" value="${prop.value || 0}" 
+                           onchange="updateProperty(${idx}, 'value', parseFloat(this.value))">
+                    <label>Display Text:</label>
+                    <input type="text" value="${prop.display || ''}" 
+                           onchange="updateProperty(${idx}, 'display', this.value)">
+                </div>
+            `).join('');
+        }
+        
+        function updateField(field, value) {
+            const item = getCurrentData()[selectedId];
+            item[field] = value;
+        }
+        
+        function updateStat(stat, value) {
+            const item = getCurrentData()[selectedId];
+            if (currentTab === 'base') {
+                if (!item.baseStats) item.baseStats = {};
+                item.baseStats[stat] = value;
+            } else {
+                if (!item.stats) item.stats = {};
+                item.stats[stat] = value;
+            }
+        }
+        
+        function toggleSlot(slot) {
+            const item = getCurrentData()[selectedId];
+            if (!item.slots) item.slots = [];
+            
+            const idx = item.slots.indexOf(slot);
+            if (idx >= 0) {
+                item.slots.splice(idx, 1);
+            } else {
+                item.slots.push(slot);
+            }
+            
+            renderEditor();
+        }
+        
+        function addProperty() {
+            const item = getCurrentData()[selectedId];
+            if (!item.properties) item.properties = [];
+            item.properties.push({ type: 'critChance', value: 0.1, display: '+10% Crit Chance' });
+            renderEditor();
+        }
+        
+        function deleteProperty(idx) {
+            const item = getCurrentData()[selectedId];
+            item.properties.splice(idx, 1);
+            renderEditor();
+        }
+        
+        function updateProperty(idx, field, value) {
+            const item = getCurrentData()[selectedId];
+            item.properties[idx][field] = value;
+        }
+        
+        function attachEditorListeners() {
+            // Any additional setup for editor inputs
+        }
+        
+        function previewItem(rarity) {
+            const item = getCurrentData()[selectedId];
+            const output = document.getElementById('previewOutput');
+            
+            // Simple preview generation
+            let name = item.baseName;
+            const tier = item.tier;
+            
+            // Simulate affix addition
+            if (rarity === 'magic') {
+                const prefixes = Object.keys(data.prefixes).filter(id => {
+                    const p = data.prefixes[id];
+                    return p.minTier <= tier && p.maxTier >= tier;
+                });
+                if (prefixes.length > 0) {
+                    const prefix = data.prefixes[prefixes[Math.floor(Math.random() * prefixes.length)]];
+                    name = `${prefix.name} ${name}`;
+                }
+            } else if (rarity === 'rare') {
+                const prefixes = Object.keys(data.prefixes).filter(id => {
+                    const p = data.prefixes[id];
+                    return p.minTier <= tier && p.maxTier >= tier;
+                });
+                const suffixes = Object.keys(data.suffixes).filter(id => {
+                    const s = data.suffixes[id];
+                    return s.minTier <= tier && s.maxTier >= tier;
+                });
+                
+                if (prefixes.length > 0 && suffixes.length > 0) {
+                    const prefix = data.prefixes[prefixes[Math.floor(Math.random() * prefixes.length)]];
+                    const suffix = data.suffixes[suffixes[Math.floor(Math.random() * suffixes.length)]];
+                    name = `${prefix.name} ${item.baseName} ${suffix.name}`;
+                }
+            }
+            
+            const colorClass = `rarity-${rarity}`;
+            output.innerHTML = `
+                <div class="preview-item">
+                    <div class="${colorClass}" style="font-size: 10px; margin-bottom: 5px;">${name}</div>
+                    <div style="color: #888; font-size: 7px;">Tier ${tier} ${item.type}</div>
+                    <div style="color: #0a0; font-size: 7px; margin-top: 5px;">
+                        This is a preview. Actual stats would be calculated from base + affixes.
+                    </div>
+                </div>
+            `;
+        }
+        
+        function generateFullEquipmentJS() {
+            // Generate the COMPLETE equipment.js file
+            const fullFile = `// equipment.js - Complete loot system with 6 tiers and color rarity
+// ⚠️ GENERATED BY EQUIPMENT EDITOR - Edit in editor, not here!
+console.log('=== EQUIPMENT.JS IS LOADING ===');
+
+// ===== RARITY SYSTEM =====
+
+const RARITY_COLORS = {
+    common: '#AAAAAA',      // Gray - no affixes
+    magic: '#4444FF',       // Blue - 1 affix
+    rare: '#FFFF00',        // Yellow - 2 affixes
+    set: '#00FF00',         // Green - set items
+    unique: '#FF8000'       // Orange - legendaries
+};
+
+const RARITY_NAMES = {
+    common: 'Common',
+    magic: 'Magic',
+    rare: 'Rare',
+    set: 'Set',
+    unique: 'Unique'
+};
+
+// ===== AFFIX SYSTEM =====
+
+const itemAffixes = {
+    prefixes: ${JSON.stringify(data.prefixes, null, 8)},
+    
+    suffixes: ${JSON.stringify(data.suffixes, null, 8)}
+};
+
+// ===== BASE ITEM TEMPLATES (6 TIERS) =====
+
+const baseItems = ${JSON.stringify(data.baseItems, null, 4)};
+
+// ===== UNIQUE ITEMS (Legendaries) =====
+
+const uniqueItems = ${JSON.stringify(data.uniqueItems, null, 4)};
+
+// ===== SET ITEMS =====
+
+const setItems = ${JSON.stringify(data.setItems, null, 4)};
+
+// ===== SET BONUSES =====
+
+const itemSets = ${JSON.stringify(data.itemSets, null, 4)};
+
+// ===== CONSUMABLES =====
+
+const consumableItems = {
+    'health_potion': {
+        name: 'Health Potion',
+        type: 'consumable',
+        rarity: 'common',
+        description: 'Restores 50 HP.',
+        canEquip: false,
+        stats: { strength: 0, vitality: 0, intelligence: 0, spirit: 0, agility: 0, luck: 0 },
+        onUse: function() {
+            const heal = 50;
+            const old = gameState.player.hp;
+            gameState.player.hp = Math.min(gameState.player.hp + heal, gameState.player.maxHp);
+            addMessage(\`Restored \${gameState.player.hp - old} HP!\`);
+            return true;
+        }
+    },
+    
+    'mana_potion': {
+        name: 'Mana Potion',
+        type: 'consumable',
+        rarity: 'common',
+        description: 'Restores 30 MP.',
+        canEquip: false,
+        stats: { strength: 0, vitality: 0, intelligence: 0, spirit: 0, agility: 0, luck: 0 },
+        onUse: function() {
+            const restore = 30;
+            const old = gameState.player.mp;
+            gameState.player.mp = Math.min(gameState.player.mp + restore, gameState.player.maxMp);
+            addMessage(\`Restored \${gameState.player.mp - old} MP!\`);
+            return true;
+        }
+    },
+    
+    'town_portal': {
+        name: 'Town Portal',
+        type: 'consumable',
+        rarity: 'magic',
+        description: 'Instantly return to the nearest town!',
+        canEquip: false,
+        stats: { strength: 0, vitality: 0, intelligence: 0, spirit: 0, agility: 0, luck: 0 },
+        onUse: function() {
+            addMessage("A portal opens!");
+            loadMap('town');
+            gameState.player.x = 7;
+            gameState.player.y = 7;
+            renderWorld();
+            return true;
+        }
+    },
+    
+    'magic_scroll': {
+        name: 'Magic Scroll',
+        type: 'consumable',
+        rarity: 'magic',
+        description: 'Damages all enemies!',
+        canEquip: false,
+        stats: { strength: 0, vitality: 0, intelligence: 0, spirit: 0, agility: 0, luck: 0 },
+        onUse: function() {
+            addMessage("Arcane energy erupts!");
+            let hit = 0;
+            const stats = calculateStats();
+            gameState.enemies.forEach(e => {
+                const dmg = 15 + Math.floor(stats.intelligence * 1.5);
+                e.hp -= dmg;
+                addMessage(\`\${e.name} takes \${dmg} damage!\`);
+                hit++;
+            });
+            gameState.enemies = gameState.enemies.filter(e => {
+                if (e.hp <= 0) {
+                    addMessage(\`\${e.name} destroyed!\`);
+                    return false;
+                }
+                return true;
+            });
+            if (hit === 0) addMessage("No enemies affected.");
+            renderWorld();
+            return true;
+        }
+    }
+};
+
+// Spell scrolls
+const spellScrolls = {
+    'spell_fire_bolt': {
+        name: 'Spell: Fire Bolt',
+        type: 'spell_scroll',
+        rarity: 'magic',
+        spellId: 'fire_bolt',
+        description: 'Learn Fire Bolt spell.',
+        canEquip: false,
+        stats: { strength: 0, vitality: 0, intelligence: 0, spirit: 0, agility: 0, luck: 0 },
+        onUse: function() {
+            if (gameState.player.knownSpells.includes('fire_bolt')) {
+                addMessage("Already know this spell!");
+                return false;
+            }
+            gameState.player.knownSpells.push('fire_bolt');
+            addMessage("Learned Fire Bolt!");
+            return true;
+        }
+    },
+    'spell_heal': {
+        name: 'Spell: Heal',
+        type: 'spell_scroll',
+        rarity: 'magic',
+        spellId: 'heal',
+        description: 'Learn Heal spell.',
+        canEquip: false,
+        stats: { strength: 0, vitality: 0, intelligence: 0, spirit: 0, agility: 0, luck: 0 },
+        onUse: function() {
+            if (gameState.player.knownSpells.includes('heal')) {
+                addMessage("Already know this spell!");
+                return false;
+            }
+            gameState.player.knownSpells.push('heal');
+            addMessage("Learned Heal!");
+            return true;
+        }
+    },
+    'spell_barrier': {
+        name: 'Spell: Barrier',
+        type: 'spell_scroll',
+        rarity: 'magic',
+        spellId: 'barrier',
+        description: 'Learn Barrier spell.',
+        canEquip: false,
+        stats: { strength: 0, vitality: 0, intelligence: 0, spirit: 0, agility: 0, luck: 0 },
+        onUse: function() {
+            if (gameState.player.knownSpells.includes('barrier')) {
+                addMessage("Already know this spell!");
+                return false;
+            }
+            gameState.player.knownSpells.push('barrier');
+            addMessage("Learned Barrier!");
+            return true;
+        }
+    },
+    'spell_weaken': {
+        name: 'Spell: Weaken',
+        type: 'spell_scroll',
+        rarity: 'magic',
+        spellId: 'weaken',
+        description: 'Learn Weaken spell.',
+        canEquip: false,
+        stats: { strength: 0, vitality: 0, intelligence: 0, spirit: 0, agility: 0, luck: 0 },
+        onUse: function() {
+            if (gameState.player.knownSpells.includes('weaken')) {
+                addMessage("Already know this spell!");
+                return false;
+            }
+            gameState.player.knownSpells.push('weaken');
+            addMessage("Learned Weaken!");
+            return true;
+        }
+    },
+    'spell_lightning': {
+        name: 'Spell: Lightning',
+        type: 'spell_scroll',
+        rarity: 'magic',
+        spellId: 'lightning',
+        description: 'Learn Lightning spell.',
+        canEquip: false,
+        stats: { strength: 0, vitality: 0, intelligence: 0, spirit: 0, agility: 0, luck: 0 },
+        onUse: function() {
+            if (gameState.player.knownSpells.includes('lightning')) {
+                addMessage("Already know this spell!");
+                return false;
+            }
+            gameState.player.knownSpells.push('lightning');
+            addMessage("Learned Lightning!");
+            return true;
+        }
+    }
+};
+
+// ===== COMBINED ITEM DATABASE =====
+
+const itemDatabase = {
+    ...consumableItems,
+    ...spellScrolls,
+    ...uniqueItems,
+    ...setItems
+};
+
+// ===== LOOT GENERATION =====
+
+function generateMagicItem(baseItemId, rarity = 'magic') {
+    const base = baseItems[baseItemId];
+    if (!base) return null;
+    
+    const item = {
+        id: \`\${baseItemId}_\${Math.random().toString(36).substr(2, 9)}\`,
+        baseName: base.baseName,
+        rarity: rarity,
+        type: base.type,
+        weaponType: base.weaponType,
+        tier: base.tier,
+        slot: base.slot,
+        canEquip: true,
+        baseStats: { ...base.baseStats },
+        stats: { strength: 0, vitality: 0, intelligence: 0, spirit: 0, agility: 0, luck: 0, ...base.baseStats },
+        properties: [],
+        affixes: []
+    };
+    
+    // Add affixes based on rarity
+    if (rarity === 'magic') {
+        // 1 affix (prefix OR suffix)
+        const usePrefix = Math.random() < 0.5;
+        const affixPool = usePrefix ? itemAffixes.prefixes : itemAffixes.suffixes;
+        const validAffixes = Object.entries(affixPool).filter(([id, affix]) => {
+            return (affix.slots.includes('all') || affix.slots.includes(base.slot)) &&
+                   affix.minTier <= base.tier &&
+                   affix.maxTier >= base.tier;
+        });
+        
+        if (validAffixes.length > 0) {
+            const [affixId, affix] = validAffixes[Math.floor(Math.random() * validAffixes.length)];
+            item.affixes.push({ id: affixId, ...affix, isPrefix: usePrefix });
+        }
+    } else if (rarity === 'rare') {
+        // 2 affixes (prefix AND suffix)
+        const validPrefixes = Object.entries(itemAffixes.prefixes).filter(([id, affix]) => {
+            return (affix.slots.includes('all') || affix.slots.includes(base.slot)) &&
+                   affix.minTier <= base.tier &&
+                   affix.maxTier >= base.tier;
+        });
+        const validSuffixes = Object.entries(itemAffixes.suffixes).filter(([id, affix]) => {
+            return (affix.slots.includes('all') || affix.slots.includes(base.slot)) &&
+                   affix.minTier <= base.tier &&
+                   affix.maxTier >= base.tier;
+        });
+        
+        if (validPrefixes.length > 0) {
+            const [prefixId, prefix] = validPrefixes[Math.floor(Math.random() * validPrefixes.length)];
+            item.affixes.push({ id: prefixId, ...prefix, isPrefix: true });
+        }
+        if (validSuffixes.length > 0) {
+            const [suffixId, suffix] = validSuffixes[Math.floor(Math.random() * validSuffixes.length)];
+            item.affixes.push({ id: suffixId, ...suffix, isPrefix: false });
+        }
+    }
+    
+    // Apply affix stats and properties
+    item.affixes.forEach(affix => {
+        // Add stats
+        for (const [stat, value] of Object.entries(affix.stats)) {
+            item.stats[stat] = (item.stats[stat] || 0) + value;
+        }
+        // Add properties
+        item.properties.push(...affix.properties);
+    });
+    
+    // Generate name
+    const prefixName = item.affixes.find(a => a.isPrefix)?.name;
+    const suffixName = item.affixes.find(a => !a.isPrefix)?.name;
+    
+    if (prefixName && suffixName) {
+        item.name = \`\${prefixName} \${base.baseName} \${suffixName}\`;
+    } else if (prefixName) {
+        item.name = \`\${prefixName} \${base.baseName}\`;
+    } else if (suffixName) {
+        item.name = \`\${base.baseName} \${suffixName}\`;
+    } else {
+        item.name = base.baseName;
+        item.rarity = 'common'; // No affixes = common
+    }
+    
+    // Generate description
+    item.description = \`Tier \${item.tier} \${item.name}\`;
+    if (item.properties.length > 0) {
+        item.description += '\\n' + item.properties.map(p => p.display).join(', ');
+    }
+    
+    return item;
+}
+
+// ===== LOOT POOLS =====
+
+const lootPools = {
+    // Tier-based pools for generated items
+    tier0: Object.keys(baseItems).filter(id => baseItems[id].tier === 0),
+    tier1: Object.keys(baseItems).filter(id => baseItems[id].tier === 1),
+    tier2: Object.keys(baseItems).filter(id => baseItems[id].tier === 2),
+    tier3: Object.keys(baseItems).filter(id => baseItems[id].tier === 3),
+    tier4: Object.keys(baseItems).filter(id => baseItems[id].tier === 4),
+    tier5: Object.keys(baseItems).filter(id => baseItems[id].tier === 5),
+    
+    // Fixed item pools
+    set: Object.keys(setItems),
+    unique: Object.keys(uniqueItems),
+    consumables: Object.keys(consumableItems),
+    spells: Object.keys(spellScrolls)
+};
+
+// ===== HELPER FUNCTIONS =====
+
+function rollLoot(tierWeights) {
+    const stats = calculateStats ? calculateStats() : { luck: 0 };
+    const luckBonus = stats.luck * 0.01;
+    
+    // Adjust weights based on luck (favor higher tiers)
+    const modifiedWeights = {};
+    for (const [tier, weight] of Object.entries(tierWeights)) {
+        if (tier.includes('tier') || tier === 'rare' || tier === 'unique' || tier === 'set' || tier === 'spells') {
+            modifiedWeights[tier] = weight + (luckBonus * 0.5); // Luck helps!
+        } else {
+            modifiedWeights[tier] = weight;
+        }
+    }
+    
+    const roll = Math.random();
+    let cumulative = 0;
+    
+    for (const [tier, weight] of Object.entries(modifiedWeights)) {
+        cumulative += weight;
+        if (roll < cumulative) {
+            // Handle tier-based generation
+            if (tier.startsWith('tier')) {
+                const pool = lootPools[tier];
+                if (pool && pool.length > 0) {
+                    const baseId = pool[Math.floor(Math.random() * pool.length)];
+                    
+                    // Decide rarity based on luck
+                    const rarityRoll = Math.random() + (luckBonus * 0.3);
+                    let rarity = 'common';
+                    if (rarityRoll > 0.95) rarity = 'rare';
+                    else if (rarityRoll > 0.75) rarity = 'magic';
+                    
+                    const generated = generateMagicItem(baseId, rarity);
+                    if (generated) {
+                        itemDatabase[generated.id] = generated;
+                        return generated.id;
+                    }
+                }
+            } else {
+                // Handle fixed pools (sets, uniques, consumables, spells)
+                const pool = lootPools[tier];
+                if (pool && pool.length > 0) {
+                    return pool[Math.floor(Math.random() * pool.length)];
+                }
+            }
+        }
+    }
+    
+    return null;
+}
+
+function calculateSetBonuses() {
+    if (!gameState || !gameState.equipment) return [];
+    
+    const equippedSets = {};
+    
+    // Count pieces of each set
+    Object.values(gameState.equipment).forEach(itemId => {
+        if (itemId && itemDatabase[itemId]) {
+            const item = itemDatabase[itemId];
+            if (item.setId) {
+                equippedSets[item.setId] = (equippedSets[item.setId] || 0) + 1;
+            }
+        }
+    });
+    
+    const activeSetBonuses = [];
+    
+    // Check which bonuses are active
+    Object.entries(equippedSets).forEach(([setId, count]) => {
+        const set = itemSets[setId];
+        if (set) {
+            Object.entries(set.bonuses).forEach(([threshold, bonus]) => {
+                if (count >= parseInt(threshold)) {
+                    activeSetBonuses.push({
+                        setName: set.name,
+                        pieces: count,
+                        threshold: threshold,
+                        bonus: bonus
+                    });
+                }
+            });
+        }
+    });
+    
+    return activeSetBonuses;
+}
+
+console.log('=== EQUIPMENT.JS LOADED ===');
+console.log(\`Loaded \${Object.keys(itemDatabase).length} items\`);
+console.log(\`Loaded \${Object.keys(baseItems).length} base items\`);
+console.log(\`Loaded \${Object.keys(itemAffixes.prefixes).length} prefixes, \${Object.keys(itemAffixes.suffixes).length} suffixes\`);
+console.log(\`Loaded \${Object.keys(itemSets).length} item sets\`);
+console.log(\`Loaded \${Object.keys(uniqueItems).length} unique items\`);`;
+
+            // Put in textarea
+            document.getElementById('exportArea').value = fullFile;
+            
+            // Download as file
+            const blob = new Blob([fullFile], { type: 'text/javascript' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'equipment.js';
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            alert("✅ DOWNLOADED equipment.js!\n\nNow:\n1. Replace your old equipment.js with the new one\n2. Refresh your game!\n\nThat's it!");
+        }
+        
+        function exportData() {
+            const json = JSON.stringify(data, null, 2);
+            document.getElementById('exportArea').value = json;
+            
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'equipment_data.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+        
+        function importData() {
+            const json = document.getElementById('exportArea').value;
+            if (!json.trim()) {
+                alert("Paste JSON into the text area first!");
+                return;
+            }
+            
+            try {
+                data = JSON.parse(json);
+                selectedId = null;
+                renderList();
+                document.getElementById('editorArea').innerHTML = '<div class="empty-state">Data imported! Select an item to edit.</div>';
+                alert("Equipment data imported successfully!");
+            } catch (e) {
+                alert("Invalid JSON: " + e.message);
+            }
+        }
+        
+        async function loadFromEquipmentJS() {
+            try {
+                // Load data.js first (equipment.js depends on it)
+                await loadScript('data.js');
+                
+                // Then load equipment.js
+                await loadScript('equipment.js');
+                
+                // Debug: Log what we actually have
+                console.log("window.baseItems:", window.baseItems);
+                console.log("window.itemAffixes:", window.itemAffixes);
+                console.log("window.uniqueItems:", window.uniqueItems);
+                console.log("window.setItems:", window.setItems);
+                console.log("window.itemSets:", window.itemSets);
+                
+                // Check if variables exist (they're const, so check window object)
+                if (typeof window.baseItems === 'undefined') {
+                    // Try checking if they exist as bare variables
+                    try {
+                        eval('baseItems');
+                        console.log("baseItems exists but not on window");
+                    } catch (e) {
+                        throw new Error("baseItems not found. Check console for what variables are available.");
+                    }
+                }
+                
+                // Extract the data - handle both window.X and bare X
+                let extractedData;
+                try {
+                    extractedData = {
+                        baseItems: window.baseItems || eval('baseItems') || {},
+                        prefixes: (window.itemAffixes || eval('itemAffixes'))?.prefixes || {},
+                        suffixes: (window.itemAffixes || eval('itemAffixes'))?.suffixes || {},
+                        uniqueItems: window.uniqueItems || eval('uniqueItems') || {},
+                        setItems: window.setItems || eval('setItems') || {},
+                        itemSets: window.itemSets || eval('itemSets') || {}
+                    };
+                } catch (e) {
+                    console.error("Extraction error:", e);
+                    throw new Error("Could not extract data. Variables may be in wrong scope.");
+                }
+                
+                console.log("Extracted data:", extractedData);
+                
+                // Verify we got something
+                const counts = {
+                    base: Object.keys(extractedData.baseItems).length,
+                    prefixes: Object.keys(extractedData.prefixes).length,
+                    suffixes: Object.keys(extractedData.suffixes).length,
+                    unique: Object.keys(extractedData.uniqueItems).length,
+                    set: Object.keys(extractedData.setItems).length
+                };
+                
+                console.log("Item counts:", counts);
+                
+                const totalItems = counts.base + counts.prefixes + counts.suffixes + counts.unique + counts.set;
+                
+                if (totalItems === 0) {
+                    throw new Error("No data found in equipment.js. Check browser console for details.");
+                }
+                
+                // Load into editor
+                data = extractedData;
+                selectedId = null;
+                renderList();
+                document.getElementById('editorArea').innerHTML = '<div class="empty-state">Loaded from equipment.js! Select an item to edit.</div>';
+                
+                // Show preview in export area
+                document.getElementById('exportArea').value = JSON.stringify(data, null, 2);
+                
+                alert(`Successfully loaded:\n${counts.base} base items\n${counts.prefixes} prefixes\n${counts.suffixes} suffixes\n${counts.unique} unique items\n${counts.set} set items`);
+                
+            } catch (e) {
+                alert("Failed to load equipment.js: " + e.message + "\n\nCheck browser console (F12) for details.");
+                console.error("Load error:", e);
+            }
+        }
+        
+        function loadScript(src) {
+            return new Promise((resolve, reject) => {
+                const scriptTag = document.createElement('script');
+                scriptTag.src = src;
+                
+                scriptTag.onerror = () => {
+                    reject(new Error(`Failed to load ${src}`));
+                };
+                
+                scriptTag.onload = () => {
+                    console.log(`Loaded ${src}`);
+                    resolve();
+                };
+                
+                document.head.appendChild(scriptTag);
+            });
+        }
+        
+        // Initialize
+        init();
+    </script>
+</body>
+</html>
