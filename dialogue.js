@@ -34,8 +34,18 @@ const dialogueDatabase =
             "met_aldric": true
           }
         }
+      },
+      {
+        "text": "Nasty weather we're having!",
+        "requires": {
+          "flags": {
+            "is_storming": true
+          }
+        },
+        "sets": {}
       }
-    ]
+    ],
+    "isShopkeeper": true
   },
   "merchant_marcus": {
     "name": "Marcus",
@@ -47,6 +57,48 @@ const dialogueDatabase =
         "requires": {},
         "sets": {
           "marcus_visited": true
+        }
+      }
+    ]
+  },
+  "villager_female": {
+    "name": "Villager_female",
+    "sprite": "villager_female",
+    "isShopkeeper": false,
+    "lines": [
+      {
+        "text": "Hello, traveler.",
+        "requires": {},
+        "sets": {
+          "talked_before": true
+        }
+      }
+    ]
+  },
+  "villager_blacksmith": {
+    "name": "Blacksmith",
+    "sprite": "villager_blacksmith",
+    "isShopkeeper": false,
+    "lines": [
+      {
+        "text": "Hello, traveler.",
+        "requires": {},
+        "sets": {
+          "talked_before": true
+        }
+      }
+    ]
+  },
+  "villager_wealthy": {
+    "name": "Wealthy",
+    "sprite": "villager_wealthy",
+    "isShopkeeper": false,
+    "lines": [
+      {
+        "text": "Hello, traveler.",
+        "requires": {},
+        "sets": {
+          "talked_before": true
         }
       }
     ]

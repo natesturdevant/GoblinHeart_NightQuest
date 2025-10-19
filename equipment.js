@@ -1919,14 +1919,14 @@ const consumableItems = {
         name: 'Town Portal',
         type: 'consumable',
         rarity: 'magic',
-        description: 'Instantly return to the nearest town!',
+        description: 'Wake up in your apartment.',
         canEquip: false,
         stats: { strength: 0, vitality: 0, intelligence: 0, spirit: 0, agility: 0, luck: 0 },
         onUse: function() {
             addMessage("A portal opens!");
-            loadMap('town');
-            gameState.player.x = 7;
-            gameState.player.y = 7;
+            loadMap('Overworld');
+            gameState.player.x = 6;
+            gameState.player.y = 1;
             renderWorld();
             return true;
         }

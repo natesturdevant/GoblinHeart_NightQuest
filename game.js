@@ -380,6 +380,11 @@ function setWeather(type, particleCount = null) {
         cancelAnimationFrame(gameState.weather.animationFrame);
         gameState.weather.animationFrame = null;
     }
+	
+	if (!gameState.flags) gameState.flags = {};
+    gameState.flags.is_raining = (type === 'rain');
+    gameState.flags.is_snowing = (type === 'snow');
+    gameState.flags.is_storming = (type === 'storm');
     
     gameState.weather.type = type;
     gameState.weather.particles = [];
@@ -1638,17 +1643,6 @@ function lookAround() {
     } else if (gameState.currentMap === 'town') {
         addMessage("Haven Village - a peaceful settlement. Cottages line the streets, smoke rises from chimneys. The townsfolk go about their daily lives. A safe haven from the dangers beyond.");
     }
-	/* else if (gameState.currentMap === 'Video_Store') {
-		addMessage("Aisles and aisles of sweet sweet VHS");
-		addMessage("Horror, sci-fi, classics, and much more.");
-		addMessage("You wonder how many you have seen...");
-		addMessage("Journal updated...");
-		addJournalEntry('The Video Store', [
-        { type: 'text', content: "It's my kind of place. You can really smell the atmosphere." },
-        { type: 'image', imageId: 'video_store', width: 100, height: 100 },
-        { type: 'text', content: "Plus I get to use the lamination machine whenever I want! Which isn't as often as you might think but it's enough." }
-		]);
-	} */
 	else if (gameState.currentMap === 'Video_Store') {
     addMessage("Aisles and aisles of sweet sweet VHS");
     addMessage("Horror, sci-fi, classics, and much more.");
@@ -1665,7 +1659,7 @@ function lookAround() {
     if (entryAdded) {
         addMessage("Journal updated...");
     }
-}
+	}	
 }
 
 // ===== COMBAT =====
