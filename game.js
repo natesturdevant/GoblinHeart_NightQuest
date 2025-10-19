@@ -3028,197 +3028,248 @@ function newGame() {
     }
 }
 
-// ===== EVENT HANDLERS =====
-document.addEventListener('keydown', function(e) {
-	
-	if (gameState.fadeInProgress) {
-        e.preventDefault();
-        return;
-    }
-	
-    // ===== BALANCE KNOBS =====
-    if (e.shiftKey && e.code === 'Digit1') {
-        e.preventDefault();
-        BALANCE_KNOBS.enemyDamageMultiplier = Math.round((BALANCE_KNOBS.enemyDamageMultiplier + 0.1) * 10) / 10;
-        addMessage(`Enemy Damage: ${BALANCE_KNOBS.enemyDamageMultiplier.toFixed(1)}x`, '#f00');
-        return;
-    }
-    if (e.shiftKey && e.code === 'Digit2') {
-        e.preventDefault();
-        BALANCE_KNOBS.enemyDamageMultiplier = Math.max(0.1, Math.round((BALANCE_KNOBS.enemyDamageMultiplier - 0.1) * 10) / 10);
-        addMessage(`Enemy Damage: ${BALANCE_KNOBS.enemyDamageMultiplier.toFixed(1)}x`, '#f00');
-        return;
-    }
-    if (e.shiftKey && e.code === 'Digit3') {
-        e.preventDefault();
-        BALANCE_KNOBS.enemyHpMultiplier = Math.round((BALANCE_KNOBS.enemyHpMultiplier + 0.1) * 10) / 10;
-        addMessage(`Enemy HP: ${BALANCE_KNOBS.enemyHpMultiplier.toFixed(1)}x`, '#f00');
-        return;
-    }
-    if (e.shiftKey && e.code === 'Digit4') {
-        e.preventDefault();
-        BALANCE_KNOBS.enemyHpMultiplier = Math.max(0.1, Math.round((BALANCE_KNOBS.enemyHpMultiplier - 0.1) * 10) / 10);
-        addMessage(`Enemy HP: ${BALANCE_KNOBS.enemyHpMultiplier.toFixed(1)}x`, '#f00');
-        return;
-    }
-    if (e.shiftKey && e.code === 'Digit5') {
-        e.preventDefault();
-        BALANCE_KNOBS.playerHealingMultiplier = Math.round((BALANCE_KNOBS.playerHealingMultiplier + 0.1) * 10) / 10;
-        addMessage(`Healing: ${BALANCE_KNOBS.playerHealingMultiplier.toFixed(1)}x`, '#0f0');
-        return;
-    }
-    if (e.shiftKey && e.code === 'Digit6') {
-        e.preventDefault();
-        BALANCE_KNOBS.playerHealingMultiplier = Math.max(0.1, Math.round((BALANCE_KNOBS.playerHealingMultiplier - 0.1) * 10) / 10);
-        addMessage(`Healing: ${BALANCE_KNOBS.playerHealingMultiplier.toFixed(1)}x`, '#0f0');
-        return;
-    }
-    if (e.shiftKey && e.code === 'Digit7') {
-        e.preventDefault();
-        BALANCE_KNOBS.magicItemChance = Math.min(1.0, Math.round((BALANCE_KNOBS.magicItemChance + 0.05) * 100) / 100);
-        addMessage(`Magic Items: ${(BALANCE_KNOBS.magicItemChance * 100).toFixed(0)}%`, '#00f');
-        return;
-    }
-    if (e.shiftKey && e.code === 'Digit8') {
-        e.preventDefault();
-        BALANCE_KNOBS.magicItemChance = Math.max(0, Math.round((BALANCE_KNOBS.magicItemChance - 0.05) * 100) / 100);
-        addMessage(`Magic Items: ${(BALANCE_KNOBS.magicItemChance * 100).toFixed(0)}%`, '#00f');
-        return;
-    }
-    if (e.shiftKey && (e.key === 'B' || e.key === 'b')) {
-        e.preventDefault();
-        addMessage('======= BALANCE KNOBS =======', '#ff0');
-        addMessage(`Shift+1/2: Enemy Damage ${BALANCE_KNOBS.enemyDamageMultiplier.toFixed(1)}x`, '#f00');
-        addMessage(`Shift+3/4: Enemy HP ${BALANCE_KNOBS.enemyHpMultiplier.toFixed(1)}x`, '#f00');
-        addMessage(`Shift+5/6: Healing ${BALANCE_KNOBS.playerHealingMultiplier.toFixed(1)}x`, '#0f0');
-        addMessage(`Shift+7/8: Magic Drops ${(BALANCE_KNOBS.magicItemChance * 100).toFixed(0)}%`, '#00f');
-        addMessage(`XP: ${BALANCE_KNOBS.xpMultiplier.toFixed(1)}x | Gold: ${BALANCE_KNOBS.goldMultiplier.toFixed(1)}x`, '#ff0');
-        return;
-    }
-    if (e.shiftKey && e.code === 'Digit0') {
-        e.preventDefault();
-        BALANCE_KNOBS.enemyDamageMultiplier = 1.0;
-        BALANCE_KNOBS.playerHealingMultiplier = 1.0;
-        BALANCE_KNOBS.enemyHpMultiplier = 1.0;
-        BALANCE_KNOBS.magicItemChance = 0.35;
-        BALANCE_KNOBS.xpMultiplier = 1.0;
-        BALANCE_KNOBS.goldMultiplier = 1.0;
-        BALANCE_KNOBS.potionEffectiveness = 1.0;
-        addMessage('Balance knobs RESET to 1.0x', '#ff0');
-        return;
-    }
+// ===== KEYBOARD INPUT SYSTEM =====
+
+// Key binding registry
+const keyBindings = {
+    // Navigation
+    movement: {
+        'ArrowUp': { dir: [0, -1] },
+        'ArrowDown': { dir: [0, 1] },
+        'ArrowLeft': { dir: [-1, 0] },
+        'ArrowRight': { dir: [1, 0] }
+    },
     
-    // ===== SPELL PANEL CONTROLS =====
-    if (gameState.spellCasting.active) {
-        switch(e.key) {
-            case 'ArrowUp': e.preventDefault(); moveSpellSelection(-1); break;
-            case 'ArrowDown': e.preventDefault(); moveSpellSelection(1); break;
-            case 'Enter': case 'c': case 'C': e.preventDefault(); castSpell(); break;
-            case 'Escape': case 'm': case 'M': e.preventDefault(); toggleSpellPanel(); break;
-        }
-        return;
-    }
+    // Actions
+    actions: {
+        'a': performAction,
+        'A': performAction,
+        's': searchLocation,
+        'S': searchLocation,
+        'l': lookAround,
+        'L': lookAround,
+        'w': waitTurn,
+        'W': waitTurn,
+        ' ': waitTurn
+    },
     
-    // ===== DIRECTIONAL SPELL TARGETING =====
-    if (gameState.spellCasting.pendingSpell) {
-        switch(e.key) {
-            case 'ArrowUp': e.preventDefault(); castDirectionalSpell(0, -1); break;
-            case 'ArrowDown': e.preventDefault(); castDirectionalSpell(0, 1); break;
-            case 'ArrowLeft': e.preventDefault(); castDirectionalSpell(-1, 0); break;
-            case 'ArrowRight': e.preventDefault(); castDirectionalSpell(1, 0); break;
-            case 'Escape': e.preventDefault(); gameState.spellCasting.pendingSpell = null; addMessage("Cancelled."); break;
-        }
-        return;
-    }
+    // UI Toggles
+    ui: {
+        'i': toggleInventory,
+        'I': toggleInventory,
+        'm': toggleSpellPanel,
+        'M': toggleSpellPanel,
+        'j': toggleJournal,
+        'J': toggleJournal,
+        'c': toggleCombatMode,
+        'C': toggleCombatMode,
+        'f': toggleFogOfWar,
+        'F': toggleFogOfWar
+    },
     
-    // ===== SHOP CONTROLS =====
-    if (gameState.shopOpen) {
-    switch(e.key) {
-        case 'ArrowUp': e.preventDefault(); moveShopSelection(-1); break;
-        case 'ArrowDown': e.preventDefault(); moveShopSelection(1); break;
-        case 'Enter': e.preventDefault(); shopConfirm(); break;  // REMOVED 'a' and 'A'
-        case 'Escape': e.preventDefault(); closeShop(); break;
+    // Inventory actions
+    inventory: {
+        'ArrowUp': () => moveSelection(-1),
+        'ArrowDown': () => moveSelection(1),
+        'e': equipItem,
+        'E': equipItem,
+        'u': useItem,
+        'U': useItem,
+        'd': dropItem,
+        'D': dropItem,
+        'i': toggleInventory,
+        'I': toggleInventory
+    },
+    
+    // Shop actions
+    shop: {
+        'ArrowUp': () => moveShopSelection(-1),
+        'ArrowDown': () => moveShopSelection(1),
+        'Enter': shopConfirm,
+        'Escape': closeShop
+    },
+    
+    // Spell panel
+    spellPanel: {
+        'ArrowUp': () => moveSpellSelection(-1),
+        'ArrowDown': () => moveSpellSelection(1),
+        'Enter': castSpell,
+        'c': castSpell,
+        'C': castSpell,
+        'Escape': toggleSpellPanel,
+        'm': toggleSpellPanel,
+        'M': toggleSpellPanel
+    },
+    
+    // Spell targeting
+    spellTarget: {
+        'ArrowUp': () => castDirectionalSpell(0, -1),
+        'ArrowDown': () => castDirectionalSpell(0, 1),
+        'ArrowLeft': () => castDirectionalSpell(-1, 0),
+        'ArrowRight': () => castDirectionalSpell(1, 0),
+        'Escape': () => { gameState.spellCasting.pendingSpell = null; addMessage("Cancelled."); }
+    },
+    
+    // Combat
+    combat: {
+        'ArrowUp': () => attemptAttack(0, -1),
+        'ArrowDown': () => attemptAttack(0, 1),
+        'ArrowLeft': () => attemptAttack(-1, 0),
+        'ArrowRight': () => attemptAttack(1, 0),
+        'c': toggleCombatMode,
+        'C': toggleCombatMode
+    },
+    
+    // Journal
+    journal: {
+        'ArrowLeft': prevJournalPage,
+        'ArrowRight': nextJournalPage,
+        'j': toggleJournal,
+        'J': toggleJournal,
+        'Escape': toggleJournal
     }
-    return;
+};
+
+// Balance knob configuration
+const balanceKnobBindings = {
+    'Digit1': () => adjustKnob('enemyDamageMultiplier', 0.1, 'Enemy Damage', '#f00'),
+    'Digit2': () => adjustKnob('enemyDamageMultiplier', -0.1, 'Enemy Damage', '#f00'),
+    'Digit3': () => adjustKnob('enemyHpMultiplier', 0.1, 'Enemy HP', '#f00'),
+    'Digit4': () => adjustKnob('enemyHpMultiplier', -0.1, 'Enemy HP', '#f00'),
+    'Digit5': () => adjustKnob('playerHealingMultiplier', 0.1, 'Healing', '#0f0'),
+    'Digit6': () => adjustKnob('playerHealingMultiplier', -0.1, 'Healing', '#0f0'),
+    'Digit7': () => adjustKnob('magicItemChance', 0.05, 'Magic Items', '#00f', true),
+    'Digit8': () => adjustKnob('magicItemChance', -0.05, 'Magic Items', '#00f', true),
+    'Digit0': resetBalanceKnobs,
+    'b': showBalanceKnobs,
+    'B': showBalanceKnobs
+};
+
+// Helper functions
+function adjustKnob(knob, delta, label, color, isPercent = false) {
+    if (knob === 'magicItemChance') {
+        BALANCE_KNOBS[knob] = Math.max(0, Math.min(1.0, Math.round((BALANCE_KNOBS[knob] + delta) * 100) / 100));
+    } else {
+        BALANCE_KNOBS[knob] = Math.max(0.1, Math.round((BALANCE_KNOBS[knob] + delta) * 10) / 10);
+    }
+    const display = isPercent ? `${(BALANCE_KNOBS[knob] * 100).toFixed(0)}%` : `${BALANCE_KNOBS[knob].toFixed(1)}x`;
+    addMessage(`${label}: ${display}`, color);
 }
-    
-    // ===== INVENTORY CONTROLS =====
-    if (gameState.inventoryOpen) {
-        switch(e.key) {
-            case 'ArrowUp': e.preventDefault(); moveSelection(-1); break;
-            case 'ArrowDown': e.preventDefault(); moveSelection(1); break;
-            case 'e': case 'E': e.preventDefault(); equipItem(); break;
-            case 'u': case 'U': e.preventDefault(); useItem(); break;
-            case 'd': case 'D': e.preventDefault(); dropItem(); break;
-            case 'i': case 'I': e.preventDefault(); toggleInventory(); break;
-        }
+
+function resetBalanceKnobs() {
+    BALANCE_KNOBS.enemyDamageMultiplier = 1.0;
+    BALANCE_KNOBS.playerHealingMultiplier = 1.0;
+    BALANCE_KNOBS.enemyHpMultiplier = 1.0;
+    BALANCE_KNOBS.magicItemChance = 0.35;
+    BALANCE_KNOBS.xpMultiplier = 1.0;
+    BALANCE_KNOBS.goldMultiplier = 1.0;
+    BALANCE_KNOBS.potionEffectiveness = 1.0;
+    addMessage('Balance knobs RESET to 1.0x', '#ff0');
+}
+
+function showBalanceKnobs() {
+    addMessage('======= BALANCE KNOBS =======', '#ff0');
+    addMessage(`Shift+1/2: Enemy Damage ${BALANCE_KNOBS.enemyDamageMultiplier.toFixed(1)}x`, '#f00');
+    addMessage(`Shift+3/4: Enemy HP ${BALANCE_KNOBS.enemyHpMultiplier.toFixed(1)}x`, '#f00');
+    addMessage(`Shift+5/6: Healing ${BALANCE_KNOBS.playerHealingMultiplier.toFixed(1)}x`, '#0f0');
+    addMessage(`Shift+7/8: Magic Drops ${(BALANCE_KNOBS.magicItemChance * 100).toFixed(0)}%`, '#00f');
+    addMessage(`XP: ${BALANCE_KNOBS.xpMultiplier.toFixed(1)}x | Gold: ${BALANCE_KNOBS.goldMultiplier.toFixed(1)}x`, '#ff0');
+}
+
+function toggleFogOfWar() {
+    gameState.fogOfWarEnabled = !gameState.fogOfWarEnabled;
+    addMessage(gameState.fogOfWarEnabled ? "Fog of war ON" : "Fog of war OFF");
+    renderWorld();
+}
+
+function cycleWeather() {
+    if (!gameState.weather) {
+        gameState.weather = {
+            type: 'none',
+            particles: [],
+            animationFrame: null,
+            lastUpdate: 0,
+            lightningTimer: 0
+        };
+    }
+    const types = ['none', 'rain', 'snow', 'storm', 'acid'];
+    const currentIndex = types.indexOf(gameState.weather.type);
+    const nextType = types[(currentIndex + 1) % types.length];
+    setWeather(nextType);
+    addMessage(`Weather: ${nextType.toUpperCase()}`, CGA.CYAN);
+}
+
+// Determine current input mode
+function getInputMode() {
+    if (gameState.spellCasting.active) return 'spellPanel';
+    if (gameState.spellCasting.pendingSpell) return 'spellTarget';
+    if (gameState.shopOpen) return 'shop';
+    if (gameState.inventoryOpen) return 'inventory';
+    if (gameState.combat.inCombat) return 'combat';
+    if (gameState.journal.open) return 'journal';
+    return 'normal';
+}
+
+// ===== MAIN EVENT HANDLER =====
+document.addEventListener('keydown', function(e) {
+    // Block ALL input during fade effects
+    if (gameState.fadeInProgress) {
+        e.preventDefault();
         return;
     }
     
-    // ===== COMBAT CONTROLS =====
-    if (gameState.combat.inCombat) {
-        switch(e.key) {
-            case 'ArrowUp': e.preventDefault(); attemptAttack(0, -1); break;
-            case 'ArrowDown': e.preventDefault(); attemptAttack(0, 1); break;
-            case 'ArrowLeft': e.preventDefault(); attemptAttack(-1, 0); break;
-            case 'ArrowRight': e.preventDefault(); attemptAttack(1, 0); break;
-            case 'c': case 'C': e.preventDefault(); toggleCombatMode(); break;
+    // Handle Shift key combinations first
+    if (e.shiftKey) {
+        // Balance knobs
+        if (balanceKnobBindings[e.code] || balanceKnobBindings[e.key]) {
+            e.preventDefault();
+            const handler = balanceKnobBindings[e.code] || balanceKnobBindings[e.key];
+            handler();
+            return;
         }
-        return;
+        
+        // Weather cycling (Shift+W)
+        if (e.key === 'w' || e.key === 'W') {
+            e.preventDefault();
+            cycleWeather();
+            return;
+        }
     }
     
-    // ===== JOURNAL CONTROLS =====
-    if (gameState.journal.open) {
-        switch(e.key) {
-            case 'ArrowLeft': e.preventDefault(); prevJournalPage(); break;
-            case 'ArrowRight': e.preventDefault(); nextJournalPage(); break;
-            case 'j': case 'J': case 'Escape': e.preventDefault(); toggleJournal(); break;
-        }
-        return;
-    }
+    // Get current input mode
+    const mode = getInputMode();
     
-    // ===== NORMAL GAMEPLAY CONTROLS =====
-    switch(e.key) {
-        case 'ArrowUp': e.preventDefault(); movePlayer(0, -1); break;
-        case 'ArrowDown': e.preventDefault(); movePlayer(0, 1); break;
-        case 'ArrowLeft': e.preventDefault(); movePlayer(-1, 0); break;
-        case 'ArrowRight': e.preventDefault(); movePlayer(1, 0); break;
-        case 'a': case 'A': e.preventDefault(); performAction(); break;
-        case 's': case 'S': e.preventDefault(); searchLocation(); break;
-        case 'l': case 'L': e.preventDefault(); lookAround(); break;
-        case 'i': case 'I': e.preventDefault(); toggleInventory(); break;
-        case 'm': case 'M': e.preventDefault(); toggleSpellPanel(); break;
-        case 'c': case 'C': e.preventDefault(); toggleCombatMode(); break;
-        //case 'w': case 'W': case ' ': e.preventDefault(); waitTurn(); break;
-		case 'w': case 'W':
-			if (e.shiftKey) {
-			e.preventDefault();
-			// Initialize weather if needed
-			if (!gameState.weather) {
-				gameState.weather = {
-					type: 'none',
-					particles: [],
-					animationFrame: null,
-					lastUpdate: 0,
-					lightningTimer: 0
-				};
-			}
-        const types = ['none', 'rain', 'snow', 'storm', 'acid'];
-        const currentIndex = types.indexOf(gameState.weather.type);
-        const nextType = types[(currentIndex + 1) % types.length];
-        setWeather(nextType);
-        addMessage(`Weather: ${nextType.toUpperCase()}`, CGA.CYAN);
-		} else {
-			waitTurn();
-		}
-		break;
-        case 'j': case 'J': e.preventDefault(); toggleJournal(); break;
-        case 'f': case 'F': 
-            e.preventDefault(); 
-            gameState.fogOfWarEnabled = !gameState.fogOfWarEnabled; 
-            addMessage(gameState.fogOfWarEnabled ? "Fog of war ON" : "Fog of war OFF"); 
-            renderWorld(); 
-            break;
+    // Handle based on mode
+    if (mode === 'normal') {
+        // Movement
+        if (keyBindings.movement[e.key]) {
+            e.preventDefault();
+            const [dx, dy] = keyBindings.movement[e.key].dir;
+            movePlayer(dx, dy);
+            return;
+        }
+        
+        // Actions
+        if (keyBindings.actions[e.key]) {
+            e.preventDefault();
+            keyBindings.actions[e.key]();
+            return;
+        }
+        
+        // UI toggles
+        if (keyBindings.ui[e.key]) {
+            e.preventDefault();
+            keyBindings.ui[e.key]();
+            return;
+        }
+    } else {
+        // Use mode-specific bindings
+        const bindings = keyBindings[mode];
+        if (bindings && bindings[e.key]) {
+            e.preventDefault();
+            bindings[e.key]();
+            return;
+        }
     }
 });
 
