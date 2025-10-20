@@ -1512,7 +1512,7 @@ function performAction() {
     const y = gameState.player.y;
     
     const lootIdx = gameState.lootBags.findIndex(l => l.x === x && l.y === y);
-    if (lootIdx !== -1) {
+    /* if (lootIdx !== -1) {
         const loot = gameState.lootBags[lootIdx];
         addMessage("Picked up loot!");
         if (loot.gold > 0) { gameState.player.gold += loot.gold; addMessage(`+${loot.gold} gold!`); }
@@ -1522,6 +1522,40 @@ function performAction() {
                 addMessage(`Found ${itemDatabase[itemId].name}!`);
             });
         }
+        gameState.lootBags.splice(lootIdx, 1);
+        renderWorld();
+        updateStatus();
+        return;
+    } */
+	if (lootIdx !== -1) {
+        const loot = gameState.lootBags[lootIdx];
+        addMessage("Picked up loot!");
+        
+        if (loot.gold > 0) { 
+            gameState.player.gold += loot.gold; 
+            addMessage(`+${loot.gold} gold!`); 
+        }
+        
+        if (loot.items.length > 0) {
+            loot.items.forEach(itemId => {
+                // CHECK INVENTORY SPACE
+                if (gameState.player.inventory.length >= CONFIG.player.maxInventorySize) {
+                    addMessage(`Inventory full! Left ${itemDatabase[itemId].name} on ground.`);
+                    // Create new loot bag with this item
+                    gameState.lootBags.push({
+                        x: x,
+                        y: y,
+                        gold: 0,
+                        items: [itemId]
+                    });
+                } else {
+                    gameState.player.inventory.push(itemId);
+                    addMessage(`Found ${itemDatabase[itemId].name}!`);
+                }
+            });
+        }
+        
+        // Only remove the original loot bag if it's empty
         gameState.lootBags.splice(lootIdx, 1);
         renderWorld();
         updateStatus();
@@ -1750,7 +1784,7 @@ function updateWeaponPreview() {
     }
 }
 
-// 4. NEW FUNCTION: Render the weapon range overlay
+
 function renderWeaponPreview() {
     if (!gameState.weaponPreview.active || 
         gameState.weaponPreview.tiles.length === 0) {
@@ -2117,6 +2151,15 @@ function updateInventoryDisplay() {
     document.getElementById('statAgility').textContent = stats.agility || 0;
     document.getElementById('statLuck').textContent = stats.luck || 0;
     
+    // UPDATE INVENTORY HEADER WITH COUNT
+    const invHeader = document.querySelector('.inventory-header');
+    if (invHeader) {
+        const count = gameState.player.inventory.length;
+        const max = CONFIG.player.maxInventorySize;
+        const colorStyle = count >= max ? 'color: #f00;' : '';
+        invHeader.innerHTML = `INVENTORY & EQUIPMENT <span style="${colorStyle}">(${count}/${max})</span>`;
+    }
+    
     // Display inventory items
     if (gameState.player.inventory.length === 0) {
         inv.innerHTML = '<div class="slot-empty">No items</div>';
@@ -2136,10 +2179,15 @@ function updateInventoryDisplay() {
             const isEquipped = equippedItemIds.has(itemId) && !alreadyMarked.has(itemId);
             if (isEquipped) alreadyMarked.add(itemId);
             
-            const eqText = isEquipped ? ' [EQUIPPED]' : '';
+            // BETTER EQUIPPED INDICATOR - use symbol
+            const eqText = isEquipped ? ' ⚔' : '';
+            
             let typeText = '';
-            if (item.type === 'weapon' && item.weaponType) typeText = ` (${item.weaponType})`;
-            else if (item.type === 'consumable' && item.onUse) typeText = ' [USE: U]';
+            if (item.type === 'weapon' && item.weaponType) {
+                typeText = ` (${item.weaponType})`;
+            } else if (item.type === 'consumable' && item.onUse) {
+                typeText = ' [U]';
+            }
             
             // Build stats text - only show non-zero stats
             let statsText = '';
@@ -2154,8 +2202,12 @@ function updateInventoryDisplay() {
                 if (parts.length > 0) statsText = `<div class="item-stats">${parts.join(', ')}</div>`;
             }
             
+            // COLOR BY RARITY
+            const rarity = item.rarity || 'common';
+            const color = RARITY_COLORS[rarity];
+            
             div.innerHTML = `
-                <div class="item-name">${item.name}${typeText}${eqText}</div>
+                <div class="item-name" style="color: ${color};">${item.name}${eqText}${typeText}</div>
                 ${statsText}
                 <div class="item-desc">${item.description || ''}</div>
             `;
@@ -2324,13 +2376,29 @@ function dropItem() {
 
 function moveSelection(dir) {
     if (gameState.player.inventory.length === 0) return;
+    
     gameState.selectedItemIndex += dir;
+    
+    // Wrap around at edges
     if (gameState.selectedItemIndex < 0) {
         gameState.selectedItemIndex = gameState.player.inventory.length - 1;
     } else if (gameState.selectedItemIndex >= gameState.player.inventory.length) {
         gameState.selectedItemIndex = 0;
     }
+    
     updateInventoryDisplay();
+    
+    // AUTO-SCROLL TO SELECTED ITEM
+    // Wait a frame for the DOM to update
+    setTimeout(() => {
+        const selectedElement = document.querySelector('.inventory-item.selected');
+        if (selectedElement) {
+            selectedElement.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'nearest'  // Only scroll if item is outside viewport
+            });
+        }
+    }, 0);
 }
 
 // ===== SHOP =====
@@ -2521,14 +2589,23 @@ function shopConfirm() {
 }
 
 function buyItem() {
-    const inventory = shopInventory[gameState.currentShopkeeper];
+    const inventory = gameState.generatedShops[gameState.currentShopkeeper];
     if (!inventory || gameState.shopSelectedIndex >= inventory.length) return;
+    
     const shopItem = inventory[gameState.shopSelectedIndex];
     const item = itemDatabase[shopItem.itemId];
+    
     if (gameState.player.gold < shopItem.price) {
         addMessage("Not enough gold!");
         return;
     }
+    
+    // CHECK INVENTORY SPACE
+    if (gameState.player.inventory.length >= CONFIG.player.maxInventorySize) {
+        addMessage("Inventory full! Can't buy more items.");
+        return;
+    }
+    
     gameState.player.gold -= shopItem.price;
     gameState.player.inventory.push(shopItem.itemId);
     addMessage(`Bought ${item.name} for ${shopItem.price}G!`);

@@ -6,6 +6,7 @@ const CONFIG = {
         startHP: 100,
         startMP: 50,
         startGold: 0,
+		maxInventorySize: 20,
         baseStats: { strength: 10, vitality: 8, intelligence: 6, spirit: 7, agility: 5, luck: 4 }
     },
 	ui: {
