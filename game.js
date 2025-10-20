@@ -41,6 +41,7 @@ loadJournalImage('video_store', 'journal-images/video_store.png');
 
 let gameState = {
     player: { 
+		name: "Nate",
         x: 10, y: 7, 
         hp: CONFIG.player.startHP, 
         maxHp: CONFIG.player.startHP, 
@@ -490,6 +491,8 @@ function flashLightning() {
 }
 
 function initGame() {
+	const playerName = prompt("Hey, buddy! What's your name?", "Nate");
+    gameState.player.name = playerName || "Nate"; // Fallback if they cancel
     loadMap('Overworld');
     renderWorld();
 	updateExploration()
@@ -2698,15 +2701,12 @@ function prevJournalPage() {
         renderJournal();
     }
 }
+
 function renderJournal() {
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
     
-    // Clear and draw dimmed background
-    //ctx.fillStyle = '#001100';
-    //ctx.fillRect(0, 0, canvas.width, canvas.height);
-	
-	ctx.imageSmoothingEnabled = false;
+    ctx.imageSmoothingEnabled = false;
     ctx.webkitImageSmoothingEnabled = false;
     ctx.mozImageSmoothingEnabled = false;
     ctx.msImageSmoothingEnabled = false;
@@ -2749,33 +2749,50 @@ function renderJournal() {
     const entry = gameState.journal.entries[gameState.journal.currentPage];
     const contentX = (jx + 1) * TILE_SIZE + 10;
     let contentY = (jy + 1) * TILE_SIZE + 10;
+    const maxWidth = (jw - 2) * TILE_SIZE - 40;
     
     // Title
     ctx.fillStyle = '#000';
     ctx.font = '12px "Press Start 2P"';
-    ctx.textAlign = 'left';
-    ctx.fillText(entry.title, contentX, contentY);
+    ctx.textAlign = 'center';
+    ctx.fillText(entry.title, canvas.width / 2, contentY);
     contentY += 20;
     
     // Date
     ctx.font = '7px "Press Start 2P"';
     ctx.fillStyle = '#555';
-    ctx.fillText(new Date(entry.timestamp).toLocaleDateString(), contentX, contentY);
+    ctx.fillText(new Date(entry.timestamp).toLocaleDateString(), canvas.width / 2, contentY);
     contentY += 25;
     
     // Blocks (text and images)
     ctx.font = '8px "Press Start 2P"';
     ctx.fillStyle = '#000';
-    const maxWidth = (jw - 2) * TILE_SIZE - 40;
     
     entry.blocks.forEach(block => {
         if (block.type === 'text') {
+            const align = block.align || 'left';
             const lines = wrapText(ctx, block.content, maxWidth);
+            
+            // Save original alignment
+            const originalAlign = ctx.textAlign;
+            ctx.textAlign = align;
+            
             lines.forEach(line => {
-                ctx.fillText(line, contentX, contentY);
+                let xPos = contentX;
+                if (align === 'center') {
+                    xPos = canvas.width / 2;
+                } else if (align === 'right') {
+                    xPos = contentX + maxWidth;
+                }
+                
+                ctx.fillText(line, xPos, contentY);
                 contentY += 14;
             });
+            
+            // Restore alignment
+            ctx.textAlign = originalAlign;
             contentY += 5;
+            
         } else if (block.type === 'image') {
             const img = journalImages[block.imageId];
             if (img && img.complete) {
@@ -2969,6 +2986,7 @@ function newGame() {
     if (confirm("Start new game?")) {
         gameState = {
             player: { 
+				name: "Nate",
                 x: 10, y: 7, 
                 hp: CONFIG.player.startHP, 
                 maxHp: CONFIG.player.startHP, 

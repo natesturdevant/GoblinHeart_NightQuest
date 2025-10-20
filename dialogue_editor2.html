@@ -527,12 +527,17 @@
                     </div>
                     <div id="setflags_${idx}"></div>
                     <button class="button small-button" onclick="addSetFlag(${idx})">+ Custom Flag</button>
+                    
+                    <label>Journal Entry (Optional):</label>
+                    <div id="journal_${idx}" class="requirement-group"></div>
+                    <button class="button small-button" onclick="addJournalEntry(${idx})">+ Add Journal Entry</button>
                 `;
                 
                 container.appendChild(div);
                 
                 renderFlags(idx);
                 renderSetFlags(idx);
+                renderJournalEntry(idx);
             });
             
             renderConversationTree();
@@ -678,6 +683,205 @@
                 delete line.sets;
             }
             renderLines();
+        }
+        
+        // ===== JOURNAL ENTRY MANAGEMENT =====
+        
+        function renderJournalEntry(lineIdx) {
+            const container = document.getElementById(`journal_${lineIdx}`);
+            const line = dialogueData[currentNPC].lines[lineIdx];
+            
+            if (!line.journalEntry) {
+                container.innerHTML = '<div style="color: #555; font-size: 7px; padding: 5px;">No journal entry</div>';
+                return;
+            }
+            
+            const entry = line.journalEntry;
+            container.innerHTML = `
+                <div style="background: #002; padding: 10px; border: 1px solid #050;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <span style="color: #0ff; font-size: 9px;">Journal: ${entry.title}</span>
+                        <button class="button danger small-button" onclick="deleteJournalEntry(${lineIdx})">Remove Entry</button>
+                    </div>
+                    
+                    <label>Entry Title:</label>
+                    <input type="text" value="${entry.title}" onchange="updateJournalTitle(${lineIdx}, this.value)" style="width: 100%;">
+                    
+                    <label>Content Blocks:</label>
+                    <div id="journal_blocks_${lineIdx}"></div>
+                    <div style="margin-top: 10px;">
+                        <button class="button small-button" onclick="addJournalBlock(${lineIdx}, 'text')">+ Text Block</button>
+                        <button class="button small-button" onclick="addJournalBlock(${lineIdx}, 'image')">+ Image Block</button>
+                    </div>
+                </div>
+            `;
+            
+            renderJournalBlocks(lineIdx);
+        }
+        
+        function renderJournalBlocks(lineIdx) {
+            const container = document.getElementById(`journal_blocks_${lineIdx}`);
+            const line = dialogueData[currentNPC].lines[lineIdx];
+            
+            if (!line.journalEntry || !line.journalEntry.blocks || line.journalEntry.blocks.length === 0) {
+                container.innerHTML = '<div style="color: #555; font-size: 7px; padding: 5px;">No blocks yet</div>';
+                return;
+            }
+            
+            container.innerHTML = '';
+            line.journalEntry.blocks.forEach((block, blockIdx) => {
+                const div = document.createElement('div');
+                div.className = 'requirement-item';
+                div.style.flexDirection = 'column';
+                div.style.alignItems = 'stretch';
+                
+                if (block.type === 'text') {
+                    div.innerHTML = `
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                            <span style="color: #ff0; font-size: 8px;">Text Block ${blockIdx + 1}</span>
+                            <div>
+                                <button class="button small-button" onclick="moveJournalBlock(${lineIdx}, ${blockIdx}, -1)" ${blockIdx === 0 ? 'disabled' : ''}>↑</button>
+                                <button class="button small-button" onclick="moveJournalBlock(${lineIdx}, ${blockIdx}, 1)" ${blockIdx === line.journalEntry.blocks.length - 1 ? 'disabled' : ''}>↓</button>
+                                <button class="button danger small-button" onclick="deleteJournalBlock(${lineIdx}, ${blockIdx})">X</button>
+                            </div>
+                        </div>
+                        <label style="font-size: 7px;">Text Alignment:</label>
+                        <select onchange="updateJournalBlockAlign(${lineIdx}, ${blockIdx}, this.value)" style="width: 100%; margin-bottom: 5px;">
+                            <option value="left" ${(block.align || 'left') === 'left' ? 'selected' : ''}>Left</option>
+                            <option value="center" ${block.align === 'center' ? 'selected' : ''}>Center</option>
+                            <option value="right" ${block.align === 'right' ? 'selected' : ''}>Right</option>
+                        </select>
+                        <textarea rows="3" onchange="updateJournalBlockContent(${lineIdx}, ${blockIdx}, this.value)" style="width: 100%;">${block.content || ''}</textarea>
+                    `;
+                } else if (block.type === 'image') {
+                    div.innerHTML = `
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                            <span style="color: #ff0; font-size: 8px;">Image Block ${blockIdx + 1}</span>
+                            <div>
+                                <button class="button small-button" onclick="moveJournalBlock(${lineIdx}, ${blockIdx}, -1)" ${blockIdx === 0 ? 'disabled' : ''}>↑</button>
+                                <button class="button small-button" onclick="moveJournalBlock(${lineIdx}, ${blockIdx}, 1)" ${blockIdx === line.journalEntry.blocks.length - 1 ? 'disabled' : ''}>↓</button>
+                                <button class="button danger small-button" onclick="deleteJournalBlock(${lineIdx}, ${blockIdx})">X</button>
+                            </div>
+                        </div>
+                        <label style="font-size: 7px;">Image ID (must match loaded image):</label>
+                        <input type="text" value="${block.imageId || ''}" onchange="updateJournalImageId(${lineIdx}, ${blockIdx}, this.value)" placeholder="goblin_full">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-top: 5px;">
+                            <div>
+                                <label style="font-size: 7px;">Width:</label>
+                                <input type="number" value="${block.width || 100}" onchange="updateJournalImageSize(${lineIdx}, ${blockIdx}, 'width', this.value)">
+                            </div>
+                            <div>
+                                <label style="font-size: 7px;">Height:</label>
+                                <input type="number" value="${block.height || 100}" onchange="updateJournalImageSize(${lineIdx}, ${blockIdx}, 'height', this.value)">
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                container.appendChild(div);
+            });
+        }
+        
+        function addJournalEntry(lineIdx) {
+            const line = dialogueData[currentNPC].lines[lineIdx];
+            
+            if (line.journalEntry) {
+                if (!confirm('This line already has a journal entry. Replace it?')) {
+                    return;
+                }
+            }
+            
+            const title = prompt("Enter journal entry title:", "New Discovery");
+            if (!title) return;
+            
+            line.journalEntry = {
+                title: title,
+                blocks: [
+                    { type: 'text', content: 'Write your journal entry here...' }
+                ]
+            };
+            
+            renderLines();
+        }
+        
+        function deleteJournalEntry(lineIdx) {
+            if (confirm('Delete this journal entry?')) {
+                const line = dialogueData[currentNPC].lines[lineIdx];
+                delete line.journalEntry;
+                renderLines();
+            }
+        }
+        
+        function updateJournalTitle(lineIdx, newTitle) {
+            const line = dialogueData[currentNPC].lines[lineIdx];
+            line.journalEntry.title = newTitle;
+        }
+        
+        function addJournalBlock(lineIdx, type) {
+            const line = dialogueData[currentNPC].lines[lineIdx];
+            
+            if (!line.journalEntry) {
+                line.journalEntry = {
+                    title: 'New Entry',
+                    blocks: []
+                };
+            }
+            
+            if (type === 'text') {
+                line.journalEntry.blocks.push({
+                    type: 'text',
+                    content: 'New text block...'
+                });
+            } else if (type === 'image') {
+                line.journalEntry.blocks.push({
+                    type: 'image',
+                    imageId: 'image_name',
+                    width: 100,
+                    height: 100
+                });
+            }
+            
+            renderLines();
+        }
+        
+        function deleteJournalBlock(lineIdx, blockIdx) {
+            const line = dialogueData[currentNPC].lines[lineIdx];
+            line.journalEntry.blocks.splice(blockIdx, 1);
+            
+            if (line.journalEntry.blocks.length === 0) {
+                delete line.journalEntry;
+            }
+            
+            renderLines();
+        }
+        
+        function moveJournalBlock(lineIdx, blockIdx, direction) {
+            const line = dialogueData[currentNPC].lines[lineIdx];
+            const blocks = line.journalEntry.blocks;
+            const newIdx = blockIdx + direction;
+            
+            [blocks[blockIdx], blocks[newIdx]] = [blocks[newIdx], blocks[blockIdx]];
+            renderLines();
+        }
+        
+        function updateJournalBlockContent(lineIdx, blockIdx, content) {
+            const line = dialogueData[currentNPC].lines[lineIdx];
+            line.journalEntry.blocks[blockIdx].content = content;
+        }
+        
+        function updateJournalBlockAlign(lineIdx, blockIdx, align) {
+            const line = dialogueData[currentNPC].lines[lineIdx];
+            line.journalEntry.blocks[blockIdx].align = align;
+        }
+        
+        function updateJournalImageId(lineIdx, blockIdx, imageId) {
+            const line = dialogueData[currentNPC].lines[lineIdx];
+            line.journalEntry.blocks[blockIdx].imageId = imageId;
+        }
+        
+        function updateJournalImageSize(lineIdx, blockIdx, dimension, value) {
+            const line = dialogueData[currentNPC].lines[lineIdx];
+            line.journalEntry.blocks[blockIdx][dimension] = parseInt(value) || 100;
         }
         
         function addLine() {

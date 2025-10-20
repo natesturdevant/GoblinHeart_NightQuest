@@ -1896,33 +1896,6 @@
 					"entityInstances": [
 						{
 							"__identifier": "Transition",
-							"__grid": [6,13],
-							"__pivot": [0,0],
-							"__tags": [],
-							"__tile": null,
-							"__smartColor": "#EAD4AA",
-							"iid": "862f4350-8560-11f0-9f39-9fecdd9b67ae",
-							"width": 16,
-							"height": 16,
-							"defUid": 8,
-							"px": [107,220],
-							"fieldInstances": [
-								{ "__identifier": "to_map", "__type": "String", "__value": "Overworld", "__tile": null, "defUid": 9, "realEditorValues": [{
-									"id": "V_String",
-									"params": ["Overworld"]
-								}] },
-								{ "__identifier": "to_x", "__type": "Int", "__value": 18, "__tile": null, "defUid": 10, "realEditorValues": [{ "id": "V_Int", "params": [18] }] },
-								{ "__identifier": "to_y", "__type": "Int", "__value": 5, "__tile": null, "defUid": 11, "realEditorValues": [{ "id": "V_Int", "params": [5] }] },
-								{ "__identifier": "message", "__type": "String", "__value": "You step out into the street.", "__tile": null, "defUid": 12, "realEditorValues": [{
-									"id": "V_String",
-									"params": ["You step out into the street."]
-								}] }
-							],
-							"__worldX": 908,
-							"__worldY": -94
-						},
-						{
-							"__identifier": "Transition",
 							"__grid": [3,3],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -1947,6 +1920,52 @@
 							],
 							"__worldX": 849,
 							"__worldY": -266
+						},
+						{
+							"__identifier": "NPC",
+							"__grid": [5,1],
+							"__pivot": [0,0],
+							"__tags": [],
+							"__tile": null,
+							"__smartColor": "#D77643",
+							"iid": "8d33f7e0-ac70-11f0-bd8e-37eb3891d3fb",
+							"width": 16,
+							"height": 16,
+							"defUid": 6,
+							"px": [80,16],
+							"fieldInstances": [{ "__identifier": "npc_type", "__type": "String", "__value": "eddie_video_clerk", "__tile": null, "defUid": 7, "realEditorValues": [{
+								"id": "V_String",
+								"params": ["eddie_video_clerk"]
+							}] }],
+							"__worldX": 881,
+							"__worldY": -298
+						},
+						{
+							"__identifier": "Transition",
+							"__grid": [6,13],
+							"__pivot": [0,0],
+							"__tags": [],
+							"__tile": null,
+							"__smartColor": "#EAD4AA",
+							"iid": "417afae0-ac70-11f0-bd8e-9b9bb1c41c3b",
+							"width": 16,
+							"height": 16,
+							"defUid": 8,
+							"px": [96,208],
+							"fieldInstances": [
+								{ "__identifier": "to_map", "__type": "String", "__value": "Overworld", "__tile": null, "defUid": 9, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["Overworld"]
+								}] },
+								{ "__identifier": "to_x", "__type": "Int", "__value": 18, "__tile": null, "defUid": 10, "realEditorValues": [{ "id": "V_Int", "params": [18] }] },
+								{ "__identifier": "to_y", "__type": "Int", "__value": 6, "__tile": null, "defUid": 11, "realEditorValues": [{ "id": "V_Int", "params": [6] }] },
+								{ "__identifier": "message", "__type": "String", "__value": "You leave the video store.", "__tile": null, "defUid": 12, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["You leave the video store."]
+								}] }
+							],
+							"__worldX": 897,
+							"__worldY": -106
 						}
 					]
 				},

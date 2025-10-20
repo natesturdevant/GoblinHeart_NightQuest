@@ -102,6 +102,38 @@ const dialogueDatabase =
         }
       }
     ]
+  },
+  "eddie_video_clerk": {
+    "name": "Eddie",
+    "sprite": "villager_old",
+    "isShopkeeper": false,
+    "lines": [
+      {
+        "text": "Welcome to work, {{name}}. Sort these videos out.",
+        "requires": {},
+        "sets": {
+          "talked_before": true
+        },
+        "journalEntry": {
+          "title": "Eddie at the Video Dungeon",
+          "blocks": [
+            {
+              "type": "text",
+              "content": "I've known Eddie a long time. He's pretty chill as old dudes like him go.",
+              "align": "right"
+            }
+          ]
+        }
+      },
+      {
+        "text": "I thought I told you to sort those videos.",
+        "requires": {
+          "flags": {
+            "talked_before": true
+          }
+        }
+      }
+    ]
   }
 }
 
@@ -208,6 +240,18 @@ function processDialogue(line, gameState, npcId) {
         // Leave unchanged if not found
         return match;
     });
+	
+	if (line.journalEntry) {
+        console.log('Journal entry found:', line.journalEntry);
+        console.log('addJournalEntry function exists?', typeof addJournalEntry);
+        
+        if (typeof addJournalEntry === 'function') {
+            console.log('Calling addJournalEntry...');
+            addJournalEntry(line.journalEntry.title, line.journalEntry.blocks);
+        } else {
+            console.error('addJournalEntry function not found!');
+        }
+    }
     
     // Set flags if this line specifies any
     if (line.sets) {
