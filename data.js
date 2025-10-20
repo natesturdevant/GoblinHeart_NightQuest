@@ -8,6 +8,9 @@ const CONFIG = {
         startGold: 0,
         baseStats: { strength: 10, vitality: 8, intelligence: 6, spirit: 7, agility: 5, luck: 4 }
     },
+	ui: {
+        showWeaponPreview: true  // magenta tile borders to indicate weapon reach
+    },
     spawning: { enabled: true, checkInterval: 1, baseChance: 0.08 },
     leveling: {
         xpFormula: (level) => Math.floor(Math.pow(level, 2.5) * 10),

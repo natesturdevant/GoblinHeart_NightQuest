@@ -18,7 +18,6 @@ const BALANCE_KNOBS = {
     potionEffectiveness: 1.0         // Potions heal X times as much
 };
 
-
 function loadJournalImage(id, path) {
     const img = new Image();
     img.onload = () => {
@@ -63,6 +62,10 @@ let gameState = {
 	exploredTiles: {},  // Stores explored tiles per map
     fogOfWarEnabled: true,  // Debug toggle
     explorationRadius: 5,  // How far player can see
+	weaponPreview: {
+        active: false,
+        tiles: []  // Array of {x, y} coordinates
+    },
     combat: { inCombat: false, turnCount: 0 },
     spellCasting: { active: false, selectedSpellIndex: 0, pendingSpell: null },
     enemies: [], 
@@ -452,6 +455,8 @@ function animateWeather(timestamp) {
     gameState.weather.animationFrame = requestAnimationFrame(animateWeather);
 }
 
+
+
 function renderWeather() {
 	if (!gameState.weather || gameState.weather.type === 'none') return;
     if (gameState.weather.type === 'none') return;
@@ -550,22 +555,6 @@ function loadMap(mapName) {
     document.getElementById('currentMapName').textContent = mapData.name;
 }
 
-/* function checkTransition() {
-    const key = `${gameState.player.x},${gameState.player.y}`;
-    const trans = mapTransitions[gameState.currentMap];
-    if (trans && trans[key]) {
-        const t = trans[key];
-        addMessage("===================");
-        addMessage(t.message);
-        addMessage("===================");
-        loadMap(t.map);
-        gameState.player.x = t.x;
-        gameState.player.y = t.y;
-        renderWorld();
-		updateExploration()
-        updateStatus();
-    }
-} */
 
 function checkTransition() {
     const key = `${gameState.player.x},${gameState.player.y}`;
@@ -1171,7 +1160,11 @@ function renderWorld() {
     if (img && img.complete) {
         ctx.drawImage(img, playerViewX * TILE_SIZE, playerViewY * TILE_SIZE, TILE_SIZE, TILE_SIZE);
     }
+	
     renderWeather();
+	renderWeaponPreview();
+	
+	
     // RENDER FOG OF WAR
     // RENDER FOG OF WAR
 	if (gameState.fogOfWarEnabled) {
@@ -1498,6 +1491,9 @@ function movePlayer(dx, dy) {
     if (gameState.player.weaponCooldown > 0) gameState.player.weaponCooldown--;
     gameState.player.stepCount++;
     if (gameState.player.stepCount % CONFIG.spawning.checkInterval === 0) trySpawnEnemy();
+	if (gameState.combat.inCombat && gameState.weaponPreview.active) {
+        updateWeaponPreview();
+    }
     renderWorld();
     updateStatus();
 } 
@@ -1668,13 +1664,147 @@ function lookAround() {
 // ===== COMBAT =====
 function toggleCombatMode() {
     gameState.combat.inCombat = !gameState.combat.inCombat;
+    
     if (gameState.combat.inCombat) {
         addMessage("=== TACTICAL MODE ===");
         addMessage("Arrows to attack. +25% dmg!");
+        
+        // Only enable if config allows
+        if (CONFIG.ui.showWeaponPreview) {
+            gameState.weaponPreview.active = true;
+            updateWeaponPreview();
+        }
     } else {
         addMessage("Tactical OFF.");
+        gameState.weaponPreview.active = false;
+        gameState.weaponPreview.tiles = [];
+    }
+    
+    renderWorld();
+}
+
+function updateWeaponPreview() {
+    gameState.weaponPreview.tiles = [];
+    
+    const weaponId = gameState.equipment.weapon;
+    if (!weaponId) {
+        addMessage("No weapon equipped!");
+        return;
+    }
+    
+    const weapon = itemDatabase[weaponId];
+    const pattern = weaponReach[weapon.weaponType];
+    
+    if (weapon.weaponType === weaponTypes.FLAIL) {
+        // Flail hits all adjacent tiles
+        pattern.pattern.forEach(([ox, oy]) => {
+            const tx = gameState.player.x + ox;
+            const ty = gameState.player.y + oy;
+            if (tx >= 0 && tx < gameState.world.width && 
+                ty >= 0 && ty < gameState.world.height) {
+                gameState.weaponPreview.tiles.push({ x: tx, y: ty });
+            }
+        });
+        
+    } else if (weapon.weaponType === weaponTypes.BOW) {
+        // Bow shoots in 4 directions until obstacle
+        const directions = [[0, -1], [1, 0], [0, 1], [-1, 0]];
+        
+        directions.forEach(([dx, dy]) => {
+            for (let distance = 1; distance <= 10; distance++) {
+                const tx = gameState.player.x + (dx * distance);
+                const ty = gameState.player.y + (dy * distance);
+                
+                // Check bounds
+                if (tx < 0 || tx >= gameState.world.width || 
+                    ty < 0 || ty >= gameState.world.height) {
+                    break;
+                }
+                
+                // Check if tile blocks projectiles
+                const tile = gameState.world.tiles[ty][tx];
+                if (!tileTypes[tile].passable) {
+                    break;
+                }
+                
+                gameState.weaponPreview.tiles.push({ x: tx, y: ty });
+                
+                // Stop at first enemy (arrow hits it)
+                if (gameState.enemies.find(e => e.x === tx && e.y === ty)) {
+                    break;
+                }
+            }
+        });
+        
+    } else {
+        // Standard melee weapons (sword, dagger, axe, staff, mace)
+        // Show all tiles in their pattern
+        pattern.pattern.forEach(([ox, oy]) => {
+            const tx = gameState.player.x + ox;
+            const ty = gameState.player.y + oy;
+            if (tx >= 0 && tx < gameState.world.width && 
+                ty >= 0 && ty < gameState.world.height) {
+                gameState.weaponPreview.tiles.push({ x: tx, y: ty });
+            }
+        });
     }
 }
+
+// 4. NEW FUNCTION: Render the weapon range overlay
+function renderWeaponPreview() {
+    if (!gameState.weaponPreview.active || 
+        gameState.weaponPreview.tiles.length === 0) {
+        return;
+    }
+    
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const camera = getCameraPosition();
+    
+    // Create pulsing effect - oscillate between 0.4 and 0.9 alpha
+    const time = Date.now() / 200;  // Adjust speed here (lower = faster)
+    const pulse = 0.4 + (Math.abs(Math.sin(time)) * 0.5);
+    
+    gameState.weaponPreview.tiles.forEach(tile => {
+        const viewX = tile.x - camera.x;
+        const viewY = tile.y - camera.y;
+        
+        // Only render if tile is visible on screen
+        if (viewX >= 0 && viewX < VIEWPORT_WIDTH && 
+            viewY >= 0 && viewY < VIEWPORT_HEIGHT) {
+            
+            // Check if enemy is on this tile (for extra emphasis)
+            const hasEnemy = gameState.enemies.some(e => e.x === tile.x && e.y === tile.y);
+            
+            if (hasEnemy) {
+                // Enemy in range - draw filled rectangle with transparency
+                ctx.fillStyle = CGA.MAGENTA;
+                ctx.globalAlpha = pulse * 0.3;  // Subtle fill
+                ctx.fillRect(
+                    viewX * TILE_SIZE, 
+                    viewY * TILE_SIZE, 
+                    TILE_SIZE, 
+                    TILE_SIZE
+                );
+            }
+            
+            // Draw border
+            ctx.strokeStyle = CGA.MAGENTA;
+            ctx.lineWidth = 2;
+            ctx.globalAlpha = pulse;
+            ctx.strokeRect(
+                viewX * TILE_SIZE + 1, 
+                viewY * TILE_SIZE + 1, 
+                TILE_SIZE - 2, 
+                TILE_SIZE - 2
+            );
+            
+            // Reset alpha
+            ctx.globalAlpha = 1.0;
+        }
+    });
+}
+
 
 function attemptAttack(dx, dy) {
     if (gameState.player.weaponCooldown > 0) {
@@ -1720,6 +1850,9 @@ function attemptAttack(dx, dy) {
     gameState.player.weaponCooldown = pattern.cooldown;
     enemyTurn();
     if (gameState.player.weaponCooldown > 0) gameState.player.weaponCooldown--;
+	if (gameState.combat.inCombat && gameState.weaponPreview.active) {
+        updateWeaponPreview();
+    }
     renderWorld();
     updateStatus();
     return true;
@@ -2057,46 +2190,6 @@ function updateInventoryDisplay() {
     });
 }
 
-/* function equipItem() {
-	
-	console.log('Current equipment:', JSON.stringify(gameState.equipment));
-    console.log('Trying to equip:', gameState.player.inventory[gameState.selectedItemIndex]);
-	
-    if (gameState.selectedItemIndex < 0 || gameState.selectedItemIndex >= gameState.player.inventory.length) {
-        addMessage("No item selected.");
-        return;
-    }
-    const itemId = gameState.player.inventory[gameState.selectedItemIndex];
-    const item = itemDatabase[itemId];
-    if (!item.canEquip) { addMessage(`Cannot equip ${item.name}.`); return; }
-    
-    const slot = item.slot;
-    
-    // If THIS item type is already equipped, unequip it
-    if (gameState.equipment[slot] === itemId) {
-        gameState.equipment[slot] = null;
-        addMessage(`Unequipped ${item.name}.`);
-    } 
-    // Check if this itemId is equipped in ANY slot (prevent duplicates)
-    else if (Object.values(gameState.equipment).includes(itemId)) {
-        addMessage(`You already have a ${item.name} equipped!`);
-        return;
-    }
-    // Something else is in this slot
-    else if (gameState.equipment[slot]) {
-        const old = itemDatabase[gameState.equipment[slot]];
-        addMessage(`Unequipped ${old.name}.`);
-        gameState.equipment[slot] = itemId;
-        addMessage(`Equipped ${item.name}!`);
-    } 
-    // Slot is empty
-    else {
-        gameState.equipment[slot] = itemId;
-        addMessage(`Equipped ${item.name}!`);
-    }
-    
-    updateInventoryDisplay();
-} */
 
 function equipItem() {
     console.log('Current equipment:', JSON.stringify(gameState.equipment));
@@ -2165,6 +2258,9 @@ function equipItem() {
     }
     
     updateInventoryDisplay();
+	if (gameState.combat.inCombat && gameState.weaponPreview.active) {
+        updateWeaponPreview();
+    }
 }
 
 function useItem() {
