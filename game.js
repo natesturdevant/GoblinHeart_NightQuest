@@ -1512,21 +1512,7 @@ function performAction() {
     const y = gameState.player.y;
     
     const lootIdx = gameState.lootBags.findIndex(l => l.x === x && l.y === y);
-    /* if (lootIdx !== -1) {
-        const loot = gameState.lootBags[lootIdx];
-        addMessage("Picked up loot!");
-        if (loot.gold > 0) { gameState.player.gold += loot.gold; addMessage(`+${loot.gold} gold!`); }
-        if (loot.items.length > 0) {
-            loot.items.forEach(itemId => {
-                gameState.player.inventory.push(itemId);
-                addMessage(`Found ${itemDatabase[itemId].name}!`);
-            });
-        }
-        gameState.lootBags.splice(lootIdx, 1);
-        renderWorld();
-        updateStatus();
-        return;
-    } */
+    
 	if (lootIdx !== -1) {
         const loot = gameState.lootBags[lootIdx];
         addMessage("Picked up loot!");
@@ -1585,11 +1571,18 @@ function performAction() {
 			
             if (treas.gold > 0) { gameState.player.gold += treas.gold; addMessage(`+${treas.gold} gold!`); }
             if (treas.items && treas.items.length > 0) {
-                treas.items.forEach(itemId => {
-                    gameState.player.inventory.push(itemId);
-                    addMessage(`Found ${itemDatabase[itemId].name}!`);
-                });
-            }
+				treas.items.forEach(itemId => {
+				// ADD SAFETY CHECK
+				if (!itemDatabase[itemId]) {
+					console.error(`Item not found in database: ${itemId}`);
+					addMessage(`Found unknown item: ${itemId}`);
+            return;
+        }
+        
+        gameState.player.inventory.push(itemId);
+        addMessage(`Found ${itemDatabase[itemId].name}!`);
+    });
+}
             gameState.collectedTreasures[gameState.currentMap].push(key);
             gameState.world.tiles[y] = gameState.world.tiles[y].substring(0, x) + '.' + gameState.world.tiles[y].substring(x + 1);
             addMessage("Chest vanishes!");
@@ -2179,14 +2172,21 @@ function updateInventoryDisplay() {
             const isEquipped = equippedItemIds.has(itemId) && !alreadyMarked.has(itemId);
             if (isEquipped) alreadyMarked.add(itemId);
             
-            // BETTER EQUIPPED INDICATOR - use symbol
-            const eqText = isEquipped ? ' ⚔' : '';
+            // DIFFERENT INDICATORS FOR DIFFERENT TYPES
+            let eqText = '';
+            if (item.type === 'key_item') {
+                eqText = ' 🔑';  // Key item indicator
+            } else if (isEquipped) {
+                eqText = ' ⚔';  // Equipped indicator
+            }
             
             let typeText = '';
             if (item.type === 'weapon' && item.weaponType) {
                 typeText = ` (${item.weaponType})`;
             } else if (item.type === 'consumable' && item.onUse) {
                 typeText = ' [U]';
+            } else if (item.type === 'key_item') {
+                typeText = ' [KEY]';
             }
             
             // Build stats text - only show non-zero stats
@@ -2336,12 +2336,20 @@ function useItem() {
 
 
 function dropItem() {
-    if (gameState.selectedItemIndex < 0 || gameState.selectedItemIndex >= gameState.player.inventory.length) {
+    if (gameState.selectedItemIndex < 0 || 
+        gameState.selectedItemIndex >= gameState.player.inventory.length) {
         addMessage("No item selected.");
         return;
     }
+    
     const itemId = gameState.player.inventory[gameState.selectedItemIndex];
     const item = itemDatabase[itemId];
+    
+    // BLOCK KEY ITEMS
+    if (item.canDrop === false) {
+        addMessage("Cannot drop key items!", CGA.MAGENTA);
+        return;
+    }
     
     // Count how many of this item we have
     const itemCount = gameState.player.inventory.filter(id => id === itemId).length;
@@ -2373,6 +2381,7 @@ function dropItem() {
     updateInventoryDisplay();
     renderWorld();
 }
+
 
 function moveSelection(dir) {
     if (gameState.player.inventory.length === 0) return;
@@ -2615,8 +2624,15 @@ function buyItem() {
 
 function sellItem() {
     if (gameState.shopSelectedIndex >= gameState.player.inventory.length) return;
+    
     const itemId = gameState.player.inventory[gameState.shopSelectedIndex];
     const item = itemDatabase[itemId];
+    
+    // BLOCK KEY ITEMS
+    if (item.canSell === false) {
+        addMessage("Cannot sell key items!", CGA.MAGENTA);
+        return;
+    }
     
     // Count how many of this item we have
     const itemCount = gameState.player.inventory.filter(id => id === itemId).length;
@@ -2636,12 +2652,15 @@ function sellItem() {
     } else {
         sellPrice = 25;
     }
+    
     gameState.player.gold += sellPrice;
     gameState.player.inventory.splice(gameState.shopSelectedIndex, 1);
     addMessage(`Sold ${item.name} for ${sellPrice}G!`);
+    
     if (gameState.shopSelectedIndex >= gameState.player.inventory.length) {
         gameState.shopSelectedIndex = Math.max(0, gameState.player.inventory.length - 1);
     }
+    
     updateShopDisplay();
     updateStatus();
 }

@@ -1963,6 +1963,99 @@ const consumableItems = {
     }
 };
 
+// ===========KEY ITEMS====================
+
+const keyItems = {
+    'silver_key': {
+        name: 'Silver Key',
+        description: 'An ornate silver key. Opens silver doors in the ancient dungeons.',
+        type: 'key_item',
+        canEquip: false,
+        canDrop: false,
+        canSell: false,
+        rarity: 'unique',
+        tier: 0
+    },
+    
+    'ancient_compass': {
+        name: 'Ancient Compass',
+        description: 'A weathered compass that always points toward the portal source.',
+        type: 'key_item',
+        canEquip: false,
+        canDrop: false,
+        canSell: false,
+        rarity: 'unique',
+        tier: 0
+    },
+    
+    'sarahs_locket': {
+        name: "Sarah's Locket",
+        description: 'A silver locket with a faded photograph inside. Very precious to Sarah.',
+        type: 'key_item',
+        canEquip: false,
+        canDrop: false,
+        canSell: false,
+        rarity: 'unique',
+        tier: 0
+    },
+    
+    'seal_fragment_moon': {
+        name: 'Moon Seal Fragment',
+        description: 'One of three ancient seal fragments. Bears the mark of the moon.',
+        type: 'key_item',
+        canEquip: false,
+        canDrop: false,
+        canSell: false,
+        rarity: 'unique',
+        tier: 0
+    },
+    
+    'seal_fragment_sun': {
+        name: 'Sun Seal Fragment',
+        description: 'One of three ancient seal fragments. Bears the mark of the sun.',
+        type: 'key_item',
+        canEquip: false,
+        canDrop: false,
+        canSell: false,
+        rarity: 'unique',
+        tier: 0
+    },
+    
+    'seal_fragment_star': {
+        name: 'Star Seal Fragment',
+        description: 'One of three ancient seal fragments. Bears the mark of the stars.',
+        type: 'key_item',
+        canEquip: false,
+        canDrop: false,
+        canSell: false,
+        rarity: 'unique',
+        tier: 0
+    },
+    
+    'elder_token': {
+        name: "Elder's Token",
+        description: 'A token of trust from Elder Aldric. Proves you have his blessing.',
+        type: 'key_item',
+        canEquip: false,
+        canDrop: false,
+        canSell: false,
+        rarity: 'unique',
+        tier: 0
+    },
+    
+    'ritual_book': {
+        name: 'Ritual Book',
+        description: 'An ancient tome describing the ritual that opened the portal in 1982.',
+        type: 'key_item',
+        canEquip: false,
+        canDrop: false,
+        canSell: false,
+        rarity: 'unique',
+        tier: 0
+    }
+};
+//Object.assign(itemDatabase, keyItems);
+
 // Spell scrolls
 const spellScrolls = {
     'spell_fire_bolt': {
@@ -2063,7 +2156,8 @@ const itemDatabase = {
     ...consumableItems,
     ...spellScrolls,
     ...uniqueItems,
-    ...setItems
+    ...setItems,
+	...keyItems
 };
 
 // ===== LOOT GENERATION =====

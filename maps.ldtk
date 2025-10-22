@@ -11,7 +11,7 @@
 	"iid": "e950ec60-8560-11f0-84ce-89b2d14cf2b8",
 	"jsonVersion": "1.5.3",
 	"appBuildId": 473703,
-	"nextUid": 32,
+	"nextUid": 33,
 	"identifierStyle": "Capitalize",
 	"toc": [],
 	"worldLayout": "Free",
@@ -1468,6 +1468,33 @@
 							],
 							"__worldX": 176,
 							"__worldY": 80
+						},
+						{
+							"__identifier": "Transition",
+							"__grid": [25,5],
+							"__pivot": [0,0],
+							"__tags": [],
+							"__tile": null,
+							"__smartColor": "#EAD4AA",
+							"iid": "86b0a600-ac70-11f0-bd8e-6b6cd3b98f0e",
+							"width": 16,
+							"height": 16,
+							"defUid": 8,
+							"px": [400,80],
+							"fieldInstances": [
+								{ "__identifier": "to_map", "__type": "String", "__value": "Bar", "__tile": null, "defUid": 9, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["Bar"]
+								}] },
+								{ "__identifier": "to_x", "__type": "Int", "__value": 5, "__tile": null, "defUid": 10, "realEditorValues": [{ "id": "V_Int", "params": [5] }] },
+								{ "__identifier": "to_y", "__type": "Int", "__value": 7, "__tile": null, "defUid": 11, "realEditorValues": [{ "id": "V_Int", "params": [7] }] },
+								{ "__identifier": "message", "__type": "String", "__value": "You step into the bar. Blue tinged smoke hangs around the dim lights like a shroud.", "__tile": null, "defUid": 12, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["You step into the bar. Blue tinged smoke hangs around the dim lights like a shroud."]
+								}] }
+							],
+							"__worldX": 400,
+							"__worldY": 80
 						}
 					]
 				},
@@ -2032,8 +2059,8 @@
 			"identifier": "Train",
 			"iid": "e47fe010-8560-11f0-9f39-d9f6103eda44",
 			"uid": 30,
-			"worldX": 418,
-			"worldY": -1310,
+			"worldX": 232,
+			"worldY": -575,
 			"worldDepth": 0,
 			"pxWid": 864,
 			"pxHei": 112,
@@ -2091,8 +2118,8 @@
 							"defUid": 6,
 							"px": [96,17],
 							"fieldInstances": [{ "__identifier": "npc_type", "__type": "String", "__value": null, "__tile": null, "defUid": 7, "realEditorValues": [] }],
-							"__worldX": 514,
-							"__worldY": -1293
+							"__worldX": 328,
+							"__worldY": -558
 						}
 					]
 				},
@@ -2129,6 +2156,118 @@
 					],
 					"autoLayerTiles": [],
 					"seed": 1545012,
+					"overrideTilesetUid": null,
+					"gridTiles": [],
+					"entityInstances": []
+				}
+			],
+			"__neighbours": []
+		},
+		{
+			"identifier": "Bar",
+			"iid": "1c800c30-ac70-11f0-bd8e-c31266ff1ae1",
+			"uid": 32,
+			"worldX": 120,
+			"worldY": -299,
+			"worldDepth": 0,
+			"pxWid": 256,
+			"pxHei": 128,
+			"__bgColor": "#696A79",
+			"bgColor": null,
+			"useAutoIdentifier": false,
+			"bgRelPath": null,
+			"bgPos": null,
+			"bgPivotX": 0.5,
+			"bgPivotY": 0.5,
+			"__smartColor": "#ADADB5",
+			"__bgPos": null,
+			"externalRelPath": null,
+			"fieldInstances": [
+				{ "__identifier": "spawnRate", "__type": "Float", "__value": 0, "__tile": null, "defUid": 23, "realEditorValues": [{ "id": "V_Float", "params": [0] }] },
+				{ "__identifier": "spawnTypes", "__type": "Array<String>", "__value": [], "__tile": null, "defUid": 24, "realEditorValues": [] },
+				{ "__identifier": "spawnWeights", "__type": "Array<Float>", "__value": [], "__tile": null, "defUid": 25, "realEditorValues": [] },
+				{ "__identifier": "maxEnemies", "__type": "Int", "__value": 8, "__tile": null, "defUid": 26, "realEditorValues": [] }
+			],
+			"layerInstances": [
+				{
+					"__identifier": "Entities",
+					"__type": "Entities",
+					"__cWid": 16,
+					"__cHei": 8,
+					"__gridSize": 16,
+					"__opacity": 1,
+					"__pxTotalOffsetX": 0,
+					"__pxTotalOffsetY": 0,
+					"__tilesetDefUid": null,
+					"__tilesetRelPath": null,
+					"iid": "1c800c31-ac70-11f0-bd8e-810731470eb7",
+					"levelId": 32,
+					"layerDefUid": 2,
+					"pxOffsetX": 0,
+					"pxOffsetY": 0,
+					"visible": true,
+					"optionalRules": [],
+					"intGridCsv": [],
+					"autoLayerTiles": [],
+					"seed": 5554156,
+					"overrideTilesetUid": null,
+					"gridTiles": [],
+					"entityInstances": [
+						{
+							"__identifier": "Transition",
+							"__grid": [5,7],
+							"__pivot": [0,0],
+							"__tags": [],
+							"__tile": null,
+							"__smartColor": "#EAD4AA",
+							"iid": "b8aa1330-ac70-11f0-bd8e-15c306d3d471",
+							"width": 16,
+							"height": 16,
+							"defUid": 8,
+							"px": [80,112],
+							"fieldInstances": [
+								{ "__identifier": "to_map", "__type": "String", "__value": "Overworld", "__tile": null, "defUid": 9, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["Overworld"]
+								}] },
+								{ "__identifier": "to_x", "__type": "Int", "__value": 25, "__tile": null, "defUid": 10, "realEditorValues": [{ "id": "V_Int", "params": [25] }] },
+								{ "__identifier": "to_y", "__type": "Int", "__value": 5, "__tile": null, "defUid": 11, "realEditorValues": [{ "id": "V_Int", "params": [5] }] },
+								{ "__identifier": "message", "__type": "String", "__value": "You step out into the street. The streetlights cut through the night.", "__tile": null, "defUid": 12, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["You step out into the street. The streetlights cut through the night."]
+								}] }
+							],
+							"__worldX": 200,
+							"__worldY": -187
+						}
+					]
+				},
+				{
+					"__identifier": "Tiles",
+					"__type": "IntGrid",
+					"__cWid": 16,
+					"__cHei": 8,
+					"__gridSize": 16,
+					"__opacity": 1,
+					"__pxTotalOffsetX": 0,
+					"__pxTotalOffsetY": 0,
+					"__tilesetDefUid": null,
+					"__tilesetRelPath": null,
+					"iid": "1c800c32-ac70-11f0-bd8e-a7e70b877c6f",
+					"levelId": 32,
+					"layerDefUid": 1,
+					"pxOffsetX": 0,
+					"pxOffsetY": 0,
+					"visible": true,
+					"optionalRules": [],
+					"intGridCsv": [
+						23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,22,13,11,11,11,0,0,0,0,0,0,0,0,22,23,23,11,11,
+						11,11,11,0,24,24,24,24,24,24,24,24,23,23,11,13,11,11,11,0,0,10,0,10,0,10,0,10,23,23,11,11,11,11,11,
+						0,0,0,0,0,0,0,0,0,23,23,11,13,11,11,11,0,0,0,0,0,0,0,0,0,23,23,11,11,11,2,6,2,0,0,
+						0,0,0,0,0,22,23,23,23,12,23,23,0,23,23,12,12,12,12,23,23,23,23
+					],
+					"autoLayerTiles": [],
+					"seed": 96899,
 					"overrideTilesetUid": null,
 					"gridTiles": [],
 					"entityInstances": []
