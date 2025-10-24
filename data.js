@@ -1119,6 +1119,86 @@ const shopInventory = {
     ]
 };
 
+// Map Display Names
+const mapDisplayNames = {
+    'Overworld': 'Mansfield',
+    'town': 'Haven Village',
+    'Dungeon1': 'Dark Catacombs',
+    'Video_Store': 'Video Paradise II',
+    'ancient_ruins': 'Ancient Ruins',
+    // Add more as you create new maps
+};
+
+// Helper function to get display name
+function getMapDisplayName(mapId) {
+    return mapDisplayNames[mapId] || mapId;  // Fallback to ID if not found
+}
+
+// Map Descriptions - displayed when player looks around
+const mapDescriptions = {
+    'Overworld': [
+        "A verdant wilderness stretches before you.",
+        "Trees sway in the breeze, mountains loom in the distance.",
+        "Mysterious waters flow through the land.",
+        "Danger and treasure await the bold."
+    ],
+    
+    'Dungeon1': [
+        "Dark stone corridors echo with distant sounds.",
+        "The air is cold and damp.",
+        "Ancient evil dwells in these depths.",
+        "Only the brave dare venture deeper."
+    ],
+    
+    'town': [
+        "Haven Village - a peaceful settlement.",
+        "Cottages line the streets, smoke rises from chimneys.",
+        "The townsfolk go about their daily lives.",
+        "A safe haven from the dangers beyond."
+    ],
+    
+    'Video_Store': [
+        "Aisles and aisles of sweet sweet VHS.",
+        "Horror, sci-fi, classics, and much more.",
+        "You wonder how many you have seen..."
+    ],
+    
+    // ADD MORE MAPS HERE:
+    'ancient_ruins': [
+        "Crumbling pillars stand like silent sentinels.",
+        "The ruins whisper of a forgotten age.",
+        "Something terrible happened here in 1982."
+    ],
+    
+    'sewers': [
+        "The stench is overwhelming.",
+        "Water drips from moss-covered walls.",
+        "Something skitters in the darkness ahead."
+    ]
+};
+
+// Maps that trigger journal entries on first look
+const mapJournalEntries = {
+    'Video_Store': {
+        title: 'The Video Store',
+        blocks: [
+            { type: 'text', content: "It's my kind of place. You can really smell the atmosphere." },
+            { type: 'image', imageId: 'video_store', width: 100, height: 100 },
+			{ type: 'text', content: "Eddie", align: 'center' },  
+            { type: 'text', content: "Plus I get to use the lamination machine whenever I want! Which isn't as often as you might think but it's enough." }
+        ]
+    },
+    
+    // ADD MORE JOURNAL TRIGGERS:
+    'ancient_ruins': {
+        title: 'The Ancient Ruins',
+        blocks: [
+            { type: 'text', content: 'These ruins feel... familiar somehow. Like a memory just out of reach.' },
+            { type: 'text', content: 'The walls are scorched black. Whatever happened here was violent and sudden.' }
+        ]
+    }
+};
+
 // These will be populated by LDtk loader
 let maps = {};
 let mapTransitions = {};

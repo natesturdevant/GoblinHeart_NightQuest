@@ -553,6 +553,7 @@ function loadMap(mapName) {
     }
     
     document.getElementById('currentMapName').textContent = mapData.name;
+	document.getElementById('currentMapName').textContent = getMapDisplayName(mapName);
 }
 
 
@@ -1340,7 +1341,8 @@ function updateStatus() {
     document.getElementById('playerMp').textContent = gameState.player.mp || 0;
     document.getElementById('playerMaxMp').textContent = gameState.player.maxMp || 0;
     document.getElementById('playerLevel').textContent = gameState.player.level || 1;
-    document.getElementById('statusStrength').textContent = stats.strength || 0;
+    //document.getElementById('statusStrength').textContent = stats.strength || 0;
+	document.getElementById('statusStrength').textContent = `${gameState.player.x},${gameState.player.y}`;
     document.getElementById('playerGold').textContent = gameState.player.gold || 0;
     document.getElementById('playerXp').textContent = gameState.player.xp || 0;
     document.getElementById('playerXpNext').textContent = getXpForNextLevel();
@@ -1660,33 +1662,33 @@ function searchLocation() {
 
 function lookAround() {
     const mapData = maps[gameState.currentMap];
-    addMessage(`=== ${mapData.name} ===`);
+    const displayName = getMapDisplayName(gameState.currentMap);
     
-    if (gameState.currentMap === 'Overworld') {
-        addMessage("A verdant wilderness stretches before you. Trees sway in the breeze, mountains loom in the distance, and mysterious waters flow through the land. Danger and treasure await the bold.");
-    } else if (gameState.currentMap === 'Dungeon1') {
-        addMessage("Dark stone corridors echo with distant sounds. The air is cold and damp. Ancient evil dwells in these depths. Only the brave dare venture deeper.");
-    } else if (gameState.currentMap === 'town') {
-        addMessage("Haven Village - a peaceful settlement. Cottages line the streets, smoke rises from chimneys. The townsfolk go about their daily lives. A safe haven from the dangers beyond.");
+    // Header with map name
+    addMessage(`=== ${displayName} ===`);
+    
+    // Get description for current map
+    const description = mapDescriptions[gameState.currentMap];
+    
+    if (description) {
+        // Display all description lines
+        description.forEach(line => addMessage(line));
+    } else {
+        // Fallback for maps without descriptions yet
+        addMessage("You look around and take in your surroundings.");
+        console.warn(`No description found for map: ${gameState.currentMap}`);
     }
-	else if (gameState.currentMap === 'Video_Store') {
-    addMessage("Aisles and aisles of sweet sweet VHS");
-    addMessage("Horror, sci-fi, classics, and much more.");
-    addMessage("You wonder how many you have seen...");
     
-    // Only add journal entry if it doesn't exist
-    const entryAdded = addJournalEntry('The Video Store', [
-        { type: 'text', content: "It's my kind of place. You can really smell the atmosphere." },
-        { type: 'image', imageId: 'video_store', width: 100, height: 100 },
-        { type: 'text', content: "Plus I get to use the lamination machine whenever I want! Which isn't as often as you might think but it's enough." }
-    ]);
-    
-    // Only show "Journal updated..." if we actually added it
-    if (entryAdded) {
-        addMessage("Journal updated...");
+    // Check if this map triggers a journal entry
+    const journalEntry = mapJournalEntries[gameState.currentMap];
+    if (journalEntry) {
+        const entryAdded = addJournalEntry(journalEntry.title, journalEntry.blocks);
+        if (entryAdded) {
+            addMessage("Journal updated...");
+        }
     }
-	}	
 }
+
 
 // ===== COMBAT =====
 function toggleCombatMode() {
