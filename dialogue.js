@@ -2,6 +2,7 @@
 console.log('=== DIALOGUE.JS IS LOADING ===');
 
 const dialogueDatabase = 
+
 {
   "elder_aldric": {
     "name": "Elder Aldric",
@@ -62,12 +63,12 @@ const dialogueDatabase =
     ]
   },
   "villager_female": {
-    "name": "Villager_female",
+    "name": "Ellen",
     "sprite": "villager_female",
     "isShopkeeper": false,
     "lines": [
       {
-        "text": "Hello, traveler.",
+        "text": "Hello, {{Name}}.",
         "requires": {},
         "sets": {
           "talked_before": true
@@ -131,6 +132,20 @@ const dialogueDatabase =
           "flags": {
             "talked_before": true
           }
+        }
+      }
+    ]
+  },
+  "villager_innkeeper": {
+    "name": "Molly (Innkeeper)",
+    "sprite": "villager_innkeeper",
+    "isShopkeeper": false,
+    "lines": [
+      {
+        "text": "Hello, {{name}}. Rest for 50 gold?",
+        "requires": {},
+        "sets": {
+          "talked_before": true
         }
       }
     ]

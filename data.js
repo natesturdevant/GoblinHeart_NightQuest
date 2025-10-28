@@ -1137,10 +1137,10 @@ function getMapDisplayName(mapId) {
 // Map Descriptions - displayed when player looks around
 const mapDescriptions = {
     'Overworld': [
-        "A verdant wilderness stretches before you.",
-        "Trees sway in the breeze, mountains loom in the distance.",
-        "Mysterious waters flow through the land.",
-        "Danger and treasure await the bold."
+        "Mansfield.",
+        "You've lived here your whole life.",
+        "It's a little too familiar.",
+        "So what, right?."
     ],
     
     'Dungeon1': [

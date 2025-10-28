@@ -90,8 +90,14 @@ let gameState = {
     journalHeight: 11  // tiles
 	},
     viewMode: 'game', 
-    //world: { width: CONFIG.world.width, height: CONFIG.world.height, tiles: [...maps.overworld.tiles] }
-	//world: { width: 20, height: 15, tiles: [...maps.overworld.tiles] }
+	//=============================
+    restSystem: {
+        lastRestDay: 0,
+        canCamp: true,
+        campSupplies: 3
+    },
+    pendingInnRest: null,
+	//=============================
 	
 	world: { width: 20, height: 15, tiles: [] },
 
@@ -1425,6 +1431,11 @@ function movePlayer(dx, dy) {
 	
 	if (gameState.fadeInProgress) return;
 	
+	 if (gameState.pendingInnRest) {
+        gameState.pendingInnRest = null;
+        addMessage("Cancelled rest.");
+    }
+	
 	
 	if (locs && locs[key]) {
     const special = locs[key];
@@ -1606,6 +1617,12 @@ function performAction() {
     if (adjacentNPC) {
     const npcData = getNPCData(adjacentNPC.type);
     
+	//Innkeepers
+	if (adjacentNPC.type === 'innkeeper_molly' || adjacentNPC.type === 'villager_innkeeper') {
+        handleInnkeeper(adjacentNPC);
+        return;
+    }
+	
     // Handle shopkeepers
     if (npcData && npcData.isShopkeeper) {
         openShop(adjacentNPC.type);
@@ -1626,6 +1643,124 @@ function performAction() {
     
     addMessage("Nothing here.");
 }
+//==============REST HELPER FUNCTIONS===================
+
+
+function rest(location = 'camp', cost = 0) {
+    if (location === 'inn' && gameState.player.gold < cost) {
+        addMessage("Not enough gold!", CGA.MAGENTA);
+        return;
+    }
+    
+    if (location === 'camp' && !canCampHere()) {
+        return;
+    }
+    
+    if (location === 'inn') {
+        gameState.player.gold -= cost;
+        addMessage(`Paid ${cost} gold for a room.`);
+    }
+    
+    fadeToBlack(() => {
+        addMessage("===================");
+        
+        const restMessages = {
+            inn: [
+                "You sink into a soft bed...",
+                "The innkeeper brings you warm soup.",
+                "You drift off to the sound of crackling fire...",
+                "You sleep peacefully through the night."
+            ],
+            camp: [
+                "You set up camp under the stars...",
+                "The campfire crackles softly.",
+                "You rest fitfully on the hard ground...",
+                "Dawn breaks. Time to move on."
+            ]
+        };
+        
+        const messages = restMessages[location];
+        const message = messages[Math.floor(Math.random() * messages.length)];
+        addMessage(message);
+        
+        const healPercent = location === 'inn' ? 1.0 : 0.6;
+		
+
+        const oldHp = gameState.player.hp;
+        const oldMp = gameState.player.mp;
+        
+        
+		
+		const targetHp = Math.floor(gameState.player.maxHp * healPercent);
+		const targetMp = Math.floor(gameState.player.maxMp * healPercent);
+
+		gameState.player.hp = Math.max(gameState.player.hp, targetHp); // Take the higher value
+		gameState.player.mp = Math.max(gameState.player.mp, targetMp); // Take the higher value
+
+		const hpGained = gameState.player.hp - oldHp;
+		const mpGained = gameState.player.mp - oldMp;
+
+		if (hpGained > 0) addMessage(`HP restored: +${hpGained}`, CGA.CYAN);
+		if (mpGained > 0) addMessage(`MP restored: +${mpGained}`, CGA.CYAN);
+        
+        if (gameState.combat.inCombat) {
+            gameState.combat.inCombat = false;
+            gameState.weaponPreview.active = false;
+            gameState.weaponPreview.tiles = [];
+        }
+        
+        if (gameState.restSystem) {
+            gameState.restSystem.lastRestDay++;
+        }
+        
+        addMessage("===================");
+        
+        setTimeout(() => {
+            clearFade();
+            renderWorld();
+            updateStatus();
+        }, 1000);
+    });
+}
+
+function canCampHere() {
+    const currentTile = gameState.world.tiles[gameState.player.y][gameState.player.x];
+    const campableTiles = ['.', '`', ',', 's'];
+    
+    if (!campableTiles.includes(currentTile)) {
+        addMessage("Cannot camp here! Need grass or sand.", CGA.MAGENTA);
+        return false;
+    }
+    
+    const nearbyEnemies = gameState.enemies.some(enemy => {
+        const dist = Math.abs(enemy.x - gameState.player.x) + Math.abs(enemy.y - gameState.player.y);
+        return dist <= 3;
+    });
+    
+    if (nearbyEnemies) {
+        addMessage("Too dangerous! Enemies nearby!", CGA.MAGENTA);
+        return false;
+    }
+    
+    if (gameState.currentMap === 'town') {
+        addMessage("Cannot camp in town. Find an inn!", CGA.MAGENTA);
+        return false;
+    }
+    
+    return true;
+}
+
+function handleInnkeeper(npc) {
+    const innCost = 50;
+    addMessage(`${npc.name}: "A room for the night? 50 gold."`, CGA.WHITE);
+    addMessage("Press 'R' to rest, or move away to cancel.", CGA.CYAN);
+    gameState.pendingInnRest = {
+        npcId: npc.id,
+        cost: innCost
+    };
+}
+
+//================END REST HELPER FUNCTIONS===================
 
 
 function searchLocation() {
@@ -3256,7 +3391,23 @@ const keyBindings = {
         'L': lookAround,
         'w': waitTurn,
         'W': waitTurn,
-        ' ': waitTurn
+        ' ': waitTurn,
+		'r': () => {
+            if (gameState.pendingInnRest) {
+                rest('inn', gameState.pendingInnRest.cost);
+                gameState.pendingInnRest = null;
+            } else {
+                rest('camp', 0);
+            }
+        },
+        'R': () => {
+            if (gameState.pendingInnRest) {
+                rest('inn', gameState.pendingInnRest.cost);
+                gameState.pendingInnRest = null;
+            } else {
+                rest('camp', 0);
+            }
+        },
     },
     
     // UI Toggles
@@ -3418,6 +3569,11 @@ function getInputMode() {
 
 // ===== MAIN EVENT HANDLER =====
 document.addEventListener('keydown', function(e) {
+	
+	if (e.ctrlKey || e.metaKey) {
+        return; // Let browser handle it
+    }
+	
     // Block ALL input during fade effects
     if (gameState.fadeInProgress) {
         e.preventDefault();

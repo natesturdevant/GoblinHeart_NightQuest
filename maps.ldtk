@@ -1098,33 +1098,6 @@
 							"__worldY": 208
 						},
 						{
-							"__identifier": "Transition",
-							"__grid": [22,13],
-							"__pivot": [0,0],
-							"__tags": [],
-							"__tile": null,
-							"__smartColor": "#EAD4AA",
-							"iid": "8bbd4230-8560-11f0-84ce-917fd69c33b1",
-							"width": 16,
-							"height": 16,
-							"defUid": 8,
-							"px": [352,208],
-							"fieldInstances": [
-								{ "__identifier": "to_map", "__type": "String", "__value": "Dungeon1", "__tile": null, "defUid": 9, "realEditorValues": [{
-									"id": "V_String",
-									"params": ["Dungeon1"]
-								}] },
-								{ "__identifier": "to_x", "__type": "Int", "__value": 1, "__tile": null, "defUid": 10, "realEditorValues": [{ "id": "V_Int", "params": [1] }] },
-								{ "__identifier": "to_y", "__type": "Int", "__value": 1, "__tile": null, "defUid": 11, "realEditorValues": [{ "id": "V_Int", "params": [1] }] },
-								{ "__identifier": "message", "__type": "String", "__value": "You descend into the dungeon.", "__tile": null, "defUid": 12, "realEditorValues": [{
-									"id": "V_String",
-									"params": ["You descend into the dungeon."]
-								}] }
-							],
-							"__worldX": 352,
-							"__worldY": 208
-						},
-						{
 							"__identifier": "Treasure",
 							"__grid": [7,5],
 							"__pivot": [0,0],
@@ -1220,234 +1193,6 @@
 							"__worldY": 80
 						},
 						{
-							"__identifier": "NPC",
-							"__grid": [12,9],
-							"__pivot": [0,0],
-							"__tags": [],
-							"__tile": null,
-							"__smartColor": "#D77643",
-							"iid": "99d11b70-ac70-11f0-bd8e-cff2027e70ec",
-							"width": 16,
-							"height": 16,
-							"defUid": 6,
-							"px": [192,144],
-							"fieldInstances": [{ "__identifier": "npc_type", "__type": "String", "__value": "villager_female", "__tile": null, "defUid": 7, "realEditorValues": [{
-								"id": "V_String",
-								"params": ["villager_female"]
-							}] }],
-							"__worldX": 192,
-							"__worldY": 144
-						},
-						{
-							"__identifier": "NPC",
-							"__grid": [14,9],
-							"__pivot": [0,0],
-							"__tags": [],
-							"__tile": null,
-							"__smartColor": "#D77643",
-							"iid": "a2729f00-ac70-11f0-bd8e-271e3d818425",
-							"width": 16,
-							"height": 16,
-							"defUid": 6,
-							"px": [224,144],
-							"fieldInstances": [{ "__identifier": "npc_type", "__type": "String", "__value": "npc_old", "__tile": null, "defUid": 7, "realEditorValues": [{
-								"id": "V_String",
-								"params": ["npc_old"]
-							}] }],
-							"__worldX": 224,
-							"__worldY": 144
-						},
-						{
-							"__identifier": "NPC",
-							"__grid": [16,9],
-							"__pivot": [0,0],
-							"__tags": [],
-							"__tile": null,
-							"__smartColor": "#D77643",
-							"iid": "aa38d330-ac70-11f0-bd8e-bf003f253801",
-							"width": 16,
-							"height": 16,
-							"defUid": 6,
-							"px": [256,144],
-							"fieldInstances": [{ "__identifier": "npc_type", "__type": "String", "__value": "villager_child", "__tile": null, "defUid": 7, "realEditorValues": [{
-								"id": "V_String",
-								"params": ["villager_child"]
-							}] }],
-							"__worldX": 256,
-							"__worldY": 144
-						},
-						{
-							"__identifier": "NPC",
-							"__grid": [10,11],
-							"__pivot": [0,0],
-							"__tags": [],
-							"__tile": null,
-							"__smartColor": "#D77643",
-							"iid": "b2c27e70-ac70-11f0-bd8e-09cc847d71d0",
-							"width": 16,
-							"height": 16,
-							"defUid": 6,
-							"px": [160,176],
-							"fieldInstances": [{ "__identifier": "npc_type", "__type": "String", "__value": "villager_worker", "__tile": null, "defUid": 7, "realEditorValues": [{
-								"id": "V_String",
-								"params": ["villager_worker"]
-							}] }],
-							"__worldX": 160,
-							"__worldY": 176
-						},
-						{
-							"__identifier": "NPC",
-							"__grid": [12,11],
-							"__pivot": [0,0],
-							"__tags": [],
-							"__tile": null,
-							"__smartColor": "#D77643",
-							"iid": "bfdd98b0-ac70-11f0-bd8e-7d2d24db33ec",
-							"width": 16,
-							"height": 16,
-							"defUid": 6,
-							"px": [192,176],
-							"fieldInstances": [{ "__identifier": "npc_type", "__type": "String", "__value": "villager_wealthy", "__tile": null, "defUid": 7, "realEditorValues": [{
-								"id": "V_String",
-								"params": ["villager_wealthy"]
-							}] }],
-							"__worldX": 192,
-							"__worldY": 176
-						},
-						{
-							"__identifier": "NPC",
-							"__grid": [14,11],
-							"__pivot": [0,0],
-							"__tags": [],
-							"__tile": null,
-							"__smartColor": "#D77643",
-							"iid": "c94a02d0-ac70-11f0-bd8e-1d393064a8c5",
-							"width": 16,
-							"height": 16,
-							"defUid": 6,
-							"px": [224,176],
-							"fieldInstances": [{ "__identifier": "npc_type", "__type": "String", "__value": "villager_wealthy", "__tile": null, "defUid": 7, "realEditorValues": [{
-								"id": "V_String",
-								"params": ["villager_wealthy"]
-							}] }],
-							"__worldX": 224,
-							"__worldY": 176
-						},
-						{
-							"__identifier": "NPC",
-							"__grid": [16,11],
-							"__pivot": [0,0],
-							"__tags": [],
-							"__tile": null,
-							"__smartColor": "#D77643",
-							"iid": "cfd67e80-ac70-11f0-bd8e-e7e607960842",
-							"width": 16,
-							"height": 16,
-							"defUid": 6,
-							"px": [256,176],
-							"fieldInstances": [{ "__identifier": "npc_type", "__type": "String", "__value": "villager_hooded", "__tile": null, "defUid": 7, "realEditorValues": [{
-								"id": "V_String",
-								"params": ["villager_hooded"]
-							}] }],
-							"__worldX": 256,
-							"__worldY": 176
-						},
-						{
-							"__identifier": "NPC",
-							"__grid": [18,11],
-							"__pivot": [0,0],
-							"__tags": [],
-							"__tile": null,
-							"__smartColor": "#D77643",
-							"iid": "d5ca1590-ac70-11f0-bd8e-9bced92d1643",
-							"width": 16,
-							"height": 16,
-							"defUid": 6,
-							"px": [288,176],
-							"fieldInstances": [{ "__identifier": "npc_type", "__type": "String", "__value": "villager_hooded", "__tile": null, "defUid": 7, "realEditorValues": [{
-								"id": "V_String",
-								"params": ["villager_hooded"]
-							}] }],
-							"__worldX": 288,
-							"__worldY": 176
-						},
-						{
-							"__identifier": "NPC",
-							"__grid": [20,11],
-							"__pivot": [0,0],
-							"__tags": [],
-							"__tile": null,
-							"__smartColor": "#D77643",
-							"iid": "dc108790-ac70-11f0-bd8e-a31c9fec8a3b",
-							"width": 16,
-							"height": 16,
-							"defUid": 6,
-							"px": [320,176],
-							"fieldInstances": [{ "__identifier": "npc_type", "__type": "String", "__value": "villager_farmer", "__tile": null, "defUid": 7, "realEditorValues": [{
-								"id": "V_String",
-								"params": ["villager_farmer"]
-							}] }],
-							"__worldX": 320,
-							"__worldY": 176
-						},
-						{
-							"__identifier": "NPC",
-							"__grid": [10,9],
-							"__pivot": [0,0],
-							"__tags": [],
-							"__tile": null,
-							"__smartColor": "#D77643",
-							"iid": "e652b840-ac70-11f0-bd8e-e97cd186e1e9",
-							"width": 16,
-							"height": 16,
-							"defUid": 6,
-							"px": [160,144],
-							"fieldInstances": [{ "__identifier": "npc_type", "__type": "String", "__value": "villager_blacksmith", "__tile": null, "defUid": 7, "realEditorValues": [{
-								"id": "V_String",
-								"params": ["villager_blacksmith"]
-							}] }],
-							"__worldX": 160,
-							"__worldY": 144
-						},
-						{
-							"__identifier": "NPC",
-							"__grid": [18,9],
-							"__pivot": [0,0],
-							"__tags": [],
-							"__tile": null,
-							"__smartColor": "#D77643",
-							"iid": "ee005b60-ac70-11f0-bd8e-69be26e613be",
-							"width": 16,
-							"height": 16,
-							"defUid": 6,
-							"px": [288,144],
-							"fieldInstances": [{ "__identifier": "npc_type", "__type": "String", "__value": "villager_traveller", "__tile": null, "defUid": 7, "realEditorValues": [{
-								"id": "V_String",
-								"params": ["villager_traveller"]
-							}] }],
-							"__worldX": 288,
-							"__worldY": 144
-						},
-						{
-							"__identifier": "NPC",
-							"__grid": [20,9],
-							"__pivot": [0,0],
-							"__tags": [],
-							"__tile": null,
-							"__smartColor": "#D77643",
-							"iid": "f54ca4a0-ac70-11f0-bd8e-cfaa83f63b2b",
-							"width": 16,
-							"height": 16,
-							"defUid": 6,
-							"px": [320,144],
-							"fieldInstances": [{ "__identifier": "npc_type", "__type": "String", "__value": "villager_mage", "__tile": null, "defUid": 7, "realEditorValues": [{
-								"id": "V_String",
-								"params": ["villager_mage"]
-							}] }],
-							"__worldX": 320,
-							"__worldY": 144
-						},
-						{
 							"__identifier": "Treasure",
 							"__grid": [11,5],
 							"__pivot": [0,0],
@@ -1495,6 +1240,25 @@
 							],
 							"__worldX": 400,
 							"__worldY": 80
+						},
+						{
+							"__identifier": "NPC",
+							"__grid": [5,1],
+							"__pivot": [0,0],
+							"__tags": [],
+							"__tile": null,
+							"__smartColor": "#D77643",
+							"iid": "531b4c90-ac70-11f0-994c-673d21f2ecdd",
+							"width": 16,
+							"height": 16,
+							"defUid": 6,
+							"px": [80,16],
+							"fieldInstances": [{ "__identifier": "npc_type", "__type": "String", "__value": "villager_innkeeper", "__tile": null, "defUid": 7, "realEditorValues": [{
+								"id": "V_String",
+								"params": ["villager_innkeeper"]
+							}] }],
+							"__worldX": 80,
+							"__worldY": 16
 						}
 					]
 				},
@@ -1528,9 +1292,9 @@
 						2,2,2,2,2,2,0,0,2,2,2,2,2,2,2,2,2,1,1,4,1,1,1,1,1,4,1,18,1,1,1,18,1,18,1,
 						18,1,18,1,14,14,23,1,1,1,1,1,1,4,4,1,1,1,1,4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
 						1,1,14,14,23,1,1,1,1,1,4,4,4,18,1,4,1,1,1,1,18,1,1,18,1,18,1,18,1,18,1,18,1,18,1,
-						14,14,23,1,1,1,15,4,4,4,4,1,1,1,1,4,1,1,4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,14,14,
-						23,1,1,1,15,4,4,4,4,1,18,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,23,9,9,23,1,
-						15,15,1,1,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,23,23,23,23,1,15,15,
+						14,14,23,1,1,1,15,4,4,4,4,1,1,1,1,4,1,1,4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,23,14,
+						23,1,1,1,15,4,4,4,4,1,18,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,23,23,9,23,23,
+						15,15,1,1,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,23,23,23,23,23,15,15,
 						1,1,1,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,15,15,0,
 						0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,15,15,0,0,0,
 						0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -1820,9 +1584,9 @@
 							"height": 16,
 							"defUid": 6,
 							"px": [128,16],
-							"fieldInstances": [{ "__identifier": "npc_type", "__type": "String", "__value": "elder_aldric", "__tile": null, "defUid": 7, "realEditorValues": [{
+							"fieldInstances": [{ "__identifier": "npc_type", "__type": "String", "__value": "villager_female", "__tile": null, "defUid": 7, "realEditorValues": [{
 								"id": "V_String",
-								"params": ["elder_aldric"]
+								"params": ["villager_female"]
 							}] }],
 							"__worldX": 646,
 							"__worldY": -240
@@ -2239,6 +2003,52 @@
 							],
 							"__worldX": 200,
 							"__worldY": -187
+						},
+						{
+							"__identifier": "Special",
+							"__grid": [5,6],
+							"__pivot": [0,0],
+							"__tags": [],
+							"__tile": null,
+							"__smartColor": "#733E39",
+							"iid": "d59798b0-ac70-11f0-994c-03456267b0a9",
+							"width": 16,
+							"height": 16,
+							"defUid": 17,
+							"px": [80,96],
+							"fieldInstances": [
+								{ "__identifier": "message", "__type": "String", "__value": "This is your favorite old man bar, The Hills.  Fifty cents a beer. You can drink here all night; that's why you go.", "__tile": null, "defUid": 18, "realEditorValues": [{
+									"id": "V_String",
+									"params": [
+										"This is your favorite old man bar, The Hills.  Fifty cents a beer. You can drink here all night; that's why you go."
+									]
+								}] },
+								{ "__identifier": "requires_search", "__type": "Bool", "__value": false, "__tile": null, "defUid": 19, "realEditorValues": [{
+									"id": "V_Bool",
+									"params": [ false ]
+								}] },
+								{ "__identifier": "journal_title", "__type": "String", "__value": null, "__tile": null, "defUid": 21, "realEditorValues": [] },
+								{ "__identifier": "journal_image", "__type": "String", "__value": null, "__tile": null, "defUid": 22, "realEditorValues": [] },
+								{ "__identifier": "journal_entry", "__type": "Bool", "__value": false, "__tile": null, "defUid": 28, "realEditorValues": [] }
+							],
+							"__worldX": 200,
+							"__worldY": -203
+						},
+						{
+							"__identifier": "NPC",
+							"__grid": [7,1],
+							"__pivot": [0,0],
+							"__tags": [],
+							"__tile": null,
+							"__smartColor": "#D77643",
+							"iid": "58d10990-ac70-11f0-994c-4da303c323a7",
+							"width": 16,
+							"height": 16,
+							"defUid": 6,
+							"px": [112,16],
+							"fieldInstances": [{ "__identifier": "npc_type", "__type": "String", "__value": null, "__tile": null, "defUid": 7, "realEditorValues": [] }],
+							"__worldX": 232,
+							"__worldY": -283
 						}
 					]
 				},
