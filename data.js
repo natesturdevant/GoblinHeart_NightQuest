@@ -44,7 +44,7 @@ const LDTK_TO_CHAR = {
     1: '.', 2: '#', 3: '~', 4: 'T', 5: 'D', 6: 'G', 7: 'M', 8: '$',
     9: '>', 10: '<', 11: 'f', 12: 'w', 13: 't', 14: ',', 15: 'r',
     16: '=', 17: 's', 18: '`', 19: 'm', 20: 'P', 21: 'F', 22: 'I',
-    23: '+', 24: '_'
+    23: '+', 24: '_', 25: 'B'
 };
 
 // Weapon Types and Reach Patterns
@@ -94,7 +94,16 @@ const spritePatterns = {
     grass: [['0','0','0','C','0','0','C','0'],['0','C','0','0','0','C','0','0'],['C','0','0','0','0','0','0','C'],['0','0','0','C','0','0','0','0'],['0','0','C','0','0','0','C','0'],['0','C','0','0','C','0','0','0'],['0','0','0','0','0','0','0','C'],['C','0','0','C','0','0','0','0']].map(row => row.map(p => p === 'C' ? CGA.CYAN : '0')),
     wall: [['W','W','W','W','W','W','W','W'],['W','0','W','0','W','0','W','0'],['W','W','W','W','W','W','W','W'],['W','0','W','0','W','0','W','0'],['W','W','W','W','W','W','W','W'],['W','0','W','0','W','0','W','0'],['W','W','W','W','W','W','W','W'],['W','0','W','0','W','0','W','0']].map(row => row.map(p => p === 'W' ? CGA.WHITE : '0')),
     water: [['0','0','C','C','0','0','C','C'],['0','C','C','C','C','0','C','C'],['C','C','C','0','C','C','C','0'],['C','C','0','0','C','C','0','0'],['C','0','0','C','C','0','0','C'],['0','0','C','C','0','0','C','C'],['0','C','C','C','C','0','C','C'],['C','C','C','0','C','C','C','0']].map(row => row.map(p => p === 'C' ? CGA.CYAN : '0')),
-    tree: [['0','0','0','C','C','0','0','0'],['0','0','C','C','C','C','0','0'],['0','C','C','C','C','C','C','0'],['C','C','C','C','C','C','C','C'],['0','C','C','C','C','C','C','0'],['0','0','0','C','C','0','0','0'],['0','0','0','C','C','0','0','0'],['0','0','C','C','C','C','0','0']].map(row => row.map(p => p === 'C' ? CGA.CYAN : '0')),
+    tree: [
+	['0','0','0','C','C','0','0','0'],
+	['0','0','C','C','C','C','0','0'],
+	['0','C','C','C','W','C','C','0'],
+	['C','C','W','C','C','C','W','C'],
+	['0','C','C','C','C','C','C','C'],
+	['0','0','0','C','C','0','0','0'],
+	['0','0','0','M','C','0','0','0'],
+	['0','0','M','C','C','M','0','0']
+	].map(row => row.map(p => { if (p === 'W') return CGA.WHITE; if (p === 'M') return CGA.MAGENTA; if (p === 'C') return CGA.CYAN; return '0'; })),
     door: [['W','W','W','W','W','W','W','W'],['W','0','0','0','0','0','0','W'],['W','0','0','0','0','0','0','W'],['W','0','0','W','0','0','0','W'],['W','0','0','W','0','0','0','W'],['W','0','0','0','0','0','0','W'],['W','0','0','0','0','0','0','W'],['W','W','W','W','W','W','W','W']].map(row => row.map(p => p === 'W' ? CGA.WHITE : '0')),
     gate: [['M','M','M','M','M','M','M','M'],['M','0','0','0','0','0','0','M'],['M','0','0','0','0','0','0','M'],['M','0','0','M','M','0','0','M'],['M','0','0','M','M','0','0','M'],['M','0','0','0','0','0','0','M'],['M','0','0','0','0','0','0','M'],['M','M','M','M','M','M','M','M']].map(row => row.map(p => p === 'M' ? CGA.MAGENTA : '0')),
     mountain: [['0','0','0','0','W','0','0','0'],['0','0','0','W','W','W','0','0'],['0','0','W','W','W','W','W','0'],['0','W','W','0','W','0','W','W'],['W','W','W','W','W','W','W','W'],['W','0','W','W','W','W','0','W'],['W','W','W','W','W','W','W','W'],['W','W','W','W','W','W','W','W']].map(row => row.map(p => p === 'W' ? CGA.WHITE : '0')),
@@ -104,7 +113,22 @@ const spritePatterns = {
     skeleton: [['0','0','W','W','W','W','0','0'],['0','W','0','W','W','0','W','0'],['0','W','W','W','W','W','W','0'],['0','0','W','W','W','W','0','0'],['0','0','W','0','0','W','0','0'],['0','W','W','W','W','W','W','0'],['0','W','0','0','0','0','W','0'],['W','0','0','0','0','0','0','W']].map(row => row.map(p => p === 'W' ? CGA.WHITE : '0')),
     slime: [['0','0','0','C','C','0','0','0'],['0','0','C','C','C','C','0','0'],['0','C','M','W','M','W','C','0'],['C','C','C','C','C','C','C','C'],['C','M','M','M','M','M','C','C'],['C','C','M','M','M','M','C','C'],['0','C','C','C','C','C','C','0'],['0','0','C','0','0','C','0','0']].map(row => row.map(p => { if (p === 'W') return CGA.WHITE; if (p === 'M') return CGA.MAGENTA; if (p === 'C') return CGA.CYAN; return '0'; })),
     lootbag: [['0','0','0','0','0','0','0','0'],['0','0','M','M','M','M','0','0'],['0','M','M','M','M','M','M','0'],['M','M','W','M','M','W','M','M'],['M','M','M','M','M','M','M','M'],['M','M','M','M','M','M','M','M'],['0','M','M','M','M','M','M','0'],['0','0','M','M','M','M','0','0']].map(row => row.map(p => { if (p === 'M') return CGA.MAGENTA; if (p === 'W') return CGA.WHITE; return '0'; })),
-    // Add these to your spritePatterns object in data.js
+	bed: [
+        ['0','W','W','W','W','W','W','0'],
+        ['W','M','M','M','M','M','M','W'],
+        ['W','M','C','C','C','C','M','W'],
+        ['W','M','C','C','C','C','M','W'],
+        ['W','M','M','M','M','M','M','W'],
+        ['W','W','W','W','W','W','W','W'],
+        ['W','0','0','0','0','0','0','W'],
+        ['W','W','W','W','W','W','W','W']
+    ].map(row => row.map(p => { 
+        if (p === 'W') return CGA.WHITE; 
+        if (p === 'M') return CGA.MAGENTA; 
+        if (p === 'C') return CGA.CYAN; 
+        return '0'; 
+    })),
+    
 
 // VILLAGER VARIATIONS
 
@@ -332,8 +356,26 @@ villager_blacksmith: [
     scrub: [['0','0','B','B','0','0','0','0'],['0','B','B','B','B','0','0','B'],['B','B','B','B','B','B','B','B'],['0','B','B','B','B','B','B','0'],['0','0','0','B','B','0','0','0'],['0','B','B','0','0','B','B','0'],['B','B','B','B','B','B','B','B'],['0','B','B','B','B','B','B','0']].map(row => row.map(p => p === 'B' ? CGA.BROWN : '0')),
     grass2: [['0','C','0','0','C','0','0','0'],['C','C','0','C','0','0','C','0'],['0','C','C','C','0','C','C','C'],['0','0','C','0','0','C','C','0'],['0','0','0','C','C','0','C','0'],['C','C','0','C','C','C','0','0'],['C','C','C','C','0','C','0','C'],['0','C','C','0','0','0','C','C']].map(row => row.map(p => p === 'C' ? CGA.CYAN : '0')),
     mountains2: [['0','0','0','W','W','0','0','0'],['0','0','W','W','W','W','0','0'],['0','W','W','W','W','W','W','0'],['W','W','W','L','L','W','W','W'],['W','W','L','L','L','L','W','W'],['W','L','L','L','L','L','L','W'],['L','L','L','L','L','L','L','L'],['0','0','0','0','0','0','0','0']].map(row => row.map(p => { if (p === 'W') return CGA.WHITE; if (p === 'L') return CGA.LIGHTGRAY; return '0'; })),
-    mailbox: [['0','0','C','C','C','C','0','0'],['0','C','C','C','C','C','C','0'],['C','C','W','C','C','W','C','C'],['C','C','C','C','C','C','C','C'],['0','0','0','C','C','0','0','0'],['0','0','0','C','C','0','0','0'],['0','0','C','C','C','C','0','0'],['0','0','C','C','C','C','0','0']].map(row => row.map(p => { if (p === 'C') return CGA.CYAN; if (p === 'W') return CGA.WHITE; return '0'; })),
-    fountain: [['0','0','C','C','C','C','0','0'],['0','C','W','C','C','W','C','0'],['C','W','C','C','C','C','W','C'],['C','C','C','C','C','C','C','C'],['C','C','C','C','C','C','C','C'],['0','C','C','C','C','C','C','0'],['0','W','W','W','W','W','W','0'],['0','0','W','W','W','W','0','0']].map(row => row.map(p => { if (p === 'C') return CGA.CYAN; if (p === 'W') return CGA.WHITE; return '0'; })),
+    mailbox: [
+	['0','0','W','C','C','C','C','0'],
+	['0','C','0','0','M','C','C','C'],
+	['0','C','0','0','M','C','C','C'],
+	['0','0','C','W','C','M','M','0'],
+	['0','0','0','W','C','0','0','0'],
+	['0','0','0','W','C','0','0','0'],
+	['0','0','0','W','C','0','0','0'],
+	['0','0','C','W','C','C','0','C']
+	].map(row => row.map(p => { if (p === 'W') return CGA.WHITE; if (p === 'M') return CGA.MAGENTA; if (p === 'C') return CGA.CYAN; return '0'; })),
+    fountain: [
+	['0','0','0','C','C','0','0','0'],
+	['0','0','M','W','W','M','0','0'],
+	['0','M','C','W','W','C','M','0'],
+	['W','C','C','W','W','C','C','W'],
+	['W','C','C','W','W','C','C','W'],
+	['W','C','C','C','C','C','C','W'],
+	['0','W','W','W','W','W','W','0'],
+	['0','0','W','W','W','W','0','0']
+	].map(row => row.map(p => { if (p === 'W') return CGA.WHITE; if (p === 'M') return CGA.MAGENTA; if (p === 'C') return CGA.CYAN; return '0'; })),
     streetlight: [
 	['0','W','W','W','W','W','0','0'],
 	['W','C','C','W','C','C','W','0'],
@@ -374,23 +416,6 @@ const spellDatabase = {
 
 
 
-
-
-
-/* const enemyDatabase = {
-    'goblin': { name: 'Goblin', sprite: 'goblin', hp: 50, maxHp: 50, strength: 8, vitality: 5, intelligence: 2, spirit: 3, agility: 6, luck: 3, speed: 1, aggressive: true, xp: 15, lootChance: 0.6, loot: { gold: [5, 15], rolls: 1, tierWeights: { tier0: 0.6, consumables: 0.3, spells: 0.1 } } },
-    'skeleton': { name: 'Skeleton', sprite: 'skeleton', hp: 40, maxHp: 40, strength: 12, vitality: 3, intelligence: 1, spirit: 2, agility: 4, luck: 1, speed: 1, aggressive: true, xp: 20, lootChance: 0.5, loot: { gold: [10, 20], rolls: 1, tierWeights: { tier0: 0.7, tier1: 0.2, spells: 0.1 } } },
-    'slime': { name: 'Slime', sprite: 'slime', hp: 30, maxHp: 30, strength: 4, vitality: 10, intelligence: 5, spirit: 8, agility: 2, luck: 1, speed: 1, aggressive: false, xp: 10, lootChance: 0.4, loot: { gold: [2, 8], rolls: 1, tierWeights: { consumables: 0.7, spells: 0.3 } } },
-    'wraith': { name: 'Wraith', sprite: 'wraith', hp: 60, maxHp: 60, strength: 10, vitality: 2, intelligence: 8, spirit: 12, agility: 8, luck: 2, speed: 1, aggressive: true, xp: 25, lootChance: 0.5, loot: { gold: [15, 30], rolls: 1, tierWeights: { tier1: 0.4, spells: 0.5, consumables: 0.1 } } },
-    'spider': { name: 'Giant Spider', sprite: 'spider', hp: 45, maxHp: 45, strength: 9, vitality: 6, intelligence: 2, spirit: 4, agility: 12, luck: 4, speed: 1, aggressive: true, xp: 18, lootChance: 0.4, loot: { gold: [8, 18], rolls: 1, tierWeights: { tier0: 0.5, tier1: 0.4, consumables: 0.1 } } },
-    'orc': { name: 'Orc Warrior', sprite: 'orc', hp: 80, maxHp: 80, strength: 15, vitality: 12, intelligence: 3, spirit: 4, agility: 5, luck: 2, speed: 1, aggressive: true, xp: 30, lootChance: 0.65, loot: { gold: [20, 40], rolls: 2, tierWeights: { tier0: 0.4, tier1: 0.5, consumables: 0.1 } } },
-    'bat': { name: 'Cave Bat', sprite: 'bat', hp: 25, maxHp: 25, strength: 6, vitality: 3, intelligence: 2, spirit: 3, agility: 15, luck: 6, speed: 1, aggressive: true, xp: 12, lootChance: 0.3, loot: { gold: [3, 10], rolls: 1, tierWeights: { tier0: 0.5, tier1: 0.3, consumables: 0.2 } } },
-    'zombie': { name: 'Shambling Zombie', sprite: 'zombie', hp: 70, maxHp: 70, strength: 14, vitality: 8, intelligence: 1, spirit: 1, agility: 2, luck: 0, speed: 1, aggressive: true, xp: 22, lootChance: 0.45, loot: { gold: [10, 25], rolls: 1, tierWeights: { tier0: 0.5, consumables: 0.4, spells: 0.1 } } },
-    'gargoyle': { name: 'Stone Gargoyle', sprite: 'gargoyle', hp: 100, maxHp: 100, strength: 18, vitality: 20, intelligence: 5, spirit: 8, agility: 3, luck: 1, speed: 1, aggressive: true, xp: 45, lootChance: 0.7, loot: { gold: [30, 60], rolls: 2, tierWeights: { tier1: 0.5, tier2: 0.3, spells: 0.2 } } },
-    'imp': { name: 'Fire Imp', sprite: 'imp', hp: 40, maxHp: 40, strength: 7, vitality: 4, intelligence: 10, spirit: 9, agility: 10, luck: 5, speed: 1, aggressive: true, xp: 20, lootChance: 0.55, loot: { gold: [12, 28], rolls: 1, tierWeights: { tier1: 0.4, spells: 0.5, consumables: 0.1 } } },
-    'golem': { name: 'Iron Golem', sprite: 'golem', hp: 120, maxHp: 120, strength: 20, vitality: 25, intelligence: 2, spirit: 5, agility: 1, luck: 0, speed: 1, aggressive: false, xp: 50, lootChance: 0.8, loot: { gold: [40, 80], rolls: 3, tierWeights: { tier1: 0.5, tier2: 0.4, tier0: 0.1 } } },
-    'spectre': { name: 'Spectre', sprite: 'spectre', hp: 55, maxHp: 55, strength: 8, vitality: 1, intelligence: 12, spirit: 15, agility: 11, luck: 3, speed: 1, aggressive: true, xp: 28, lootChance: 0.6, loot: { gold: [18, 35], rolls: 1, tierWeights: { tier1: 0.3, spells: 0.6, consumables: 0.1 } } }
-}; */
 
 const enemyDatabase = {
     // ===== TIER 0-1 ENEMIES (Early Game) =====
@@ -1088,7 +1113,8 @@ const tileTypes = {
     'F': { char: 'F', name: 'fountain', description: 'Water fountain.', passable: false, sprite: 'fountain' },
     'I': { char: 'I', name: 'streetlight', description: 'Street light.', passable: false, sprite: 'streetlight' },
     '+': { char: '+', name: 'brick', description: 'Brick wall.', passable: false, sprite: 'brick' },
-    '_': { char: '_', name: 'cornice', description: 'Stone cornice.', passable: false, sprite: 'cornice' }
+    '_': { char: '_', name: 'cornice', description: 'Stone cornice.', passable: false, sprite: 'cornice' },
+	'B': { char: 'B', name: 'bed', description: 'A comfortable bed.', passable: true, sprite: 'bed' }
 };
 
 // NPC Database (unchanged)

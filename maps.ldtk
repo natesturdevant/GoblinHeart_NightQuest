@@ -126,7 +126,8 @@
 				{ "value": 21, "identifier": "fountain", "color": "#2CE8F5", "tile": null, "groupUid": 0 },
 				{ "value": 22, "identifier": "streetlight", "color": "#FFFFFF", "tile": null, "groupUid": 0 },
 				{ "value": 23, "identifier": "brick", "color": "#A22633", "tile": null, "groupUid": 0 },
-				{ "value": 24, "identifier": "cornice", "color": "#8B9BB4", "tile": null, "groupUid": 0 }
+				{ "value": 24, "identifier": "cornice", "color": "#8B9BB4", "tile": null, "groupUid": 0 },
+				{ "value": 25, "identifier": "bed", "color": "#FF0044", "tile": null, "groupUid": 0 }
 			],
 			"intGridValuesGroups": [],
 			"autoRuleGroups": [],
@@ -1233,9 +1234,9 @@
 								}] },
 								{ "__identifier": "to_x", "__type": "Int", "__value": 5, "__tile": null, "defUid": 10, "realEditorValues": [{ "id": "V_Int", "params": [5] }] },
 								{ "__identifier": "to_y", "__type": "Int", "__value": 7, "__tile": null, "defUid": 11, "realEditorValues": [{ "id": "V_Int", "params": [7] }] },
-								{ "__identifier": "message", "__type": "String", "__value": "You step into the bar. Blue tinged smoke hangs around the dim lights like a shroud.", "__tile": null, "defUid": 12, "realEditorValues": [{
+								{ "__identifier": "message", "__type": "String", "__value": "You step into Hill's. Blue tinged smoke shroud the already dim lights.", "__tile": null, "defUid": 12, "realEditorValues": [{
 									"id": "V_String",
-									"params": ["You step into the bar. Blue tinged smoke hangs around the dim lights like a shroud."]
+									"params": ["You step into Hill's. Blue tinged smoke shroud the already dim lights."]
 								}] }
 							],
 							"__worldX": 400,
@@ -1282,17 +1283,17 @@
 					"optionalRules": [],
 					"intGridCsv": [
 						2,2,2,12,2,12,2,2,7,7,7,1,1,1,1,1,1,24,24,24,1,1,1,1,1,1,1,1,1,1,1,1,1,2,13,
-						22,11,11,11,6,2,1,1,1,18,24,24,24,1,1,23,23,23,1,1,1,1,1,1,1,1,1,1,1,1,1,2,8,11,10,
+						22,11,11,11,25,2,1,1,1,18,24,24,24,1,1,23,23,23,1,1,1,1,1,1,1,1,1,1,1,1,1,2,8,11,10,
 						11,11,6,2,15,15,1,1,12,23,12,1,1,12,23,12,1,1,1,1,24,24,24,1,1,1,1,1,1,23,11,11,11,11,11,
 						11,23,1,1,15,1,23,23,23,1,1,23,23,23,1,1,1,1,23,23,23,1,1,1,1,1,1,23,24,11,11,16,11,11,23,
 						1,18,1,1,12,23,12,1,18,12,23,12,1,1,1,1,12,23,12,1,1,1,1,1,1,23,23,12,23,5,12,23,23,20,1,
 						1,8,23,5,23,1,1,23,5,23,1,1,1,1,23,6,23,1,1,1,1,1,1,11,11,11,11,11,11,11,11,11,11,11,11,
 						11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,
-						11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,22,4,1,4,21,22,21,2,22,2,2,22,2,2,2,2,
-						2,2,2,2,2,2,0,0,2,2,2,2,2,2,2,2,2,1,1,4,1,1,1,1,1,4,1,18,1,1,1,18,1,18,1,
-						18,1,18,1,14,14,23,1,1,1,1,1,1,4,4,1,1,1,1,4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-						1,1,14,14,23,1,1,1,1,1,4,4,4,18,1,4,1,1,1,1,18,1,1,18,1,18,1,18,1,18,1,18,1,18,1,
-						14,14,23,1,1,1,15,4,4,4,4,1,1,1,1,4,1,1,4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,23,14,
+						11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,22,4,1,4,21,22,21,2,22,2,2,22,2,2,2,11,
+						2,2,2,2,2,2,2,0,2,2,2,2,2,2,2,2,2,1,1,4,1,1,1,1,1,4,1,18,1,1,1,18,11,18,1,
+						18,1,18,1,23,14,23,1,1,1,1,1,1,4,4,1,1,1,1,4,1,1,1,1,1,1,1,1,1,11,21,11,1,1,1,
+						1,1,23,14,23,1,1,1,1,1,4,4,4,18,1,4,1,1,1,1,18,1,1,18,1,18,1,18,11,18,1,18,1,18,1,
+						23,14,23,1,1,1,15,4,4,4,4,1,1,1,1,4,1,1,4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,23,14,
 						23,1,1,1,15,4,4,4,4,1,18,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,23,23,9,23,23,
 						15,15,1,1,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,23,23,23,23,23,15,15,
 						1,1,1,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,15,15,0,
@@ -2017,19 +2018,25 @@
 							"defUid": 17,
 							"px": [80,96],
 							"fieldInstances": [
-								{ "__identifier": "message", "__type": "String", "__value": "This is your favorite old man bar, The Hills.  Fifty cents a beer. You can drink here all night; that's why you go.", "__tile": null, "defUid": 18, "realEditorValues": [{
+								{ "__identifier": "message", "__type": "String", "__value": "This is your favorite old man bar, The Hills.  Fifty cents a beer. You can drink here all night long; that's why you go.", "__tile": null, "defUid": 18, "realEditorValues": [{
 									"id": "V_String",
 									"params": [
-										"This is your favorite old man bar, The Hills.  Fifty cents a beer. You can drink here all night; that's why you go."
+										"This is your favorite old man bar, The Hills.  Fifty cents a beer. You can drink here all night long; that's why you go."
 									]
 								}] },
 								{ "__identifier": "requires_search", "__type": "Bool", "__value": false, "__tile": null, "defUid": 19, "realEditorValues": [{
 									"id": "V_Bool",
 									"params": [ false ]
 								}] },
-								{ "__identifier": "journal_title", "__type": "String", "__value": null, "__tile": null, "defUid": 21, "realEditorValues": [] },
+								{ "__identifier": "journal_title", "__type": "String", "__value": "Hill's Bar", "__tile": null, "defUid": 21, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["Hill's Bar"]
+								}] },
 								{ "__identifier": "journal_image", "__type": "String", "__value": null, "__tile": null, "defUid": 22, "realEditorValues": [] },
-								{ "__identifier": "journal_entry", "__type": "Bool", "__value": false, "__tile": null, "defUid": 28, "realEditorValues": [] }
+								{ "__identifier": "journal_entry", "__type": "Bool", "__value": true, "__tile": null, "defUid": 28, "realEditorValues": [{
+									"id": "V_Bool",
+									"params": [ true ]
+								}] }
 							],
 							"__worldX": 200,
 							"__worldY": -203

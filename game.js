@@ -1647,6 +1647,12 @@ function performAction() {
 
 
 function rest(location = 'camp', cost = 0) {
+	const currentTile = gameState.world.tiles[gameState.player.y][gameState.player.x];
+	
+	if (currentTile === 'B') {
+        location = 'bed';  // Override to bed rest
+    }
+	
     if (location === 'inn' && gameState.player.gold < cost) {
         addMessage("Not enough gold!", CGA.MAGENTA);
         return;
@@ -1665,25 +1671,31 @@ function rest(location = 'camp', cost = 0) {
         addMessage("===================");
         
         const restMessages = {
-            inn: [
-                "You sink into a soft bed...",
-                "The innkeeper brings you warm soup.",
-                "You drift off to the sound of crackling fire...",
-                "You sleep peacefully through the night."
-            ],
-            camp: [
-                "You set up camp under the stars...",
-                "The campfire crackles softly.",
-                "You rest fitfully on the hard ground...",
-                "Dawn breaks. Time to move on."
-            ]
-        };
+        inn: [
+            "You sink into a soft bed...",
+            "The innkeeper brings you warm soup.",
+            "You drift off to the sound of crackling fire...",
+            "You sleep peacefully through the night."
+        ],
+        bed: [
+            "You collapse into your own bed...",
+            "Home sweet home.",
+            "You sleep soundly in familiar surroundings.",
+            "You wake up refreshed in your safe house."
+        ],
+        camp: [
+            "You set up camp under the stars...",
+            "The campfire crackles softly.",
+            "You rest fitfully on the hard ground...",
+            "Dawn breaks. Time to move on."
+        ]
+    };
         
         const messages = restMessages[location];
         const message = messages[Math.floor(Math.random() * messages.length)];
         addMessage(message);
         
-        const healPercent = location === 'inn' ? 1.0 : 0.6;
+        const healPercent = location === 'inn' || location === 'bed' ? 1.0 : 0.6;
 		
 
         const oldHp = gameState.player.hp;
@@ -1725,6 +1737,10 @@ function rest(location = 'camp', cost = 0) {
 
 function canCampHere() {
     const currentTile = gameState.world.tiles[gameState.player.y][gameState.player.x];
+    if (currentTile === 'B') {
+        return true;
+    }
+    
     const campableTiles = ['.', '`', ',', 's'];
     
     if (!campableTiles.includes(currentTile)) {
