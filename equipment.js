@@ -1392,6 +1392,9 @@ const uniqueItems = {
             }
         ]
     },
+	
+	
+	
     "ring_of_endless_fortune": {
         "name": "Ring of Endless Fortune",
         "rarity": "unique",

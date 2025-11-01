@@ -68,7 +68,7 @@ const dialogueDatabase =
     "isShopkeeper": false,
     "lines": [
       {
-        "text": "Hello, {{Name}}.",
+        "text": "Hello, {{name}}.",
         "requires": {},
         "sets": {
           "talked_before": true

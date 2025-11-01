@@ -504,6 +504,7 @@ function flashLightning() {
 function initGame() {
 	const playerName = prompt("Hey, buddy! What's your name?", "Nate");
     gameState.player.name = playerName || "Nate"; // Fallback if they cancel
+	gameState.dayCounter = 1;
     loadMap('Overworld');
     renderWorld();
 	updateExploration()
@@ -1491,6 +1492,7 @@ function movePlayer(dx, dy) {
     }
     gameState.player.x = newX;
     gameState.player.y = newY;
+	checkEvents(gameState);
 	updateExploration();
     checkTransition();
   
@@ -1642,17 +1644,18 @@ function performAction() {
 }
     
     addMessage("Nothing here.");
+	checkEvents(gameState);
 }
 //==============REST HELPER FUNCTIONS===================
 
 
 function rest(location = 'camp', cost = 0) {
-	const currentTile = gameState.world.tiles[gameState.player.y][gameState.player.x];
-	
-	if (currentTile === 'B') {
-        location = 'bed';  // Override to bed rest
+    const currentTile = gameState.world.tiles[gameState.player.y][gameState.player.x];
+    
+    if (currentTile === 'B') {
+        location = 'bed';
     }
-	
+    
     if (location === 'inn' && gameState.player.gold < cost) {
         addMessage("Not enough gold!", CGA.MAGENTA);
         return;
@@ -1661,6 +1664,12 @@ function rest(location = 'camp', cost = 0) {
     if (location === 'camp' && !canCampHere()) {
         return;
     }
+    
+    // ===== BEFORE REST HOOKS =====
+    if (runBeforeRestHooks(gameState, location)) {
+        return; // Hook cancelled the rest (e.g., VHS transport)
+    }
+    // =============================
     
     if (location === 'inn') {
         gameState.player.gold -= cost;
@@ -1671,49 +1680,46 @@ function rest(location = 'camp', cost = 0) {
         addMessage("===================");
         
         const restMessages = {
-        inn: [
-            "You sink into a soft bed...",
-            "The innkeeper brings you warm soup.",
-            "You drift off to the sound of crackling fire...",
-            "You sleep peacefully through the night."
-        ],
-        bed: [
-            "You collapse into your own bed...",
-            "Home sweet home.",
-            "You sleep soundly in familiar surroundings.",
-            "You wake up refreshed in your safe house."
-        ],
-        camp: [
-            "You set up camp under the stars...",
-            "The campfire crackles softly.",
-            "You rest fitfully on the hard ground...",
-            "Dawn breaks. Time to move on."
-        ]
-    };
+            inn: [
+                "You sink into a soft bed...",
+                "The innkeeper brings you warm soup.",
+                "You drift off to the sound of crackling fire...",
+                "You sleep peacefully through the night."
+            ],
+            bed: [
+                "You collapse into your own bed...",
+                "Home sweet home.",
+                "You sleep soundly in familiar surroundings.",
+                "You wake up refreshed in your safe house."
+            ],
+            camp: [
+                "You set up camp under the stars...",
+                "The campfire crackles softly.",
+                "You rest fitfully on the hard ground...",
+                "Dawn breaks. Time to move on."
+            ]
+        };
         
         const messages = restMessages[location];
         const message = messages[Math.floor(Math.random() * messages.length)];
         addMessage(message);
         
         const healPercent = location === 'inn' || location === 'bed' ? 1.0 : 0.6;
-		
-
+        
         const oldHp = gameState.player.hp;
         const oldMp = gameState.player.mp;
         
-        
-		
-		const targetHp = Math.floor(gameState.player.maxHp * healPercent);
-		const targetMp = Math.floor(gameState.player.maxMp * healPercent);
+        const targetHp = Math.floor(gameState.player.maxHp * healPercent);
+        const targetMp = Math.floor(gameState.player.maxMp * healPercent);
 
-		gameState.player.hp = Math.max(gameState.player.hp, targetHp); // Take the higher value
-		gameState.player.mp = Math.max(gameState.player.mp, targetMp); // Take the higher value
+        gameState.player.hp = Math.max(gameState.player.hp, targetHp);
+        gameState.player.mp = Math.max(gameState.player.mp, targetMp);
 
-		const hpGained = gameState.player.hp - oldHp;
-		const mpGained = gameState.player.mp - oldMp;
+        const hpGained = gameState.player.hp - oldHp;
+        const mpGained = gameState.player.mp - oldMp;
 
-		if (hpGained > 0) addMessage(`HP restored: +${hpGained}`, CGA.CYAN);
-		if (mpGained > 0) addMessage(`MP restored: +${mpGained}`, CGA.CYAN);
+        if (hpGained > 0) addMessage(`HP restored: +${hpGained}`, CGA.CYAN);
+        if (mpGained > 0) addMessage(`MP restored: +${mpGained}`, CGA.CYAN);
         
         if (gameState.combat.inCombat) {
             gameState.combat.inCombat = false;
@@ -1726,6 +1732,10 @@ function rest(location = 'camp', cost = 0) {
         }
         
         addMessage("===================");
+        
+        // ===== AFTER REST HOOKS =====
+        runAfterRestHooks(gameState, location);
+        // ============================
         
         setTimeout(() => {
             clearFade();
