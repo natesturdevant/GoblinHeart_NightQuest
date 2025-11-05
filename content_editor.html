@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Goblinheart Content Editor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; }
+        
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: 'Press Start 2P', monospace;
+            background-color: #000;
+            color: #0f0;
+            font-size: 10px;
+            line-height: 1.6;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #0ff;
+            font-size: 16px;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 0 #055;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 20px;
+        }
+        
+        .panel {
+            background-color: #001;
+            border: 2px solid #0f0;
+            padding: 15px;
+        }
+        
+        .panel h2 {
+            font-size: 11px;
+            color: #0ff;
+            margin: 0 0 15px 0;
+            border-bottom: 1px solid #0f0;
+            padding-bottom: 8px;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 8px;
+            background-color: #002;
+            border: 2px solid #050;
+            cursor: pointer;
+            font-size: 7px;
+            text-align: center;
+            color: #0a0;
+        }
+        
+        .tab:hover {
+            background-color: #003;
+            border-color: #0a0;
+        }
+        
+        .tab.active {
+            background-color: #004;
+            border-color: #0ff;
+            color: #0ff;
+        }
+        
+        .item-list {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .list-item {
+            padding: 8px;
+            margin: 5px 0;
+            background-color: #002;
+            border: 1px solid #050;
+            cursor: pointer;
+            font-size: 8px;
+        }
+        
+        .list-item:hover {
+            background-color: #003;
+            border-color: #0a0;
+        }
+        
+        .list-item.selected {
+            background-color: #004;
+            border: 2px solid #0ff;
+        }
+        
+        .button {
+            background-color: #003;
+            color: #0f0;
+            border: 2px solid #0f0;
+            padding: 8px 15px;
+            margin: 5px;
+            cursor: pointer;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 8px;
+        }
+        
+        .button:hover {
+            background-color: #005;
+            border-color: #0ff;
+        }
+        
+        .button.danger {
+            border-color: #f00;
+            color: #f00;
+        }
+        
+        .button.danger:hover {
+            background-color: #300;
+        }
+        
+        .button.primary {
+            background-color: #030;
+            border-color: #0ff;
+            color: #0ff;
+        }
+        
+        input, textarea, select {
+            width: 100%;
+            background-color: #001;
+            color: #0f0;
+            border: 1px solid #0f0;
+            padding: 8px;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 8px;
+            margin: 5px 0;
+        }
+        
+        input[type="number"] {
+            width: 100px;
+        }
+        
+        input[type="checkbox"] {
+            width: auto;
+        }
+        
+        label {
+            display: block;
+            color: #ff0;
+            font-size: 8px;
+            margin: 10px 0 5px 0;
+        }
+        
+        .inline-label {
+            display: inline;
+            margin-left: 5px;
+        }
+        
+        .empty-state {
+            text-align: center;
+            color: #555;
+            padding: 40px;
+            font-size: 9px;
+        }
+        
+        .dialogue-line {
+            background-color: #002;
+            border: 1px solid #050;
+            padding: 10px;
+            margin: 10px 0;
+            position: relative;
+        }
+        
+        .line-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            color: #0ff;
+        }
+        
+        .condition-item, .action-item {
+            background-color: #001;
+            border: 1px solid #050;
+            padding: 8px;
+            margin: 5px 0;
+        }
+        
+        .small-button {
+            padding: 4px 8px;
+            font-size: 7px;
+        }
+        
+        .button-row {
+            display: flex;
+            gap: 10px;
+            margin: 10px 0;
+            flex-wrap: wrap;
+        }
+        
+        .export-area {
+            margin-top: 20px;
+        }
+        
+        textarea.export {
+            min-height: 200px;
+            font-family: 'Courier New', monospace;
+            font-size: 9px;
+        }
+        
+        .help {
+            background-color: #002;
+            border: 1px solid #050;
+            padding: 10px;
+            margin: 15px 0;
+            font-size: 7px;
+            color: #888;
+            line-height: 1.8;
+        }
+        
+        .section {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #002;
+            border: 1px solid #0a0;
+        }
+        
+        .section-title {
+            color: #0ff;
+            font-size: 9px;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #050;
+            padding-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>GOBLINHEART CONTENT EDITOR</h1>
+    
+    <div class="container">
+        <!-- Left Panel -->
+        <div class="panel">
+            <h2>CONTENT DATABASE</h2>
+            
+            <div class="tabs">
+                <div class="tab active" data-tab="dialogue">DIALOGUE</div>
+                <div class="tab" data-tab="events">EVENTS</div>
+                <div class="tab" data-tab="keyitems">KEYS</div>
+            </div>
+            
+            <div class="button-row">
+                <button class="button small-button" onclick="addItem()">+ NEW</button>
+                <button class="button small-button danger" onclick="deleteItem()">DELETE</button>
+            </div>
+            
+            <div class="item-list" id="itemList"></div>
+            
+            <div class="export-area">
+                <h2>IMPORT/EXPORT</h2>
+                <button class="button" onclick="loadFromFile()">LOAD FROM FILE</button>
+                <button class="button primary" onclick="downloadAll()">💾 DOWNLOAD ALL</button>
+                <button class="button" onclick="exportJSON()">EXPORT JSON</button>
+                <button class="button" onclick="importJSON()">IMPORT JSON</button>
+                <textarea class="export" id="exportArea" placeholder="JSON will appear here..."></textarea>
+            </div>
+        </div>
+        
+        <!-- Right Panel -->
+        <div class="panel">
+            <div id="editorArea">
+                <div class="empty-state">
+                    Select an item from the list or create a new one
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== DATA STORAGE =====
+        let data = {
+            dialogue: {},
+            events: {},
+            keyItems: {}
+        };
+        
+        let currentTab = 'dialogue';
+        let selectedId = null;
+        
+        // ===== EVENT TEMPLATES =====
+        const eventTemplates = {
+            'spawn_item': {
+                name: 'Spawn Item at Location',
+                fields: [
+                    { name: 'itemId', type: 'text', label: 'Item ID', placeholder: 'silver_key' },
+                    { name: 'mapId', type: 'text', label: 'Map ID', placeholder: 'Dungeon1' },
+                    { name: 'x', type: 'number', label: 'X Position' },
+                    { name: 'y', type: 'number', label: 'Y Position' },
+                    { name: 'message', type: 'text', label: 'Message (optional)', placeholder: 'Something glimmers...' }
+                ]
+            },
+            'set_flag': {
+                name: 'Set Flag',
+                fields: [
+                    { name: 'flagName', type: 'text', label: 'Flag Name', placeholder: 'foundTreasure' },
+                    { name: 'message', type: 'text', label: 'Message (optional)' }
+                ]
+            },
+            'add_journal': {
+                name: 'Add Journal Entry',
+                fields: [
+                    { name: 'title', type: 'text', label: 'Journal Title' },
+                    { name: 'content', type: 'textarea', label: 'Content' }
+                ]
+            },
+            'give_reward': {
+                name: 'Give Reward',
+                fields: [
+                    { name: 'gold', type: 'number', label: 'Gold', placeholder: '0' },
+                    { name: 'itemId', type: 'text', label: 'Item ID (optional)', placeholder: 'elder_token' },
+                    { name: 'xp', type: 'number', label: 'XP', placeholder: '0' }
+                ]
+            },
+            'transport_player': {
+                name: 'Transport Player',
+                fields: [
+                    { name: 'mapId', type: 'text', label: 'To Map', placeholder: 'town' },
+                    { name: 'x', type: 'number', label: 'X Position' },
+                    { name: 'y', type: 'number', label: 'Y Position' },
+                    { name: 'message', type: 'text', label: 'Message (optional)' }
+                ]
+            }
+        };
+        
+        // ===== INITIALIZATION =====
+        function init() {
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', () => switchTab(tab.dataset.tab));
+            });
+            renderList();
+        }
+        
+        function switchTab(tab) {
+            currentTab = tab;
+            selectedId = null;
+            document.querySelectorAll('.tab').forEach(t => {
+                t.classList.toggle('active', t.dataset.tab === tab);
+            });
+            renderList();
+            document.getElementById('editorArea').innerHTML = '<div class="empty-state">Select an item from the list or create a new one</div>';
+        }
+        
+        function getCurrentData() {
+            return data[currentTab];
+        }
+        
+        function renderList() {
+            const list = document.getElementById('itemList');
+            list.innerHTML = '';
+            
+            const items = getCurrentData();
+            Object.keys(items).sort().forEach(id => {
+                const div = document.createElement('div');
+                div.className = 'list-item' + (id === selectedId ? ' selected' : '');
+                
+                const item = items[id];
+                let displayName = id;
+                
+                if (currentTab === 'dialogue') {
+                    displayName = item.name || id;
+                } else if (currentTab === 'keyitems') {
+                    displayName = item.name || id;
+                }
+                
+                div.textContent = displayName;
+                div.onclick = () => selectItem(id);
+                list.appendChild(div);
+            });
+        }
+        
+        function selectItem(id) {
+            selectedId = id;
+            renderList();
+            renderEditor();
+        }
+        
+        function addItem() {
+            const id = prompt(`Enter ${currentTab} ID (e.g., 'elder_aldric', 'vhs_appears'):`);
+            if (!id) return;
+            
+            const items = getCurrentData();
+            if (items[id]) {
+                alert("Item with this ID already exists!");
+                return;
+            }
+            
+            // Create default item based on type
+            let newItem = {};
+            
+            if (currentTab === 'dialogue') {
+                newItem = {
+                    name: id.replace(/_/g, ' '),
+                    sprite: 'villager',
+                    isShopkeeper: false,
+                    lines: []
+                };
+            } else if (currentTab === 'events') {
+                newItem = {
+                    description: '',
+                    conditions: [],
+                    actions: []
+                };
+            } else if (currentTab === 'keyitems') {
+                newItem = {
+                    name: id.replace(/_/g, ' '),
+                    description: '',
+                    type: 'key_item',
+                    canEquip: false,
+                    canDrop: false,
+                    canSell: false,
+                    rarity: 'unique',
+                    tier: 0
+                };
+            }
+            
+            items[id] = newItem;
+            selectItem(id);
+        }
+        
+        function deleteItem() {
+            if (!selectedId) {
+                alert("No item selected!");
+                return;
+            }
+            
+            if (confirm(`Delete ${selectedId}?`)) {
+                delete getCurrentData()[selectedId];
+                selectedId = null;
+                renderList();
+                document.getElementById('editorArea').innerHTML = '<div class="empty-state">Item deleted. Select another or create new.</div>';
+            }
+        }
+        
+        // ===== EDITOR RENDERING =====
+        function renderEditor() {
+            const editor = document.getElementById('editorArea');
+            const item = getCurrentData()[selectedId];
+            
+            if (!item) return;
+            
+            let html = `<h2>${selectedId}</h2>`;
+            
+            if (currentTab === 'dialogue') {
+                html += renderDialogueEditor(item);
+            } else if (currentTab === 'events') {
+                html += renderEventEditor(item);
+            } else if (currentTab === 'keyitems') {
+                html += renderKeyItemEditor(item);
+            }
+            
+            editor.innerHTML = html;
+        }
+        
+        // ===== DIALOGUE EDITOR =====
+        function renderDialogueEditor(npc) {
+            return `
+                <label>NPC Name:</label>
+                <input type="text" id="npcName" value="${npc.name || ''}" onchange="updateField('name', this.value)">
+                
+                <label>Sprite:</label>
+                <select id="npcSprite" onchange="updateField('sprite', this.value)">
+                    <option value="villager" ${npc.sprite === 'villager' ? 'selected' : ''}>Villager</option>
+                    <option value="villager_old" ${npc.sprite === 'villager_old' ? 'selected' : ''}>Old Villager</option>
+                    <option value="villager_female" ${npc.sprite === 'villager_female' ? 'selected' : ''}>Female Villager</option>
+                    <option value="villager_child" ${npc.sprite === 'villager_child' ? 'selected' : ''}>Child</option>
+                    <option value="villager_worker" ${npc.sprite === 'villager_worker' ? 'selected' : ''}>Worker</option>
+                    <option value="villager_wealthy" ${npc.sprite === 'villager_wealthy' ? 'selected' : ''}>Wealthy</option>
+                    <option value="villager_blacksmith" ${npc.sprite === 'villager_blacksmith' ? 'selected' : ''}>Blacksmith</option>
+                    <option value="villager_innkeeper" ${npc.sprite === 'villager_innkeeper' ? 'selected' : ''}>Innkeeper</option>
+                    <option value="merchant" ${npc.sprite === 'merchant' ? 'selected' : ''}>Merchant</option>
+                </select>
+                
+                <label>
+                    <input type="checkbox" id="isShopkeeper" ${npc.isShopkeeper ? 'checked' : ''} 
+                           onchange="updateField('isShopkeeper', this.checked)">
+                    <span class="inline-label">Is Shopkeeper</span>
+                </label>
+                
+                <div class="section">
+                    <div class="section-title">DIALOGUE LINES</div>
+                    <div id="linesList">${renderDialogueLines(npc.lines || [])}</div>
+                    <button class="button small-button" onclick="addDialogueLine()">+ Add Line</button>
+                </div>
+            `;
+        }
+        
+        function renderDialogueLines(lines) {
+            if (lines.length === 0) {
+                return '<div style="color: #555; font-size: 7px;">No dialogue lines</div>';
+            }
+            
+            return lines.map((line, idx) => `
+                <div class="dialogue-line">
+                    <div class="line-header">
+                        <span>Line ${idx + 1}</span>
+                        <button class="button danger small-button" onclick="deleteLine(${idx})">X</button>
+                    </div>
+                    
+                    <label>Text:</label>
+                    <textarea rows="3" onchange="updateLineField(${idx}, 'text', this.value)">${line.text || ''}</textarea>
+                    
+                    <label>Requires Level (0 = none):</label>
+                    <input type="number" value="${line.requires?.level || 0}" 
+                           onchange="updateLineRequirement(${idx}, 'level', parseInt(this.value))">
+                    
+                    <label>Requires Flag (flag_name:true or leave empty):</label>
+                    <input type="text" placeholder="talkedBefore:true" value="${formatFlags(line.requires?.flags)}"
+                           onchange="updateLineFlags(${idx}, this.value)">
+                    
+                    <label>Requires Item ID (leave empty if none):</label>
+                    <input type="text" placeholder="silver_key" value="${line.requires?.hasItem || ''}"
+                           onchange="updateLineRequirement(${idx}, 'hasItem', this.value)">
+                    
+                    <label>Sets Flag (flag_name:value or leave empty):</label>
+                    <input type="text" placeholder="talkedBefore:true" value="${formatFlags(line.sets)}"
+                           onchange="updateLineSets(${idx}, this.value)">
+                </div>
+            `).join('');
+        }
+        
+        function formatFlags(flags) {
+            if (!flags) return '';
+            return Object.entries(flags).map(([k, v]) => `${k}:${v}`).join(', ');
+        }
+        
+        function parseFlags(str) {
+            if (!str.trim()) return {};
+            const flags = {};
+            str.split(',').forEach(pair => {
+                const [key, value] = pair.trim().split(':');
+                if (key) {
+                    flags[key] = value === 'true' ? true : value === 'false' ? false : value;
+                }
+            });
+            return flags;
+        }
+        
+        function addDialogueLine() {
+            const item = getCurrentData()[selectedId];
+            if (!item.lines) item.lines = [];
+            item.lines.push({
+                text: '',
+                requires: {},
+                sets: {}
+            });
+            renderEditor();
+        }
+        
+        function deleteLine(idx) {
+            const item = getCurrentData()[selectedId];
+            item.lines.splice(idx, 1);
+            renderEditor();
+        }
+        
+        function updateLineField(idx, field, value) {
+            const item = getCurrentData()[selectedId];
+            item.lines[idx][field] = value;
+        }
+        
+        function updateLineRequirement(idx, field, value) {
+            const item = getCurrentData()[selectedId];
+            if (!item.lines[idx].requires) item.lines[idx].requires = {};
+            if (value) {
+                item.lines[idx].requires[field] = value;
+            } else {
+                delete item.lines[idx].requires[field];
+            }
+        }
+        
+        function updateLineFlags(idx, value) {
+            const item = getCurrentData()[selectedId];
+            if (!item.lines[idx].requires) item.lines[idx].requires = {};
+            item.lines[idx].requires.flags = parseFlags(value);
+        }
+        
+        function updateLineSets(idx, value) {
+            const item = getCurrentData()[selectedId];
+            item.lines[idx].sets = parseFlags(value);
+        }
+        
+        // ===== EVENT EDITOR =====
+        function renderEventEditor(event) {
+            return `
+                <label>Description:</label>
+                <input type="text" id="eventDesc" value="${event.description || ''}" 
+                       onchange="updateField('description', this.value)"
+                       placeholder="Brief description of what this event does">
+                
+                <div class="section">
+                    <div class="section-title">CONDITIONS (When does this trigger?)</div>
+                    <div id="conditionsList">${renderConditions(event.conditions || [])}</div>
+                    <button class="button small-button" onclick="addCondition()">+ Add Condition</button>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title">ACTIONS (What happens?)</div>
+                    <div id="actionsList">${renderActions(event.actions || [])}</div>
+                    <button class="button small-button" onclick="addAction()">+ Add Action</button>
+                </div>
+                
+                <div class="help">
+                    TIP: Conditions check if the event should fire. Actions are what happens when it fires.
+                    The generated code will automatically set a flag to prevent the event from firing twice.
+                </div>
+            `;
+        }
+        
+        function renderConditions(conditions) {
+            if (conditions.length === 0) {
+                return '<div style="color: #555; font-size: 7px;">No conditions (will trigger immediately!)</div>';
+            }
+            
+            return conditions.map((cond, idx) => `
+                <div class="condition-item">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="color: #0ff;">Condition ${idx + 1}</span>
+                        <button class="button danger small-button" onclick="deleteCondition(${idx})">X</button>
+                    </div>
+                    
+                    <label>Type:</label>
+                    <select onchange="updateCondition(${idx}, 'type', this.value); renderEditor();">
+                        <option value="flag" ${cond.type === 'flag' ? 'selected' : ''}>Check Flag</option>
+                        <option value="day" ${cond.type === 'day' ? 'selected' : ''}>Day Number</option>
+                        <option value="map" ${cond.type === 'map' ? 'selected' : ''}>Current Map</option>
+                        <option value="item" ${cond.type === 'item' ? 'selected' : ''}>Has Item</option>
+                        <option value="level" ${cond.type === 'level' ? 'selected' : ''}>Player Level</option>
+                        <option value="position" ${cond.type === 'position' ? 'selected' : ''}>Player Position</option>
+                    </select>
+                    
+                    ${renderConditionFields(cond, idx)}
+                </div>
+            `).join('');
+        }
+        
+        function renderConditionFields(cond, idx) {
+            switch(cond.type) {
+                case 'flag':
+                    return `
+                        <label>Flag Name:</label>
+                        <input type="text" value="${cond.flagName || ''}" 
+                               onchange="updateCondition(${idx}, 'flagName', this.value)"
+                               placeholder="vhsAppeared">
+                        <label>Should Be:</label>
+                        <select onchange="updateCondition(${idx}, 'shouldBe', this.value === 'true')">
+                            <option value="true" ${cond.shouldBe === true ? 'selected' : ''}>True</option>
+                            <option value="false" ${cond.shouldBe === false ? 'selected' : ''}>False</option>
+                        </select>
+                    `;
+                case 'day':
+                    return `
+                        <label>Comparison:</label>
+                        <select onchange="updateCondition(${idx}, 'comparison', this.value)">
+                            <option value=">=" ${cond.comparison === '>=' ? 'selected' : ''}>Greater or Equal (>=)</option>
+                            <option value=">" ${cond.comparison === '>' ? 'selected' : ''}>Greater Than (>)</option>
+                            <option value="===" ${cond.comparison === '===' ? 'selected' : ''}>Exactly (===)</option>
+                            <option value="<" ${cond.comparison === '<' ? 'selected' : ''}>Less Than (<)</option>
+                        </select>
+                        <label>Day Number:</label>
+                        <input type="number" value="${cond.dayNumber || 1}" 
+                               onchange="updateCondition(${idx}, 'dayNumber', parseInt(this.value))">
+                    `;
+                case 'map':
+                    return `
+                        <label>Map ID:</label>
+                        <input type="text" value="${cond.mapId || ''}" 
+                               onchange="updateCondition(${idx}, 'mapId', this.value)"
+                               placeholder="Dungeon1">
+                    `;
+                case 'item':
+                    return `
+                        <label>Item ID:</label>
+                        <input type="text" value="${cond.itemId || ''}" 
+                               onchange="updateCondition(${idx}, 'itemId', this.value)"
+                               placeholder="silver_key">
+                    `;
+                case 'level':
+                    return `
+                        <label>Comparison:</label>
+                        <select onchange="updateCondition(${idx}, 'comparison', this.value)">
+                            <option value=">=" ${cond.comparison === '>=' ? 'selected' : ''}>Greater or Equal (>=)</option>
+                            <option value=">" ${cond.comparison === '>' ? 'selected' : ''}>Greater Than (>)</option>
+                            <option value="===" ${cond.comparison === '===' ? 'selected' : ''}>Exactly (===)</option>
+                        </select>
+                        <label>Level:</label>
+                        <input type="number" value="${cond.level || 1}" 
+                               onchange="updateCondition(${idx}, 'level', parseInt(this.value))">
+                    `;
+                case 'position':
+                    return `
+                        <label>X Position:</label>
+                        <input type="number" value="${cond.x || 0}" 
+                               onchange="updateCondition(${idx}, 'x', parseInt(this.value))">
+                        <label>Y Position:</label>
+                        <input type="number" value="${cond.y || 0}" 
+                               onchange="updateCondition(${idx}, 'y', parseInt(this.value))">
+                        <label>Map (leave empty for current map):</label>
+                        <input type="text" value="${cond.mapId || ''}" 
+                               onchange="updateCondition(${idx}, 'mapId', this.value)">
+                    `;
+                default:
+                    return '';
+            }
+        }
+        
+        function renderActions(actions) {
+            if (actions.length === 0) {
+                return '<div style="color: #555; font-size: 7px;">No actions</div>';
+            }
+            
+            return actions.map((action, idx) => `
+                <div class="action-item">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="color: #0ff;">Action ${idx + 1}: ${eventTemplates[action.type]?.name || action.type}</span>
+                        <button class="button danger small-button" onclick="deleteAction(${idx})">X</button>
+                    </div>
+                    
+                    <label>Type:</label>
+                    <select onchange="updateAction(${idx}, 'type', this.value); renderEditor();">
+                        ${Object.entries(eventTemplates).map(([key, tmpl]) => `
+                            <option value="${key}" ${action.type === key ? 'selected' : ''}>${tmpl.name}</option>
+                        `).join('')}
+                    </select>
+                    
+                    ${renderActionFields(action, idx)}
+                </div>
+            `).join('');
+        }
+        
+        function renderActionFields(action, idx) {
+            const template = eventTemplates[action.type];
+            if (!template) return '';
+            
+            return template.fields.map(field => {
+                const value = action[field.name] || '';
+                
+                if (field.type === 'textarea') {
+                    return `
+                        <label>${field.label}:</label>
+                        <textarea rows="3" placeholder="${field.placeholder || ''}" 
+                                  onchange="updateAction(${idx}, '${field.name}', this.value)">${value}</textarea>
+                    `;
+                } else if (field.type === 'number') {
+                    return `
+                        <label>${field.label}:</label>
+                        <input type="number" value="${value}" placeholder="${field.placeholder || ''}"
+                               onchange="updateAction(${idx}, '${field.name}', parseInt(this.value))">
+                    `;
+                } else {
+                    return `
+                        <label>${field.label}:</label>
+                        <input type="text" value="${value}" placeholder="${field.placeholder || ''}"
+                               onchange="updateAction(${idx}, '${field.name}', this.value)">
+                    `;
+                }
+            }).join('');
+        }
+        
+        function addCondition() {
+            const item = getCurrentData()[selectedId];
+            if (!item.conditions) item.conditions = [];
+            item.conditions.push({ type: 'flag', flagName: '', shouldBe: true });
+            renderEditor();
+        }
+        
+        function deleteCondition(idx) {
+            const item = getCurrentData()[selectedId];
+            item.conditions.splice(idx, 1);
+            renderEditor();
+        }
+        
+        function updateCondition(idx, field, value) {
+            const item = getCurrentData()[selectedId];
+            item.conditions[idx][field] = value;
+        }
+        
+        function addAction() {
+            const item = getCurrentData()[selectedId];
+            if (!item.actions) item.actions = [];
+            item.actions.push({ type: 'set_flag' });
+            renderEditor();
+        }
+        
+        function deleteAction(idx) {
+            const item = getCurrentData()[selectedId];
+            item.actions.splice(idx, 1);
+            renderEditor();
+        }
+        
+        function updateAction(idx, field, value) {
+            const item = getCurrentData()[selectedId];
+            item.actions[idx][field] = value;
+        }
+        
+        // ===== KEY ITEM EDITOR =====
+        function renderKeyItemEditor(item) {
+            return `
+                <label>Item Name:</label>
+                <input type="text" value="${item.name || ''}" onchange="updateField('name', this.value)">
+                
+                <label>Description:</label>
+                <textarea rows="3" onchange="updateField('description', this.value)">${item.description || ''}</textarea>
+                
+                <label>
+                    <input type="checkbox" ${item.canDrop ? 'checked' : ''} 
+                           onchange="updateField('canDrop', this.checked)">
+                    <span class="inline-label">Can Drop</span>
+                </label>
+                
+                <label>
+                    <input type="checkbox" ${item.canSell ? 'checked' : ''} 
+                           onchange="updateField('canSell', this.checked)">
+                    <span class="inline-label">Can Sell</span>
+                </label>
+                
+                <div class="help">
+                    Key items are unique story items. They cannot be equipped and typically cannot be dropped or sold.
+                </div>
+            `;
+        }
+        
+        // ===== GENERAL UPDATES =====
+        function updateField(field, value) {
+            const item = getCurrentData()[selectedId];
+            item[field] = value;
+        }
+        
+        // ===== CODE GENERATION =====
+        function generateEventCode(eventId, event) {
+            // Generate canTrigger conditions
+            let conditions = [];
+            
+            event.conditions.forEach(cond => {
+                switch(cond.type) {
+                    case 'flag':
+                        conditions.push(`gs.flags.${cond.flagName} === ${cond.shouldBe}`);
+                        break;
+                    case 'day':
+                        conditions.push(`gs.dayCounter ${cond.comparison} ${cond.dayNumber}`);
+                        break;
+                    case 'map':
+                        conditions.push(`gs.currentMap === '${cond.mapId}'`);
+                        break;
+                    case 'item':
+                        conditions.push(`gs.player.inventory.includes('${cond.itemId}')`);
+                        break;
+                    case 'level':
+                        conditions.push(`gs.player.level ${cond.comparison} ${cond.level}`);
+                        break;
+                    case 'position':
+                        let posCheck = `gs.player.x === ${cond.x} && gs.player.y === ${cond.y}`;
+                        if (cond.mapId) {
+                            posCheck += ` && gs.currentMap === '${cond.mapId}'`;
+                        }
+                        conditions.push(posCheck);
+                        break;
+                }
+            });
+            
+            // Add automatic "hasn't happened yet" flag
+            conditions.push(`!gs.flags.${eventId}_happened`);
+            
+            // Generate onTrigger actions
+            let actions = [`gameState.flags.${eventId}_happened = true;`];
+            
+            event.actions.forEach(action => {
+                switch(action.type) {
+                    case 'spawn_item':
+                        actions.push(`
+            const location = '${action.x},${action.y}';
+            if (!treasureContents['${action.mapId}']) {
+                treasureContents['${action.mapId}'] = {};
+            }
+            treasureContents['${action.mapId}'][location] = {
+                gold: 0,
+                items: ['${action.itemId}']
+            };
+            const [x, y] = location.split(',').map(Number);
+            const row = gameState.world.tiles[y];
+            gameState.world.tiles[y] = row.substring(0, x) + '$' + row.substring(x + 1);
+            ${action.message ? `addMessage("${action.message}", CGA.CYAN);` : ''}
+            renderWorld();`);
+                        break;
+                    case 'set_flag':
+                        actions.push(`gameState.flags.${action.flagName} = true;`);
+                        if (action.message) {
+                            actions.push(`addMessage("${action.message}");`);
+                        }
+                        break;
+                    case 'add_journal':
+                        const escapedContent = (action.content || '').replace(/'/g, "\\'");
+                        actions.push(`addJournalEntry('${action.title}', [
+                { type: 'text', content: '${escapedContent}' }
+            ]);`);
+                        break;
+                    case 'give_reward':
+                        if (action.gold > 0) {
+                            actions.push(`gameState.player.gold += ${action.gold};`);
+                            actions.push(`addMessage("+${action.gold} gold!", CGA.CYAN);`);
+                        }
+                        if (action.itemId) {
+                            actions.push(`gameState.player.inventory.push('${action.itemId}');`);
+                            actions.push(`addMessage("Received ${action.itemId}!", CGA.CYAN);`);
+                        }
+                        if (action.xp > 0) {
+                            actions.push(`gameState.player.xp += ${action.xp};`);
+                            actions.push(`checkLevelUp();`);
+                        }
+                        break;
+                    case 'transport_player':
+                        actions.push(`loadMap('${action.mapId}');`);
+                        actions.push(`gameState.player.x = ${action.x};`);
+                        actions.push(`gameState.player.y = ${action.y};`);
+                        if (action.message) {
+                            actions.push(`addMessage("${action.message}");`);
+                        }
+                        actions.push(`renderWorld();`);
+                        actions.push(`updateExploration();`);
+                        actions.push(`updateStatus();`);
+                        break;
+                }
+            });
+            
+            return `    '${eventId}': {
+        // ${event.description || 'No description'}
+        canTrigger: (gs) => {
+            return ${conditions.join(' &&\n                   ')};
+        },
+        
+        onTrigger: (gs) => {
+            console.log('EVENT: ${eventId}');
+            ${actions.join('\n            ')}
+        }
+    }`;
+        }
+        
+        // ===== EXPORT/IMPORT =====
+        function downloadAll() {
+            // Generate dialogue.js
+            const dialogueJS = `// dialogue.js - NPC Dialogue System
+// Generated by Content Editor - Edit in editor, not here!
+console.log('=== DIALOGUE.JS IS LOADING ===');
+
+const dialogueDatabase = ${JSON.stringify(data.dialogue, null, 2)};
+
+function getDialogue(npcId, gameState) {
+    const npc = dialogueDatabase[npcId];
+    if (!npc) {
+        console.error('NPC "' + npcId + '" not found in dialogue database');
+        return { text: "...", sets: null };
+    }
+    
+    if (!gameState.flags) {
+        gameState.flags = {};
+    }
+    
+    for (let i = npc.lines.length - 1; i >= 0; i--) {
+        const line = npc.lines[i];
+        if (meetsRequirements(line.requires, gameState)) {
+            return processDialogue(line, gameState, npcId);
+        }
+    }
+    
+    return processDialogue(npc.lines[0], gameState, npcId);
+}
+
+function meetsRequirements(requires, gameState) {
+    if (!requires) return true;
+    
+    if (requires.level !== undefined) {
+        if (gameState.player.level < requires.level) {
+            return false;
+        }
+    }
+    
+    if (requires.flags) {
+        for (const [flag, requiredValue] of Object.entries(requires.flags)) {
+            const currentValue = gameState.flags?.[flag];
+            
+            if (typeof requiredValue === 'boolean') {
+                if (Boolean(currentValue) !== requiredValue) {
+                    return false;
+                }
+            } else if (currentValue !== requiredValue) {
+                return false;
+            }
+        }
+    }
+    
+    if (requires.hasItem) {
+        if (!gameState.player.inventory.includes(requires.hasItem)) {
+            return false;
+        }
+    }
+    
+    if (requires.gold !== undefined) {
+        if (gameState.player.gold < requires.gold) {
+            return false;
+        }
+    }
+    
+    return true;
+}
+
+function processDialogue(line, gameState, npcId) {
+    let text = line.text.replace(/\\{\\{(\\w+)\\}\\}/g, (match, key) => {
+        if (gameState.player[key] !== undefined) {
+            return gameState.player[key];
+        }
+        if (gameState.flags?.[key] !== undefined) {
+            return gameState.flags[key];
+        }
+        return match;
+    });
+    
+    if (line.journalEntry) {
+        console.log('Journal entry found:', line.journalEntry);
+        console.log('addJournalEntry function exists?', typeof addJournalEntry);
+        
+        if (typeof addJournalEntry === 'function') {
+            console.log('Calling addJournalEntry...');
+            addJournalEntry(line.journalEntry.title, line.journalEntry.blocks);
+        } else {
+            console.error('addJournalEntry function not found!');
+        }
+    }
+    
+    if (line.sets) {
+        if (!gameState.flags) {
+            gameState.flags = {};
+        }
+        Object.assign(gameState.flags, line.sets);
+        console.log('[' + npcId + '] Set flags:', line.sets);
+    }
+    
+    return {
+        text: text,
+        sets: line.sets || null,
+        npcName: dialogueDatabase[npcId]?.name || "Unknown"
+    };
+}
+
+function getNPCData(npcId) {
+    return dialogueDatabase[npcId] || null;
+}
+
+console.log('=== DIALOGUE.JS LOADED ===');
+console.log('Loaded ' + Object.keys(dialogueDatabase).length + ' unique NPCs with dialogue');`;
+            
+            // Generate events_generated.js
+            const eventsJS = `// events_generated.js - Template-Generated Events
+// Generated by Content Editor - Edit in editor, not here!
+console.log('=== EVENTS_GENERATED.JS IS LOADING ===');
+
+const generatedEvents = {
+${Object.entries(data.events).map(([id, event]) => generateEventCode(id, event)).join(',\n\n')}
+};
+
+console.log('=== EVENTS_GENERATED.JS LOADED ===');
+console.log('Loaded ' + Object.keys(generatedEvents).length + ' generated events');`;
+            
+            // Generate story_items.js (for key items)
+            const storyItemsJS = `// story_items.js - Story-Specific Key Items
+// Generated by Content Editor - Edit in editor, not here!
+console.log('=== STORY_ITEMS.JS IS LOADING ===');
+
+const storyItems = ${JSON.stringify(data.keyItems, null, 4)};
+
+// Add story items to item database
+Object.assign(itemDatabase, storyItems);
+
+console.log('=== STORY_ITEMS.JS LOADED ===');
+console.log('Loaded ' + Object.keys(storyItems).length + ' story items');`;
+            
+            // Download all files
+            downloadFile('dialogue.js', dialogueJS);
+            downloadFile('events_generated.js', eventsJS);
+            downloadFile('story_items.js', storyItemsJS);
+            
+            alert("✅ DOWNLOADED 3 FILES!\n\n1. dialogue.js\n2. events_generated.js\n3. story_items.js\n\nNow:\n1. Replace old files\n2. Add to index.html:\n   <script src='story_items.js'></script>\n   <script src='events_generated.js'></script>\n3. In events.js, merge:\n   const eventHandlers = {\n      ...generatedEvents,\n      ...customEvents\n   };");
+        }
+        
+        function downloadFile(filename, content) {
+            const blob = new Blob([content], { type: 'text/javascript' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+        
+        function exportJSON() {
+            const json = JSON.stringify(data, null, 2);
+            document.getElementById('exportArea').value = json;
+            
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'goblinheart_content.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+        
+        function importJSON() {
+            const json = document.getElementById('exportArea').value;
+            if (!json.trim()) {
+                alert("Paste JSON into the text area first!");
+                return;
+            }
+            
+            try {
+                data = JSON.parse(json);
+                selectedId = null;
+                renderList();
+                document.getElementById('editorArea').innerHTML = '<div class="empty-state">Data imported! Select an item to edit.</div>';
+                alert("Content data imported successfully!");
+            } catch (e) {
+                alert("Invalid JSON: " + e.message);
+            }
+        }
+        
+        function loadFromFile() {
+            alert("Load from dialogue.js/events.js not yet implemented. Use Import JSON for now!");
+        }
+        
+        // Initialize
+        init();
+    </script>
+</body>
+</html>
