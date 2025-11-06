@@ -1244,7 +1244,12 @@ console.log(\`Registered \${Object.keys(eventHandlers).length} event handlers\`)
             
             const code = conditions.map(c => {
                 if (c.type === 'flag') {
-                    return `gs.flags.${c.flagName} === ${c.shouldBe}`;
+                    // Handle undefined flags properly
+                    if (c.shouldBe === 'false' || c.shouldBe === false) {
+                        return `!gs.flags.${c.flagName}`;
+                    } else {
+                        return `gs.flags.${c.flagName}`;
+                    }
                 } else if (c.type === 'map') {
                     return `gs.currentMap === '${c.mapId}'`;
                 } else if (c.type === 'day') {

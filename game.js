@@ -1665,6 +1665,10 @@ function rest(location = 'camp', cost = 0) {
         return;
     }
     
+	gameState.dayCounter = (gameState.dayCounter || 0) + 1;
+    console.log(`Day advanced to: ${gameState.dayCounter}`);
+	addMessage(`Day advanced to: ${gameState.dayCounter}`);
+	
     // ===== BEFORE REST HOOKS =====
     if (runBeforeRestHooks(gameState, location)) {
         return; // Hook cancelled the rest (e.g., VHS transport)
@@ -1734,11 +1738,12 @@ function rest(location = 'camp', cost = 0) {
         addMessage("===================");
         
         // ===== AFTER REST HOOKS =====
-        runAfterRestHooks(gameState, location);
+        //runAfterRestHooks(gameState, location);
         // ============================
         
         setTimeout(() => {
             clearFade();
+			checkEvents(gameState);
             renderWorld();
             updateStatus();
         }, 1000);
