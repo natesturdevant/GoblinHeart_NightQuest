@@ -2055,6 +2055,17 @@ const keyItems = {
         canSell: false,
         rarity: 'unique',
         tier: 0
+    },
+	
+	
+    'magic_vhs': {
+        name: 'Unmarked VHS Tape',
+        type: 'key_item',
+        description: 'A VHS tape covered in strange symbols. The label is impossible to focus on.',
+        canEquip: false,
+        canDrop: false,
+        canSell: false,
+        rarity: 'unique'
     }
 };
 //Object.assign(itemDatabase, keyItems);
