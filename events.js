@@ -4,25 +4,25 @@ console.log('=== EVENTS.JS IS LOADING ===');
 const eventHandlers = {
     'vhs_appears': {
         // Strange VHS tape appears at the video store on day 3
-        canTrigger: (gs) => {
-            if (gs.flags.vhs_appears_completed) return false;
-            return gs.dayCounter >= 3 &&
-                   !gs.flags.vhsAppeared &&
-                   gs.currentMap === 'Video_Store';
+        canTrigger: (gameState) => {
+            if (gameState.flags.vhs_appears_completed) return false;
+            return gameState.dayCounter >= 3 &&
+                   !gameState.flags.vhsAppeared &&
+                   gameState.currentMap === 'Video_Store';
         },
         
-        onTrigger: (gs) => {
+        onTrigger: (gameState) => {
             console.log('EVENT: vhs_appears');
-            
             const location = '8,5';
-            if (!treasureContents['Video_Store']) treasureContents['Video_Store'] = {};
-            treasureContents['Video_Store'][location] = { gold: 0, items: ['magic_vhs'] };
-            const [x, y] = location.split(',').map(Number);
-            const row = gs.world.tiles[y];
-            gs.world.tiles[y] = row.substring(0, x) + '$' + row.substring(x + 1);
-            renderWorld();
+					if (!treasureContents['Video_Store']) treasureContents['Video_Store'] = {};
+					treasureContents['Video_Store'][location] = { gold: 0, items: ['magic_vhs'] };
+					const [x, y] = location.split(',').map(Number);
+					const row = gameState.world.tiles[y];
+					gameState.world.tiles[y] = row.substring(0, x) + '$' + row.substring(x + 1);
+					renderWorld();
             addMessage("Something's different about the store today...", CGA.CYAN);
-            gs.flags.vhs_appears_completed = true;
+            gameState.flags.vhsAppeared = true;
+            gameState.flags.vhs_appears_completed = true;
         }
     }
 };
@@ -71,5 +71,30 @@ function runAfterRestHooks(gameState, location) {
     });
 }
 
+// ===== REGISTER REST HOOKS =====
+
+// VHS Transports! - End of the intro, transition to the isekai world
+restHooks.beforeRest.push((gameState, location) => {
+    if (gameState.flags.vhs_transports_completed) return false;
+    
+    if (gameState.player.inventory.includes('magic_vhs')) {
+        console.log('REST HOOK (BEFORE): vhs_transports');
+        addMessage("Your sleep is fitful and strained.");
+            loadMap('Forest'); gameState.player.x = 1; gameState.player.y = 2;
+            const itemIdx = gameState.player.inventory.indexOf('magic_vhs');
+					if (itemIdx !== -1) {
+						gameState.player.inventory.splice(itemIdx, 1);
+						addMessage("magic_vhs vanishes!", CGA.MAGENTA);
+					}
+        gameState.flags.vhs_transports_completed = true;
+        return true; // Cancel rest
+    }
+    
+    return false; // Allow rest to continue
+});
+
+
 console.log('=== EVENTS.JS LOADED ===');
 console.log(`Registered ${Object.keys(eventHandlers).length} event handlers`);
+console.log(`Registered ${restHooks.beforeRest.length} before-rest hooks`);
+console.log(`Registered ${restHooks.afterRest.length} after-rest hooks`);

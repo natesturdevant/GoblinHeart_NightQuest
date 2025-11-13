@@ -287,11 +287,11 @@
     <h1>GOBLINHEART UNIFIED CONTENT EDITOR</h1>
     
     <div class="help" style="max-width: 1600px; margin: 0 auto 20px auto;">
-        <strong style="color: #0ff;">🎮 UNIFIED EDITOR</strong><br>
-        Create NPCs and Events in one place! NPCs are just events that can talk.<br>
+        <strong style="color: #0ff;">🎮 UNIFIED EDITOR v2.0</strong><br>
+        Create NPCs and Events in one place! Now with REST HOOKS support!<br>
         <strong style="color: #ff0;">Key Features:</strong><br>
         • NPCs have multiple "responses" (dialogue + actions based on conditions)<br>
-        • Events can show messages, trigger effects, and change the world<br>
+        • Events can be Standard (trigger on checkEvents) or Rest Hooks (before/after rest)<br>
         • Both use the same trigger/action system<br>
         • Export directly to dialogue.js and events.js
     </div>
@@ -369,6 +369,7 @@
                 // Example Event
                 'vhs_appears': {
                     type: 'event',
+                    eventType: 'standard',
                     name: 'VHS Appears at Work',
                     description: 'Strange VHS tape appears at the video store on day 3',
                     oneShot: true,
@@ -389,6 +390,11 @@
                             type: 'showMessage', 
                             message: "Something's different about the store today...",
                             color: 'CYAN'
+                        },
+                        {
+                            type: 'setFlag',
+                            flagName: 'vhsAppeared',
+                            value: 'true'
                         }
                     ]
                 }
@@ -417,6 +423,7 @@
             
             event: {
                 type: 'event',
+                eventType: 'standard',
                 name: 'New Event',
                 description: '',
                 oneShot: true,
@@ -510,6 +517,12 @@
                     { name: 'y', type: 'number', label: 'Y Position' }
                 ]
             },
+			removeItem: {
+				name: 'Remove Item from Inventory',
+				fields: [
+				{ name: 'itemId', type: 'text', label: 'Item ID', placeholder: 'magic_vhs' }
+				]
+			},
             transport: {
                 name: 'Transport Player',
                 fields: [
@@ -519,6 +532,10 @@
                     { name: 'fadeEffect', type: 'select', label: 'Fade Effect', options: ['none', 'black', 'white'] }
                 ]
             },
+			updateDisplay: {
+				name: 'Update Display (Fog/Render)',
+				fields: []  // No fields needed
+			},
             addJournal: {
                 name: 'Add Journal Entry',
                 fields: [
@@ -706,6 +723,20 @@
                 <label>Description:</label>
                 <textarea rows="2" onchange="updateNodeField('description', this.value)">${node.description || ''}</textarea>
                 
+                <label>Event Type:</label>
+                <select onchange="updateNodeField('eventType', this.value)">
+                    <option value="standard" ${(node.eventType || 'standard') === 'standard' ? 'selected' : ''}>Standard Event (runs on checkEvents)</option>
+                    <option value="beforeRest" ${node.eventType === 'beforeRest' ? 'selected' : ''}>Before Rest Hook (can cancel rest)</option>
+                    <option value="afterRest" ${node.eventType === 'afterRest' ? 'selected' : ''}>After Rest Hook (runs after rest)</option>
+                </select>
+                
+                <div class="help">
+                    <strong style="color: #ff0;">Event Types:</strong><br>
+                    • <strong>Standard:</strong> Checks every action/movement (normal events)<br>
+                    • <strong>Before Rest:</strong> Triggers when player tries to rest (can cancel rest by meeting conditions)<br>
+                    • <strong>After Rest:</strong> Triggers after player successfully rests
+                </div>
+                
                 <label>
                     <input type="checkbox" ${node.oneShot ? 'checked' : ''} 
                            onchange="updateNodeField('oneShot', this.checked)">
@@ -713,7 +744,8 @@
                 </label>
                 
                 <div class="section">
-                    <div class="section-title">CONDITIONS (When does this fire?)</div>
+                    <div class="section-title">CONDITIONS ${node.eventType === 'beforeRest' || node.eventType === 'afterRest' ? '(When does this hook trigger?)' : '(When does this fire?)'}</div>
+                    ${node.eventType === 'beforeRest' ? '<div class="help" style="color: #f80;">If ALL conditions are met, rest will be CANCELLED and actions will run instead!</div>' : ''}
                     <div id="event_conditions">${renderConditions(node.conditions, 'event')}</div>
                     <button class="button small-button" onclick="addCondition('event')">+ Add Condition</button>
                 </div>
@@ -883,7 +915,13 @@
                 return preview;
             }
             
-            // For events
+            // For events - show type
+            if (node.eventType === 'beforeRest') {
+                preview += '<div style="color: #f80; margin-bottom: 10px;">🛏️ BEFORE REST HOOK (will cancel rest if triggered)</div>';
+            } else if (node.eventType === 'afterRest') {
+                preview += '<div style="color: #0f0; margin-bottom: 10px;">🛏️ AFTER REST HOOK (runs after successful rest)</div>';
+            }
+            
             if (node.conditions && node.conditions.length > 0) {
                 preview += '<div class="flow-node"><div class="flow-condition">IF: ';
                 preview += node.conditions.map(formatCondition).join(' AND ');
@@ -921,7 +959,9 @@
             if (a.type === 'setFlag') return `Set flag.${a.flagName} = ${a.value}`;
             if (a.type === 'giveReward') return `Give ${a.gold}g, ${a.xp}xp`;
             if (a.type === 'spawnItem') return `Spawn ${a.itemId} at ${a.mapId}`;
+			if (a.type === 'removeItem') return `Remove ${a.itemId}`;
             if (a.type === 'transport') return `Transport to ${a.mapId}`;
+			if (a.type === 'updateDisplay') return `Update display/fog`;
             if (a.type === 'addJournal') return `Journal: "${a.title}"`;
             if (a.type === 'customCode') return `Custom code`;
             return a.type;
@@ -1131,29 +1171,70 @@ console.log('Loaded ' + Object.keys(dialogueDatabase).length + ' NPCs');`;
             const eventNodes = Object.entries(contentData.nodes)
                 .filter(([id, node]) => node.type === 'event');
             
-            const handlers = eventNodes.map(([id, node]) => {
+            // Separate by event type
+            const standardEvents = eventNodes.filter(([id, node]) => !node.eventType || node.eventType === 'standard');
+            const beforeRestEvents = eventNodes.filter(([id, node]) => node.eventType === 'beforeRest');
+            const afterRestEvents = eventNodes.filter(([id, node]) => node.eventType === 'afterRest');
+            
+            // Generate standard event handlers
+            const handlers = standardEvents.map(([id, node]) => {
                 const flagName = `${id}_completed`;
                 
                 return `    '${id}': {
         // ${node.description || 'No description'}
-        canTrigger: (gs) => {
-            ${node.oneShot ? `if (gs.flags.${flagName}) return false;` : ''}
+        canTrigger: (gameState) => {
+            ${node.oneShot ? `if (gameState.flags.${flagName}) return false;` : ''}
             return ${generateConditionCode(node.conditions)};
         },
         
-        onTrigger: (gs) => {
+        onTrigger: (gameState) => {
             console.log('EVENT: ${id}');
             ${generateActionCode(node.actions)}
-            ${node.oneShot ? `gs.flags.${flagName} = true;` : ''}
+            ${node.oneShot ? `gameState.flags.${flagName} = true;` : ''}
         }
     }`;
             }).join(',\n\n');
+            
+            // Generate before rest hooks
+            const beforeRestHooks = beforeRestEvents.map(([id, node]) => {
+                const flagName = `${id}_completed`;
+                return `
+// ${node.name} - ${node.description || 'No description'}
+restHooks.beforeRest.push((gameState, location) => {
+    ${node.oneShot ? `if (gameState.flags.${flagName}) return false;` : ''}
+    
+    if (${generateConditionCode(node.conditions)}) {
+        console.log('REST HOOK (BEFORE): ${id}');
+        ${generateActionCode(node.actions)}
+        ${node.oneShot ? `gameState.flags.${flagName} = true;` : ''}
+        return true; // Cancel rest
+    }
+    
+    return false; // Allow rest to continue
+});`;
+            }).join('\n');
+            
+            // Generate after rest hooks
+            const afterRestHooks = afterRestEvents.map(([id, node]) => {
+                const flagName = `${id}_completed`;
+                return `
+// ${node.name} - ${node.description || 'No description'}
+restHooks.afterRest.push((gameState, location) => {
+    ${node.oneShot ? `if (gameState.flags.${flagName}) return;` : ''}
+    
+    if (${generateConditionCode(node.conditions)}) {
+        console.log('REST HOOK (AFTER): ${id}');
+        ${generateActionCode(node.actions)}
+        ${node.oneShot ? `gameState.flags.${flagName} = true;` : ''}
+    }
+});`;
+            }).join('\n');
             
             return `// events.js - Generated by Unified Content Editor
 console.log('=== EVENTS.JS IS LOADING ===');
 
 const eventHandlers = {
-${handlers}
+${handlers || '    // No standard events'}
 };
 
 function checkEvents(gameState) {
@@ -1200,8 +1281,14 @@ function runAfterRestHooks(gameState, location) {
     });
 }
 
+// ===== REGISTER REST HOOKS =====
+${beforeRestHooks}
+${afterRestHooks}
+
 console.log('=== EVENTS.JS LOADED ===');
-console.log(\`Registered \${Object.keys(eventHandlers).length} event handlers\`);`;
+console.log(\`Registered \${Object.keys(eventHandlers).length} event handlers\`);
+console.log(\`Registered \${restHooks.beforeRest.length} before-rest hooks\`);
+console.log(\`Registered \${restHooks.afterRest.length} after-rest hooks\`);`;
         }
         
         function convertConditionsToRequires(conditions) {
@@ -1244,26 +1331,25 @@ console.log(\`Registered \${Object.keys(eventHandlers).length} event handlers\`)
             
             const code = conditions.map(c => {
                 if (c.type === 'flag') {
-                    // Handle undefined flags properly
                     if (c.shouldBe === 'false' || c.shouldBe === false) {
-                        return `!gs.flags.${c.flagName}`;
+                        return `!gameState.flags.${c.flagName}`;
                     } else {
-                        return `gs.flags.${c.flagName}`;
+                        return `gameState.flags.${c.flagName}`;
                     }
                 } else if (c.type === 'map') {
-                    return `gs.currentMap === '${c.mapId}'`;
+                    return `gameState.currentMap === '${c.mapId}'`;
                 } else if (c.type === 'day') {
-                    return `gs.dayCounter ${c.comparison} ${c.day}`;
+                    return `gameState.dayCounter ${c.comparison} ${c.day}`;
                 } else if (c.type === 'level') {
-                    return `gs.player.level ${c.comparison} ${c.level}`;
+                    return `gameState.player.level ${c.comparison} ${c.level}`;
                 } else if (c.type === 'position') {
-                    let str = `gs.player.x === ${c.x} && gs.player.y === ${c.y}`;
-                    if (c.mapId) str += ` && gs.currentMap === '${c.mapId}'`;
+                    let str = `gameState.player.x === ${c.x} && gameState.player.y === ${c.y}`;
+                    if (c.mapId) str += ` && gameState.currentMap === '${c.mapId}'`;
                     return str;
                 } else if (c.type === 'hasItem') {
-                    return `gs.player.inventory.includes('${c.itemId}')`;
+                    return `gameState.player.inventory.includes('${c.itemId}')`;
                 } else if (c.type === 'gold') {
-                    return `gs.player.gold ${c.comparison} ${c.amount}`;
+                    return `gameState.player.gold ${c.comparison} ${c.amount}`;
                 }
                 return 'true';
             });
@@ -1272,39 +1358,46 @@ console.log(\`Registered \${Object.keys(eventHandlers).length} event handlers\`)
         }
         
         function generateActionCode(actions) {
-            if (!actions || actions.length === 0) return '// No actions';
-            
-            return actions.map(a => {
-                if (a.type === 'showMessage') {
-                    const color = a.color ? `, CGA.${a.color}` : '';
-                    return `addMessage("${a.message}"${color});`;
-                } else if (a.type === 'setFlag') {
-                    return `gs.flags.${a.flagName} = ${a.value};`;
-                } else if (a.type === 'giveReward') {
-                    let code = '';
-                    if (a.gold > 0) code += `gs.player.gold += ${a.gold}; addMessage("+${a.gold} gold!", CGA.CYAN);`;
-                    if (a.xp > 0) code += ` gs.player.xp += ${a.xp}; checkLevelUp();`;
-                    if (a.itemId) code += ` gs.player.inventory.push('${a.itemId}');`;
-                    return code;
-                } else if (a.type === 'spawnItem') {
-                    return `
-            const location = '${a.x},${a.y}';
-            if (!treasureContents['${a.mapId}']) treasureContents['${a.mapId}'] = {};
-            treasureContents['${a.mapId}'][location] = { gold: 0, items: ['${a.itemId}'] };
-            const [x, y] = location.split(',').map(Number);
-            const row = gs.world.tiles[y];
-            gs.world.tiles[y] = row.substring(0, x) + '$' + row.substring(x + 1);
-            renderWorld();`;
-                } else if (a.type === 'transport') {
-                    return `loadMap('${a.mapId}'); gs.player.x = ${a.x}; gs.player.y = ${a.y};`;
-                } else if (a.type === 'addJournal') {
-                    return `addJournalEntry('${a.title}', [{ type: 'text', content: '${a.content.replace(/'/g, "\\'")}' }]);`;
-                } else if (a.type === 'customCode') {
-                    return a.code || '// Empty custom code';
-                }
-                return '// Unknown action';
-            }).join('\n            ');
-        }
+			if (!actions || actions.length === 0) return '// No actions';
+    
+			return actions.map(a => {
+				if (a.type === 'showMessage') {
+					const color = a.color ? `, CGA.${a.color}` : '';
+					return `addMessage("${a.message}"${color});`;
+				} else if (a.type === 'setFlag') {
+					return `gameState.flags.${a.flagName} = ${a.value};`;
+				} else if (a.type === 'giveReward') {
+					let code = '';
+					if (a.gold > 0) code += `gameState.player.gold += ${a.gold}; addMessage("+${a.gold} gold!", CGA.CYAN);`;
+					if (a.xp > 0) code += ` gameState.player.xp += ${a.xp}; checkLevelUp();`;
+					if (a.itemId) code += ` gameState.player.inventory.push('${a.itemId}');`;
+					return code;
+				} else if (a.type === 'spawnItem') {
+					return `const location = '${a.x},${a.y}';
+					if (!treasureContents['${a.mapId}']) treasureContents['${a.mapId}'] = {};
+					treasureContents['${a.mapId}'][location] = { gold: 0, items: ['${a.itemId}'] };
+					const [x, y] = location.split(',').map(Number);
+					const row = gameState.world.tiles[y];
+					gameState.world.tiles[y] = row.substring(0, x) + '$' + row.substring(x + 1);
+					renderWorld();`;
+				} else if (a.type === 'transport') {
+					return `loadMap('${a.mapId}'); gameState.player.x = ${a.x}; gameState.player.y = ${a.y};`;
+				} else if (a.type === 'updateDisplay') {
+					return `renderWorld(); updateExploration(); updateStatus();`;
+				} else if (a.type === 'removeItem') {
+					return `const itemIdx = gameState.player.inventory.indexOf('${a.itemId}');
+					if (itemIdx !== -1) {
+						gameState.player.inventory.splice(itemIdx, 1);
+						addMessage("${a.itemId} vanishes!", CGA.MAGENTA);
+					}`;
+				} else if (a.type === 'addJournal') {
+					return `addJournalEntry('${a.title}', [{ type: 'text', content: '${a.content.replace(/'/g, "\\'")}' }]);`;
+				} else if (a.type === 'customCode') {
+					return a.code || '// Empty custom code';
+				}
+				return '// Unknown action';
+			}).join('\n            ');
+		}
         
         function downloadFile(filename, content) {
             const blob = new Blob([content], { type: 'text/javascript' });
