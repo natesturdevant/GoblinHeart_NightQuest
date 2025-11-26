@@ -1,0 +1,322 @@
+// ===== RENDERING SYSTEM =====
+// Extracted from game.js for better organization
+// Handles all visual rendering, camera, and fade effects
+
+/**
+ * Calculate camera position to center on player
+ * Clamps to world boundaries to prevent showing off-map areas
+ * @returns {Object} - Camera position {x, y} in tile coordinates
+ */
+function getCameraPosition() {
+    let camX = gameState.player.x - Math.floor(VIEWPORT_WIDTH / 2);
+    let camY = gameState.player.y - Math.floor(VIEWPORT_HEIGHT / 2);
+    camX = Math.max(0, Math.min(camX, gameState.world.width - VIEWPORT_WIDTH));
+    camY = Math.max(0, Math.min(camY, gameState.world.height - VIEWPORT_HEIGHT));
+    
+    return { x: camX, y: camY };
+}
+
+/**
+ * Main rendering function - draws entire game world
+ * Handles tiles, entities, NPCs, enemies, player, weather, fog of war, and weapon preview
+ */
+function renderWorld() {
+    // Handle journal view mode
+    if (gameState.viewMode === 'journal') {
+        renderJournal();
+        return;
+    }
+    
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const camera = getCameraPosition();
+    
+    // Clear with dark background
+    ctx.fillStyle = '#001100';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // Render tiles
+    for (let viewY = 0; viewY < VIEWPORT_HEIGHT; viewY++) {
+        for (let viewX = 0; viewX < VIEWPORT_WIDTH; viewX++) {
+            const worldX = viewX + camera.x;
+            const worldY = viewY + camera.y;
+            
+            if (worldX >= 0 && worldX < gameState.world.width && 
+                worldY >= 0 && worldY < gameState.world.height) {
+                
+                const tileChar = gameState.world.tiles[worldY][worldX];
+                const tileType = tileTypes[tileChar];
+                const img = spriteImages[tileType.sprite];
+                
+                if (img && img.complete) {
+                    ctx.drawImage(img, viewX * TILE_SIZE, viewY * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+                }
+            }
+        }
+    }
+    
+    // Render loot bags
+    gameState.lootBags.forEach(loot => {
+        const viewX = loot.x - camera.x;
+        const viewY = loot.y - camera.y;
+        if (viewX >= 0 && viewX < VIEWPORT_WIDTH && viewY >= 0 && viewY < VIEWPORT_HEIGHT) {
+            const img = spriteImages.lootbag;
+            if (img && img.complete) {
+                ctx.drawImage(img, viewX * TILE_SIZE, viewY * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+            }
+        }
+    });
+    
+    // Render NPCs
+    gameState.npcs.forEach(npc => {
+        const viewX = npc.x - camera.x;
+        const viewY = npc.y - camera.y;
+        if (viewX >= 0 && viewX < VIEWPORT_WIDTH && viewY >= 0 && viewY < VIEWPORT_HEIGHT) {
+            const img = spriteImages[npc.sprite];
+            if (img && img.complete) {
+                ctx.drawImage(img, viewX * TILE_SIZE, viewY * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+            }
+        }
+    });
+    
+    // Render enemies
+    gameState.enemies.forEach(enemy => {
+        const viewX = enemy.x - camera.x;
+        const viewY = enemy.y - camera.y;
+        if (viewX >= 0 && viewX < VIEWPORT_WIDTH && viewY >= 0 && viewY < VIEWPORT_HEIGHT) {
+            const img = spriteImages[enemy.sprite];
+            if (img && img.complete) {
+                ctx.drawImage(img, viewX * TILE_SIZE, viewY * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+                
+                // Elite indicator - red border
+                if (enemy.isElite) {
+                    ctx.strokeStyle = '#FF0000';
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(viewX * TILE_SIZE + 1, viewY * TILE_SIZE + 1, TILE_SIZE - 2, TILE_SIZE - 2);
+                }
+            }
+        }
+    });
+    
+    // Render player
+    const playerViewX = gameState.player.x - camera.x;
+    const playerViewY = gameState.player.y - camera.y;
+    const img = spriteImages.player;
+    if (img && img.complete) {
+        ctx.drawImage(img, playerViewX * TILE_SIZE, playerViewY * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+    }
+    
+    // Render weather (from weather.js)
+    renderWeather();
+    
+    // Render weapon preview (from combat.js)
+    renderWeaponPreview();
+    
+    // Render fog of war
+    if (gameState.fogOfWarEnabled) {
+        const mapKey = gameState.currentMap;
+        const explored = gameState.exploredTiles[mapKey] || new Set();
+        
+        // Iterate over the viewport tiles
+        for (let viewY = 0; viewY < VIEWPORT_HEIGHT; viewY++) {
+            for (let viewX = 0; viewX < VIEWPORT_WIDTH; viewX++) {
+                const worldX = viewX + camera.x;
+                const worldY = viewY + camera.y;
+                const key = `${worldX},${worldY}`;
+                
+                // Only draw fog if the tile has not been explored
+                if (!explored.has(key)) {
+                    ctx.fillStyle = '#000000';
+                    ctx.fillRect(viewX * TILE_SIZE, viewY * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+                }
+            }
+        }
+    }
+}
+
+// ===== FADE EFFECTS =====
+
+/**
+ * Fade effect that progressively covers tiles in a color
+ * Creates a cascading reveal/conceal effect radiating from player
+ * @param {string} color - CGA color name: 'BLACK', 'WHITE', 'CYAN', 'MAGENTA'
+ * @param {boolean} inward - true = fade to player, false = fade from player
+ * @param {number} speed - milliseconds between tiers (default 100)
+ * @param {function} callback - optional callback when fade completes
+ */
+function fadeEffect(color = 'BLACK', inward = true, speed = 100, callback = null) {
+    const mapKey = gameState.currentMap;
+    const mapData = maps[mapKey];
+    if (!mapData) return;
+    
+    // Lock player input during fade
+    gameState.fadeInProgress = true;
+    
+    const fadeColor = CGA[color] || CGA.BLACK;
+    
+    // Create temporary fade overlay storage
+    if (!gameState.fadeOverlay) {
+        gameState.fadeOverlay = {};
+    }
+    gameState.fadeOverlay[mapKey] = new Set();
+    
+    // Get camera bounds
+    const camera = getCameraPosition();
+    const viewMinX = camera.x;
+    const viewMinY = camera.y;
+    const viewMaxX = camera.x + VIEWPORT_WIDTH;
+    const viewMaxY = camera.y + VIEWPORT_HEIGHT;
+    
+    // Group ONLY VISIBLE tiles by distance from player
+    const groupedByDistance = new Map();
+    
+    for (let y = viewMinY; y < viewMaxY; y++) {
+        for (let x = viewMinX; x < viewMaxX; x++) {
+            // Make sure we're within map bounds
+            if (x >= 0 && x < mapData.tiles[0].length && 
+                y >= 0 && y < mapData.tiles.length) {
+                
+                const key = `${x},${y}`;
+                const distance = Math.round(Math.hypot(x - gameState.player.x, y - gameState.player.y));
+                
+                if (!groupedByDistance.has(distance)) {
+                    groupedByDistance.set(distance, []);
+                }
+                groupedByDistance.get(distance).push(key);
+            }
+        }
+    }
+    
+    // Sort distances
+    const sortedDistances = Array.from(groupedByDistance.keys()).sort((a, b) => 
+        inward ? b - a : a - b  // Reverse order if fading inward
+    );
+    
+    let delay = 0;
+    
+    sortedDistances.forEach(distance => {
+        const tilesInTier = groupedByDistance.get(distance);
+        
+        setTimeout(() => {
+            if (gameState.currentMap !== mapKey) return;
+            
+            // Add tiles to fade overlay
+            tilesInTier.forEach(key => {
+                gameState.fadeOverlay[mapKey].add(key);
+            });
+            
+            // Render with fade overlay
+            renderWorldWithFade(fadeColor);
+            
+            // If this is the last tier, call callback
+            if (distance === sortedDistances[sortedDistances.length - 1]) {
+                if (callback) {
+                    setTimeout(() => {
+                        callback();
+                        // Unlock player input after callback completes
+                        gameState.fadeInProgress = false;
+                    }, speed);
+                } else {
+                    // No callback, unlock immediately after last tier
+                    setTimeout(() => {
+                        gameState.fadeInProgress = false;
+                    }, speed);
+                }
+            }
+        }, delay);
+        
+        delay += speed;
+    });
+}
+
+/**
+ * Render world with fade overlay applied
+ * Called by fadeEffect to show progressive fade
+ * @param {string} fadeColor - Color to fade with
+ */
+function renderWorldWithFade(fadeColor) {
+    // Call normal render first
+    renderWorld();
+    
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const camera = getCameraPosition();
+    const mapKey = gameState.currentMap;
+    
+    if (!gameState.fadeOverlay || !gameState.fadeOverlay[mapKey]) return;
+    
+    const fadedTiles = gameState.fadeOverlay[mapKey];
+    
+    // Draw fade overlay
+    for (let viewY = 0; viewY < VIEWPORT_HEIGHT; viewY++) {
+        for (let viewX = 0; viewX < VIEWPORT_WIDTH; viewX++) {
+            const worldX = viewX + camera.x;
+            const worldY = viewY + camera.y;
+            const key = `${worldX},${worldY}`;
+            
+            if (fadedTiles.has(key)) {
+                ctx.fillStyle = fadeColor;
+                ctx.fillRect(viewX * TILE_SIZE, viewY * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+            }
+        }
+    }
+}
+
+/**
+ * Clear the fade overlay and unlock player input
+ */
+function clearFade() {
+    if (gameState.fadeOverlay) {
+        gameState.fadeOverlay[gameState.currentMap] = new Set();
+    }
+    gameState.fadeInProgress = false;
+    renderWorld();
+}
+
+// ===== CONVENIENCE FADE FUNCTIONS =====
+
+/**
+ * Fade to black (inward from edges)
+ * @param {function} callback - Optional callback when fade completes
+ */
+function fadeToBlack(callback) {
+    fadeEffect('BLACK', true, 80, callback);
+}
+
+/**
+ * Fade from black (outward from player)
+ * @param {function} callback - Optional callback when fade completes
+ */
+function fadeFromBlack(callback) {
+    fadeEffect('BLACK', false, 80, callback);
+}
+
+/**
+ * Fade to white (inward from edges)
+ * @param {function} callback - Optional callback when fade completes
+ */
+function fadeToWhite(callback) {
+    fadeEffect('WHITE', true, 80, callback);
+}
+
+/**
+ * Fade from white (outward from player)
+ * @param {function} callback - Optional callback when fade completes
+ */
+function fadeFromWhite(callback) {
+    fadeEffect('WHITE', false, 80, callback);
+}
+
+/**
+ * Fade out then fade in (useful for transitions)
+ * @param {string} color - Color to fade with (default 'BLACK')
+ * @param {function} callback - Optional callback between fade out/in
+ */
+function fadeOutIn(color = 'BLACK', callback = null) {
+    fadeEffect(color, true, 80, () => {
+        setTimeout(() => {
+            clearFade();
+            if (callback) callback();
+        }, 200);
+    });
+}
