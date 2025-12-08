@@ -1197,6 +1197,13 @@ const mapDescriptions = {
         "Horror, sci-fi, classics, and much more.",
         "You wonder how many you have seen..."
     ],
+	
+	'Bar': [
+        "Old man bar.",
+        "You come here when you don't want to run into the people you know.",
+        "Maybe they don't want to run into you either..."
+    ],
+	
     
     // ADD MORE MAPS HERE:
     'ancient_ruins': [
@@ -1224,6 +1231,26 @@ const mapJournalEntries = {
         ]
     },
     
+	'Bar': {
+        title: 'Inside The Hills',
+        blocks: [
+            { type: 'text', content: "Keep 'em coming." },
+            { type: 'image', imageId: 'HillsInt', width: 200, height: 104 },
+			{ type: 'text', content: "The Bar", align: 'center' },  
+            { type: 'text', content: "I've got a powerful thirst I can never quench." }
+        ]
+    },
+	
+	'Overworld': {
+        title: 'Mansfield',
+        blocks: [
+            { type: 'text', content: "Beautiful Ohio." },
+            { type: 'image', imageId: 'Mansfield', width: 240, height: 180 },
+			{ type: 'text', content: "The road into and out of town.", align: 'center' },  
+            { type: 'text', content: "I'm sure there's more action out there than this." }
+        ]
+    },
+	
     // ADD MORE JOURNAL TRIGGERS:
     'ancient_ruins': {
         title: 'The Ancient Ruins',

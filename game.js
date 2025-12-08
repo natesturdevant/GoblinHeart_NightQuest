@@ -46,6 +46,8 @@ function loadJournalImage(id, path) {
 // Load your journal images
 loadJournalImage('goblin_full', 'journal-images/goblin.png');
 loadJournalImage('video_store', 'journal-images/video_store.png');
+loadJournalImage('HillsInt', 'journal-images/HillsInt.png');
+loadJournalImage('Mansfield', 'journal-images/Mansfield.png');
 
 // etc.
 
@@ -1306,30 +1308,41 @@ function searchLocation() {
     const y = gameState.player.y;
     const tileChar = gameState.world.tiles[y][x];
     const tileType = tileTypes[tileChar];
-    addMessage(`You search: ${tileType.description}`);
     const key = `${x},${y}`;
     const locs = specialLocations[gameState.currentMap];
+    
     if (locs && locs[key]) {
         const special = locs[key];
         if (special.requiresSearch) {
             const revealKey = `${gameState.currentMap}:${key}`;
+            
+            // Always show the message when searching
+            addMessage(special.message, CGA.CYAN);
+            
+            // Only trigger journal entry on first discovery
             if (!gameState.revealedSpecials[revealKey]) {
-                addMessage(special.message);
-                
-                // Add journal entry if flagged
                 if (special.journalEntry) {
                     addJournalEntry(special.journalTitle, [
                         { type: 'text', content: special.message }
                     ]);
                 }
-                
                 gameState.revealedSpecials[revealKey] = true;
-            } else {
-                addMessage("You've already searched here.");
             }
         } else {
-            addMessage("Something special here...");
+            addMessage(special.message, CGA.CYAN);
         }
+    } else {
+        // No special location - generic "nothing here" messages
+        const nothingMessages = [
+            "Nothing of interest here.",
+            "You find nothing.",
+            "Nothing but dust.",
+            "Your search turns up empty.",
+            "There's nothing special here.",
+            "You don't find anything useful."
+        ];
+        const msg = nothingMessages[Math.floor(Math.random() * nothingMessages.length)];
+        addMessage(msg, CGA.LIGHTGRAY);
     }
 }
 
@@ -2110,7 +2123,7 @@ function renderJournal() {
     ctx.msImageSmoothingEnabled = false;
     
     // Journal dimensions (in tiles)
-    const jx = 2, jy = 1, jw = 16, jh = 13;
+    const jx = 2, jy = 1, jw = 16, jh = 15; //just changed jh to 15 from 13: 12/5, longer journal
     
     // Draw paper background
     for (let y = 0; y < jh; y++) {

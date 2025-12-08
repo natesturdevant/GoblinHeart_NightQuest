@@ -1287,6 +1287,33 @@
 							],
 							"__worldX": 512,
 							"__worldY": 96
+						},
+						{
+							"__identifier": "Special",
+							"__grid": [2,2],
+							"__pivot": [0,0],
+							"__tags": [],
+							"__tile": null,
+							"__smartColor": "#733E39",
+							"iid": "a887b4b0-ac70-11f0-a77e-6773a666ba05",
+							"width": 16,
+							"height": 16,
+							"defUid": 17,
+							"px": [32,32],
+							"fieldInstances": [
+								{ "__identifier": "message", "__type": "String", "__value": "You recently replaced your ancient black and white TV with a color one. It's only ten years old!", "__tile": null, "defUid": 18, "realEditorValues": [{
+									"id": "V_String",
+									"params": [
+										"You recently replaced your ancient black and white TV with a color one. It's only ten years old!"
+									]
+								}] },
+								{ "__identifier": "requires_search", "__type": "Bool", "__value": true, "__tile": null, "defUid": 19, "realEditorValues": [] },
+								{ "__identifier": "journal_title", "__type": "String", "__value": null, "__tile": null, "defUid": 21, "realEditorValues": [] },
+								{ "__identifier": "journal_image", "__type": "String", "__value": null, "__tile": null, "defUid": 22, "realEditorValues": [] },
+								{ "__identifier": "journal_entry", "__type": "Bool", "__value": false, "__tile": null, "defUid": 28, "realEditorValues": [] }
+							],
+							"__worldX": 32,
+							"__worldY": 32
 						}
 					]
 				},
@@ -2080,7 +2107,10 @@
 									"id": "V_String",
 									"params": ["Hill's Bar"]
 								}] },
-								{ "__identifier": "journal_image", "__type": "String", "__value": null, "__tile": null, "defUid": 22, "realEditorValues": [] },
+								{ "__identifier": "journal_image", "__type": "String", "__value": "HillsInt", "__tile": null, "defUid": 22, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["HillsInt"]
+								}] },
 								{ "__identifier": "journal_entry", "__type": "Bool", "__value": true, "__tile": null, "defUid": 28, "realEditorValues": [{
 									"id": "V_Bool",
 									"params": [ true ]
