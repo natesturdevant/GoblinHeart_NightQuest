@@ -1,8 +1,6 @@
 // ===== GAME STATE =====
 
-const TILE_SIZE = 24;
-const VIEWPORT_WIDTH = 20;
-const VIEWPORT_HEIGHT = 15;
+
 
 
 const journalImages = {};
@@ -2503,8 +2501,12 @@ const keyBindings = {
         'c': toggleCombatMode,
         'C': toggleCombatMode,
         'f': toggleFogOfWar,
-        'F': toggleFogOfWar
+        'F': toggleFogOfWar,
+		'p': cyclePalette
+
     },
+	
+	
     
     // Inventory actions
     inventory: {

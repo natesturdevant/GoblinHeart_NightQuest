@@ -7,6 +7,12 @@
  * Clamps to world boundaries to prevent showing off-map areas
  * @returns {Object} - Camera position {x, y} in tile coordinates
  */
+ 
+const TILE_SIZE = 24;
+const VIEWPORT_WIDTH = 20;
+const VIEWPORT_HEIGHT = 15;
+ 
+ 
 function getCameraPosition() {
     let camX = gameState.player.x - Math.floor(VIEWPORT_WIDTH / 2);
     let camY = gameState.player.y - Math.floor(VIEWPORT_HEIGHT / 2);
@@ -22,6 +28,11 @@ function getCameraPosition() {
  */
 function renderWorld() {
     // Handle journal view mode
+	
+	//console.log('spriteImages exists?', typeof spriteImages !== 'undefined');
+    //console.log('spriteImages keys:', spriteImages ? Object.keys(spriteImages).length : 0);
+    //console.log('grass sprite:', spriteImages?.grass);
+	
     if (gameState.viewMode === 'journal') {
         renderJournal();
         return;
@@ -29,11 +40,20 @@ function renderWorld() {
     
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
+	//console.log('Canvas size:', canvas.width, 'x', canvas.height);
+    //console.log('Canvas visible?', canvas.offsetWidth, canvas.offsetHeight);
+	
     const camera = getCameraPosition();
     
     // Clear with dark background
     ctx.fillStyle = '#001100';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+	
+	// Clear with dark background
+ctx.fillStyle = '#001100';
+ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+
     
     // Render tiles
     for (let viewY = 0; viewY < VIEWPORT_HEIGHT; viewY++) {
@@ -46,6 +66,17 @@ function renderWorld() {
                 
                 const tileChar = gameState.world.tiles[worldY][worldX];
                 const tileType = tileTypes[tileChar];
+				
+							if (worldX === gameState.player.x && worldY === gameState.player.y) {
+							console.log('Player tile:', {
+								tileChar,
+								tileType,
+								sprite: tileType?.sprite,
+								img: spriteImages[tileType?.sprite],
+								imgComplete: spriteImages[tileType?.sprite]?.complete
+							});
+							}
+				
                 const img = spriteImages[tileType.sprite];
                 
                 if (img && img.complete) {

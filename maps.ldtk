@@ -2111,9 +2111,9 @@
 									"id": "V_String",
 									"params": ["HillsInt"]
 								}] },
-								{ "__identifier": "journal_entry", "__type": "Bool", "__value": true, "__tile": null, "defUid": 28, "realEditorValues": [{
+								{ "__identifier": "journal_entry", "__type": "Bool", "__value": false, "__tile": null, "defUid": 28, "realEditorValues": [{
 									"id": "V_Bool",
-									"params": [ true ]
+									"params": [ false ]
 								}] }
 							],
 							"__worldX": 200,
