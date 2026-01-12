@@ -35,7 +35,7 @@ const dialogueDatabase = {
         "text": "Do ya like drinking? I like it when ya drink. I like it when I drink, too!",
         "requires": {},
         "sets": {
-          "bartTalkedTo": true
+          "bartTalkedTo": false
         }
       },
       {

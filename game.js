@@ -601,102 +601,6 @@ function selectRandomEncounter(encounters) {
     return encounters[0]?.id;
 }
 
-function trySpawnEnemy() {
-    const mapData = maps[gameState.currentMap];
-    if (!mapData.spawnRate || mapData.spawnRate === 0) return;
-    if (gameState.enemies.length >= mapData.maxEnemies) return;
-    
-    if (Math.random() < mapData.spawnRate) {
-        // 60% single spawn, 40% encounter
-        if (Math.random() < 0.4) {
-            // ENCOUNTER SPAWN
-            
-            // Define which encounters are available for this map
-            let availableEncounterIds = [];
-            
-            if (gameState.currentMap === 'Overworld') {
-                availableEncounterIds = ['goblin_scouts', 'goblin_patrol', 'goblin_warband', 'slime_colony'];
-            } else if (gameState.currentMap === 'Dungeon1') {
-                availableEncounterIds = ['skeleton_patrol', 'skeleton_horde', 'spider_nest', 'bat_swarm', 'mixed_dungeon_mob', 'undead_legion'];
-            } else if (gameState.currentMap === 'town') {
-                // No spawns in town
-                return;
-            } else {
-                // Default dungeon encounters
-                availableEncounterIds = ['skeleton_patrol', 'goblin_patrol', 'spider_nest'];
-            }
-            
-            // Filter by player level
-            const viableEncounters = getAvailableEncountersForLevel(gameState.player.level, availableEncounterIds);
-            
-            if (viableEncounters.length === 0) {
-                // Fall back to single spawn if no encounters available
-                spawnSingleEnemy();
-                return;
-            }
-            
-            const encounterType = selectRandomEncounter(viableEncounters);
-            
-            // Find spawn location far from player
-            let attempts = 0;
-            while (attempts < 20) {
-                const x = Math.floor(Math.random() * gameState.world.width);
-                const y = Math.floor(Math.random() * gameState.world.height);
-                const distX = Math.abs(x - gameState.player.x);
-                const distY = Math.abs(y - gameState.player.y);
-                const distance = Math.sqrt(distX * distX + distY * distY);
-                
-                // Spawn encounters far away
-                if (distance >= 8 && isValidSpawnPosition(x, y)) {
-                    spawnEncounter(encounterType, x, y);
-                    break;
-                }
-                attempts++;
-            }
-        } else {
-            // SINGLE SPAWN (existing logic)
-            spawnSingleEnemy();
-        }
-    }
-}
-
-function spawnSingleEnemy() {
-    const mapData = maps[gameState.currentMap];
-    const roll = Math.random();
-    let cumulative = 0;
-    let selectedType = mapData.spawnTypes[0];
-    
-    for (let i = 0; i < mapData.spawnTypes.length; i++) {
-        cumulative += mapData.spawnWeights[i];
-        if (roll < cumulative) {
-            selectedType = mapData.spawnTypes[i];
-            break;
-        }
-    }
-    
-    let attempts = 0;
-    while (attempts < 20) {
-        const x = Math.floor(Math.random() * gameState.world.width);
-        const y = Math.floor(Math.random() * gameState.world.height);
-        const distX = Math.abs(x - gameState.player.x);
-        const distY = Math.abs(y - gameState.player.y);
-        const distance = Math.sqrt(distX * distX + distY * distY);
-        
-        if (distance >= 5 && isValidSpawnPosition(x, y)) {
-            if (!enemyDatabase[selectedType]) {
-                console.error(`Missing enemy in database: ${selectedType}`);
-                console.log('Available enemies:', Object.keys(enemyDatabase));
-                return;
-            }
-            spawnEnemyAt(selectedType, x, y);
-            addMessage(`${enemyDatabase[selectedType].name} appears!`);
-            break;
-        }
-        attempts++;
-    }
-}
-
-
 
 // Convert sprite data URLs to Image objects (do this once at startup)
 const spriteImages = {};
@@ -866,14 +770,6 @@ function getXpForNextLevel() {
     return CONFIG.leveling.xpFormula(gameState.player.level);
 }
 
-/* function addMessage(msg) {
-    const mb = document.getElementById('messageBox');
-    mb.innerHTML += msg + '<br>';
-    const lines = mb.innerHTML.split('<br>');
-    if (lines.length > 9) {
-        mb.innerHTML = lines.slice(-9).join('<br>');
-    }
-} */
 
 function addMessage(msg, color = null) {
     const mb = document.getElementById('messageBox');
@@ -886,6 +782,7 @@ function addMessage(msg, color = null) {
     if (lines.length > 9) {
         mb.innerHTML = lines.slice(-9).join('<br>');
     }
+	mb.scrollTop = mb.scrollHeight;
 }
 
 // ===== LEVEL UP =====
@@ -1012,7 +909,8 @@ function movePlayer(dx, dy) {
     enemyTurn();
     if (gameState.player.weaponCooldown > 0) gameState.player.weaponCooldown--;
     gameState.player.stepCount++;
-    if (gameState.player.stepCount % CONFIG.spawning.checkInterval === 0) trySpawnEnemy();
+    //if (gameState.player.stepCount % CONFIG.spawning.checkInterval === 0) trySpawnEnemy();
+	if (gameState.player.stepCount % 1 === 0) trySpawnEnemy();
 	if (gameState.combat.inCombat && gameState.weaponPreview.active) {
         updateWeaponPreview();
     }
@@ -1084,7 +982,14 @@ function performAction() {
         const mapTreas = treasureContents[gameState.currentMap];
         const treas = mapTreas ? mapTreas[key] : null;
         if (treas) {
-            addMessage("Opened chest!");
+            //addMessage("Opened chest!");
+			const chestMessages = [
+			  "The hinges creak as you pry it open...",
+			  "Jackpot! Your heart races.",
+			  "Inside: treasure. Outside: probably monsters.",
+			  "You pocket the loot nervously."
+			];
+			addMessage(chestMessages[Math.floor(Math.random() * chestMessages.length)]);
 			
 			console.log('Chest items:', treas.items);
 			console.log('itemDatabase keys:', Object.keys(itemDatabase).slice(0, 20)); // First 20 items
@@ -1141,11 +1046,17 @@ function performAction() {
     // Get appropriate dialogue based on game state
     const dialogue = getDialogue(adjacentNPC.type, gameState);
     
-    if (dialogue) {
+    /* if (dialogue) {
         addMessage(`${adjacentNPC.name}: "${dialogue.text}"`);
     } else {
         addMessage(`${adjacentNPC.name}: "..."`);
-    }
+    } */
+	
+	if (dialogue) {
+		addMessage(`<span style="color: ${CGA.MAGENTA};">${adjacentNPC.name}:</span> "${dialogue.text}"`);
+	} else {
+		addMessage(`<span style="color: ${CGA.MAGENTA};">${adjacentNPC.name}:</span> "..."`);
+	}
     
     return;
 }
@@ -1175,6 +1086,8 @@ function rest(location = 'camp', cost = 0) {
 	gameState.dayCounter = (gameState.dayCounter || 0) + 1;
     console.log(`Day advanced to: ${gameState.dayCounter}`);
 	addMessage(`Day advanced to: ${gameState.dayCounter}`);
+	
+	checkEvents(gameState);
 	
     // ===== BEFORE REST HOOKS =====
     if (runBeforeRestHooks(gameState, location)) {
@@ -1335,6 +1248,9 @@ function searchLocation() {
             "Nothing of interest here.",
             "You find nothing.",
             "Nothing but dust.",
+			"Empty!",
+			"Actually, not even dust.",
+			"Nuts. No treasure.",
             "Your search turns up empty.",
             "There's nothing special here.",
             "You don't find anything useful."

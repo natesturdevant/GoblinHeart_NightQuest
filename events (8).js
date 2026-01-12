@@ -24,49 +24,7 @@ const eventHandlers = {
             gameState.flags.vhsAppeared = true;
             gameState.flags.vhs_appears_completed = true;
         }
-    },
-	
-	'the_incident': {
-   
-	canTrigger: (gameState) => {
-        return gameState.dayCounter >= 3 &&
-               !gameState.flags.the_incident_completed;
-               // Remove the Sarah check entirely for now
-    },
-    
-    
-    onTrigger: (gameState) => {
-        console.log('EVENT: the_incident');
-        
-        addMessage("The air crackles...", CGA.MAGENTA);
-        addMessage("Reality bends.", CGA.CYAN);
-        
-        // Start wormhole effect
-        startWormholeEffect(() => {
-            // This runs after the effect completes
-            addMessage("===================");
-            addMessage("Where... am I?", CGA.WHITE);
-            addMessage("===================");
-            
-            addJournalEntry('The Incident', [
-                { type: 'text', content: 'One moment I was in Mansfield. The next...' },
-                { type: 'text', content: 'A swirling vortex of color and madness.' },
-                { type: 'text', content: 'Now I\'m... somewhere else.' }
-            ]);
-            
-            loadMap('Forest');
-            gameState.player.x = 1;
-            gameState.player.y = 2;
-            gameState.flags.the_incident_completed = true;
-            gameState.flags.in_other_world = true;
-            
-            renderWorld();
-            updateStatus();
-        });
-        
-        gameState.flags.the_incident_completed = true;
     }
-	}
 };
 
 function checkEvents(gameState) {

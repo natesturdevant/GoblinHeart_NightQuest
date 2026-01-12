@@ -657,14 +657,22 @@
                 <input type="text" value="${node.name || ''}" onchange="updateNodeField('name', this.value)">
                 
                 <label>Sprite:</label>
-                <select onchange="updateNodeField('sprite', this.value)">
-                    <option value="villager" ${node.sprite === 'villager' ? 'selected' : ''}>Villager</option>
-                    <option value="villager_old" ${node.sprite === 'villager_old' ? 'selected' : ''}>Old Villager</option>
-                    <option value="villager_female" ${node.sprite === 'villager_female' ? 'selected' : ''}>Female Villager</option>
-                    <option value="villager_worker" ${node.sprite === 'villager_worker' ? 'selected' : ''}>Worker</option>
-                    <option value="villager_innkeeper" ${node.sprite === 'villager_innkeeper' ? 'selected' : ''}>Innkeeper</option>
-                    <option value="merchant" ${node.sprite === 'merchant' ? 'selected' : ''}>Merchant</option>
-                </select>
+					<select onchange="updateNodeField('sprite', this.value)">
+						<option value="villager" ${node.sprite === 'villager' ? 'selected' : ''}>Villager (Generic)</option>
+						<option value="villager_female" ${node.sprite === 'villager_female' ? 'selected' : ''}>Female Villager</option>
+						<option value="villager_old" ${node.sprite === 'villager_old' ? 'selected' : ''}>Old Villager</option>
+						<option value="villager_child" ${node.sprite === 'villager_child' ? 'selected' : ''}>Child</option>
+						<option value="villager_worker" ${node.sprite === 'villager_worker' ? 'selected' : ''}>Worker</option>
+						<option value="villager_wealthy" ${node.sprite === 'villager_wealthy' ? 'selected' : ''}>Wealthy Person</option>
+						<option value="villager_hooded" ${node.sprite === 'villager_hooded' ? 'selected' : ''}>Hooded Figure</option>
+						<option value="villager_farmer" ${node.sprite === 'villager_farmer' ? 'selected' : ''}>Farmer</option>
+						<option value="villager_priest" ${node.sprite === 'villager_priest' ? 'selected' : ''}>Priest</option>
+						<option value="villager_mage" ${node.sprite === 'villager_mage' ? 'selected' : ''}>Mage</option>
+						<option value="villager_traveler" ${node.sprite === 'villager_traveler' ? 'selected' : ''}>Traveler</option>
+						<option value="villager_innkeeper" ${node.sprite === 'villager_innkeeper' ? 'selected' : ''}>Innkeeper</option>
+						<option value="villager_blacksmith" ${node.sprite === 'villager_blacksmith' ? 'selected' : ''}>Blacksmith</option>
+						<option value="merchant" ${node.sprite === 'merchant' ? 'selected' : ''}>Merchant</option>
+					</select>
                 
                 <label>
                     <input type="checkbox" ${node.isShopkeeper ? 'checked' : ''} 

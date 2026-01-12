@@ -11,6 +11,8 @@
 const TILE_SIZE = 24;
 const VIEWPORT_WIDTH = 20;
 const VIEWPORT_HEIGHT = 15;
+const CANVAS_WIDTH = 480;
+const CANVAS_HEIGHT = 360;
  
  
 function getCameraPosition() {
@@ -21,6 +23,122 @@ function getCameraPosition() {
     
     return { x: camX, y: camY };
 }
+
+//============================================================================================
+//  WORMHOLE EFFECT
+//============================================================================================
+
+// Wormhole effect state
+let wormholeEffect = {
+    active: false,
+    particles: [],
+    centerX: 0,
+    centerY: 0,
+    startTime: 0,
+    duration: 4000, // 4 seconds
+    onComplete: null
+};
+
+function startWormholeEffect(onComplete) {
+    wormholeEffect.active = true;
+    wormholeEffect.startTime = Date.now();
+    wormholeEffect.onComplete = onComplete;
+    wormholeEffect.particles = [];
+    
+    // Center of screen in tiles
+    wormholeEffect.centerX = CANVAS_WIDTH / (2 * TILE_SIZE);
+    wormholeEffect.centerY = CANVAS_HEIGHT / (2 * TILE_SIZE);
+    
+    // Create particles from all visible tiles
+    for (let ty = 0; ty < Math.ceil(CANVAS_HEIGHT / TILE_SIZE); ty++) {
+        for (let tx = 0; tx < Math.ceil(CANVAS_WIDTH / TILE_SIZE); tx++) {
+            const worldX = tx;
+            const worldY = ty;
+            
+            if (worldY >= 0 && worldY < gameState.world.height &&
+                worldX >= 0 && worldX < gameState.world.width) {
+                
+                const tileChar = gameState.world.tiles[worldY][worldX];
+                const sprite = tileTypes[tileChar]?.sprite || 'grass';
+                
+                // Calculate angle and distance from center
+                const dx = tx - wormholeEffect.centerX;
+                const dy = ty - wormholeEffect.centerY;
+                const angle = Math.atan2(dy, dx);
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                wormholeEffect.particles.push({
+                    x: tx * TILE_SIZE,
+                    y: ty * TILE_SIZE,
+                    sprite: sprite,
+                    angle: angle,
+                    distance: distance,
+                    orbitSpeed: 0.02 + Math.random() * 0.03, // Random spiral speed
+                    pullSpeed: distance * 0.3, // Faster pull for further tiles
+                    alpha: 1.0
+                });
+            }
+        }
+    }
+    
+    animateWormhole();
+}
+
+function animateWormhole() {
+    if (!wormholeEffect.active) return;
+    
+    const elapsed = Date.now() - wormholeEffect.startTime;
+    const progress = Math.min(elapsed / wormholeEffect.duration, 1.0);
+    
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    // Clear
+    ctx.fillStyle = CGA.BLACK;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // Update and draw particles
+    wormholeEffect.particles.forEach(particle => {
+        // Spiral inward
+        particle.angle += particle.orbitSpeed;
+        //particle.distance = Math.max(0, particle.distance - particle.pullSpeed * progress);
+		particle.distance = Math.max(0, particle.distance - particle.pullSpeed * progress * 0.3);
+        
+        // Calculate new position
+        const centerPixelX = wormholeEffect.centerX * TILE_SIZE;
+        const centerPixelY = wormholeEffect.centerY * TILE_SIZE;
+        
+        particle.x = centerPixelX + Math.cos(particle.angle) * particle.distance * TILE_SIZE;
+        particle.y = centerPixelY + Math.sin(particle.angle) * particle.distance * TILE_SIZE;
+        
+        // Fade out as they reach center
+        particle.alpha = Math.max(0, 1 - (progress * 2));
+        
+        // Draw tile sprite
+        ctx.globalAlpha = particle.alpha;
+        const img = spriteImages[particle.sprite];
+        if (img && img.complete) {
+            ctx.drawImage(img, particle.x, particle.y, TILE_SIZE, TILE_SIZE);
+        }
+    });
+    
+    ctx.globalAlpha = 1.0;
+    
+
+    
+    // Continue animation or complete
+    if (progress < 1.0) {
+        requestAnimationFrame(animateWormhole);
+    } else {
+        wormholeEffect.active = false;
+        if (wormholeEffect.onComplete) {
+            wormholeEffect.onComplete();
+        }
+    }
+}
+//==========================================================================
+//  WORMHOLE EFFECT END
+//==========================================================================
 
 /**
  * Main rendering function - draws entire game world
