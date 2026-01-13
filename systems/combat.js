@@ -483,6 +483,8 @@ function enemyTurn() {
 /**
  * Handle player death - apply penalties and respawn
  */
+
+
 function handlePlayerDeath() {
     console.log('Current map name:', gameState.currentMap);
     addMessage("=== YOU DIED ===");
@@ -490,7 +492,7 @@ function handlePlayerDeath() {
     // Gold penalty
     const goldLost = Math.floor(gameState.player.gold * 0.5);
     gameState.player.gold -= goldLost;
-    if (goldLost > 0) addMessage(`Lost ${goldLost} gold...`);
+    if (goldLost > 0) addMessage(`Lost ${goldLost} gold...`);  // FIXED
     
     // Respawn locations
     const respawn = { 
@@ -498,7 +500,10 @@ function handlePlayerDeath() {
         'Dungeon1': { x: 1, y: 1 }, 
         'town': { x: 7, y: 7 } 
     };
-    const pos = respawn[gameState.currentMap];
+    //const pos = respawn[gameState.currentMap];
+    //console.log('Respawn pos:', pos);
+	
+	const pos = respawn[gameState.currentMap] || { x: 10, y: 7 };  // FIXED - fallback to Overworld
     console.log('Respawn pos:', pos);
     
     gameState.player.x = pos.x;
@@ -522,7 +527,7 @@ function handlePlayerDeath() {
         }); 
     }
     
-    addMessage(`Respawned with ${gameState.player.hp} HP.`);
+    addMessage(`Respawned with ${gameState.player.hp} HP.`);  // FIXED
     renderWorld();
     updateStatus();
 }

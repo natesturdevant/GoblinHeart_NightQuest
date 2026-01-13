@@ -621,6 +621,8 @@ Object.keys(sprites).forEach(key => {
 function applyReveals(newTilesToReveal) {
     if (newTilesToReveal.length === 0) return;
     
+	fogAnimationInProgress = true;
+	
     const mapKey = gameState.currentMap;
     
     // 1. Group tiles by distance tier
@@ -645,7 +647,7 @@ function applyReveals(newTilesToReveal) {
     // Once this works, you can set it back to a lower value like 100 or 150.
     const tierDelay = 500; 
     
-    sortedDistances.forEach(distance => {
+    sortedDistances.forEach((distance, index) => {
         const tilesInTier = groupedByDistance.get(distance);
 
         // Schedule the reveal for all tiles in this tier
@@ -659,6 +661,9 @@ function applyReveals(newTilesToReveal) {
             
             // Only call renderWorld() once per tier
             renderWorld(); 
+			if (index === sortedDistances.length - 1) {
+                fogAnimationInProgress = false;
+            }
         }, delay);
         
         // Increment the delay for the next, farther tier
@@ -1291,7 +1296,153 @@ function lookAround() {
 
 
 
+function toggleMapView() {
+    
+	if (fogAnimationInProgress) {
+        addMessage("Wait...", CGA.LIGHTGRAY);
+        return;
+    }
+	
+	gameState.mapViewOpen = !gameState.mapViewOpen;
+    
+    if (gameState.mapViewOpen) {
+        renderMapView();
+    } else {
+        renderWorld();
+    }
+}
 
+/* function renderMapView() {
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const mapKey = gameState.currentMap;
+    const explored = gameState.exploredTiles[mapKey] || new Set();
+    
+    // Clear to black
+    ctx.fillStyle = CGA.BLACK;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    const tileSize = 4; // Tiny tiles for zoomed out view
+    
+    // Draw explored tiles
+    for (let y = 0; y < gameState.world.height; y++) {
+        for (let x = 0; x < gameState.world.width; x++) {
+            const key = `${x},${y}`;
+            
+            if (explored.has(key)) {
+                const tile = gameState.world.tiles[y][x];
+                const isPassable = tileTypes[tile]?.passable;
+                
+                ctx.fillStyle = isPassable ? CGA.LIGHTGRAY : CGA.WHITE;
+                ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
+            }
+        }
+    }
+	
+	const transitions = mapTransitions[gameState.currentMap];
+		if (transitions) {
+			Object.entries(transitions).forEach(([key, trans]) => {
+			const [x, y] = key.split(',').map(Number);
+        
+        // Only show if explored
+        if (explored.has(key)) {
+            ctx.fillStyle = CGA.MAGENTA;
+            ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
+        }
+		});
+		}	
+		
+		gameState.npcs.forEach(npc => {
+    const key = `${npc.x},${npc.y}`;
+    if (explored.has(key)) {
+        ctx.fillStyle = '#0F0'; // Green
+        ctx.fillRect(npc.x * tileSize, npc.y * tileSize, tileSize, tileSize);
+    }
+});
+    
+    // Player position (blinking cyan dot)
+    ctx.fillStyle = CGA.CYAN;
+    ctx.fillRect(gameState.player.x * tileSize, gameState.player.y * tileSize, tileSize, tileSize);
+    
+    // Map title
+    ctx.fillStyle = CGA.CYAN;
+    ctx.font = '8px "Press Start 2P"';
+    //ctx.fillText(`MAP: ${getMapDisplayName(gameState.currentMap)}`, 10, 20);
+    ctx.fillText('Press Tab to close', 10, canvas.height - 10);
+} */
+
+function renderMapView() {
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const mapKey = gameState.currentMap;
+    const explored = gameState.exploredTiles[mapKey] || new Set();
+    
+    // Clear to black
+    ctx.fillStyle = CGA.BLACK;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    const tileSize = 8;
+    
+    // Calculate centering offset
+    const mapPixelWidth = gameState.world.width * tileSize;
+    const mapPixelHeight = gameState.world.height * tileSize;
+    const offsetX = Math.floor((canvas.width - mapPixelWidth) / 2);
+    const offsetY = Math.floor((canvas.height - mapPixelHeight) / 2);
+    
+    // Draw explored tiles
+    for (let y = 0; y < gameState.world.height; y++) {
+        for (let x = 0; x < gameState.world.width; x++) {
+            const key = `${x},${y}`;
+            
+            if (explored.has(key)) {
+                const tile = gameState.world.tiles[y][x];
+                const isPassable = tileTypes[tile]?.passable;
+                
+                ctx.fillStyle = isPassable ? CGA.LIGHTGRAY : CGA.WHITE;
+                ctx.fillRect(offsetX + x * tileSize, offsetY + y * tileSize, tileSize, tileSize);  // ADD offsetX/Y
+            }
+        }
+    }
+    
+    // Draw transitions
+    const transitions = mapTransitions[gameState.currentMap];
+    if (transitions) {
+        Object.entries(transitions).forEach(([key, trans]) => {
+            const [x, y] = key.split(',').map(Number);
+            if (explored.has(key)) {
+                ctx.fillStyle = CGA.MAGENTA;
+                ctx.fillRect(offsetX + x * tileSize, offsetY + y * tileSize, tileSize, tileSize);  // ADD offsetX/Y
+            }
+        });
+    }
+    
+    // Draw treasure chests
+    for (let y = 0; y < gameState.world.height; y++) {
+        for (let x = 0; x < gameState.world.width; x++) {
+            const key = `${x},${y}`;
+            if (explored.has(key)) {
+                const tile = gameState.world.tiles[y][x];
+                if (tile === '$') {
+                    ctx.fillStyle = '#FF0';
+                    ctx.fillRect(offsetX + x * tileSize, offsetY + y * tileSize, tileSize, tileSize);  // ADD offsetX/Y
+                }
+            }
+        }
+    }
+    
+    // Draw NPCs
+    gameState.npcs.forEach(npc => {
+        const key = `${npc.x},${npc.y}`;
+        if (explored.has(key)) {
+            ctx.fillStyle = '#0F0';
+            ctx.fillRect(offsetX + npc.x * tileSize, offsetY + npc.y * tileSize, tileSize, tileSize);  // ADD offsetX/Y
+        }
+    });
+    
+    // Player position
+    ctx.fillStyle = CGA.CYAN;
+    ctx.fillRect(offsetX + gameState.player.x * tileSize, offsetY + gameState.player.y * tileSize, tileSize, tileSize);  // ADD offsetX/Y
+}
 
 // ===== INVENTORY =====
 function toggleInventory() {
@@ -2418,6 +2569,7 @@ const keyBindings = {
         'C': toggleCombatMode,
         'f': toggleFogOfWar,
         'F': toggleFogOfWar,
+		'Tab': toggleMapView,
 		'p': cyclePalette
 
     },
