@@ -1381,7 +1381,7 @@ function renderMapView() {
     ctx.fillStyle = CGA.BLACK;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     
-    const tileSize = 8;
+    const tileSize = 4;
     
     // Calculate centering offset
     const mapPixelWidth = gameState.world.width * tileSize;
@@ -1389,20 +1389,28 @@ function renderMapView() {
     const offsetX = Math.floor((canvas.width - mapPixelWidth) / 2);
     const offsetY = Math.floor((canvas.height - mapPixelHeight) / 2);
     
-    // Draw explored tiles
-    for (let y = 0; y < gameState.world.height; y++) {
-        for (let x = 0; x < gameState.world.width; x++) {
-            const key = `${x},${y}`;
-            
-            if (explored.has(key)) {
-                const tile = gameState.world.tiles[y][x];
-                const isPassable = tileTypes[tile]?.passable;
-                
-                ctx.fillStyle = isPassable ? CGA.LIGHTGRAY : CGA.WHITE;
-                ctx.fillRect(offsetX + x * tileSize, offsetY + y * tileSize, tileSize, tileSize);  // ADD offsetX/Y
-            }
-        }
-    }
+	
+	// Draw explored tiles
+	for (let y = 0; y < gameState.world.height; y++) {
+		for (let x = 0; x < gameState.world.width; x++) {
+			const key = `${x},${y}`;
+			
+			if (explored.has(key)) {
+				const tile = gameState.world.tiles[y][x];
+				const isPassable = tileTypes[tile]?.passable;
+				
+				// Determine color ONCE
+				if (tile === '~') {
+					ctx.fillStyle = CGA.CYAN;
+				} else {
+					ctx.fillStyle = isPassable ? CGA.LIGHTGRAY : CGA.WHITE;
+				}
+				
+				// Draw it
+				ctx.fillRect(offsetX + x * tileSize, offsetY + y * tileSize, tileSize, tileSize);
+			}
+		}
+	}
     
     // Draw transitions
     const transitions = mapTransitions[gameState.currentMap];

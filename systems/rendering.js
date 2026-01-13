@@ -187,7 +187,7 @@ ctx.fillRect(0, 0, canvas.width, canvas.height);
                 const tileChar = gameState.world.tiles[worldY][worldX];
                 const tileType = tileTypes[tileChar];
 				
-							if (worldX === gameState.player.x && worldY === gameState.player.y) {
+							/* if (worldX === gameState.player.x && worldY === gameState.player.y) {
 							console.log('Player tile:', {
 								tileChar,
 								tileType,
@@ -195,7 +195,7 @@ ctx.fillRect(0, 0, canvas.width, canvas.height);
 								img: spriteImages[tileType?.sprite],
 								imgComplete: spriteImages[tileType?.sprite]?.complete
 							});
-							}
+							} */
 				
                 const img = spriteImages[tileType.sprite];
                 
