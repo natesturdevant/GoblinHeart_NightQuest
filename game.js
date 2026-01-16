@@ -256,6 +256,19 @@ async function loadLDtkProject(jsonPath) {
                     }
                 });
             }
+			//===========
+			if (entityLayer) {
+				entityLayer.entityInstances.forEach(entity => {
+					if (entity.__identifier === 'Treasure') {
+						const tileX = Math.floor(entity.px[0] / tileLayer.__gridSize);
+						const tileY = Math.floor(entity.px[1] / tileLayer.__gridSize);
+            
+            // Inject chest tile into the map
+					tiles[tileY] = tiles[tileY].substring(0, tileX) + '$' + tiles[tileY].substring(tileX + 1);
+					}
+				});
+			}
+			//===========
         });
         
         return {
@@ -932,143 +945,215 @@ function waitTurn() {
 }
 
 // ===== ACTIONS =====
+
+
+
 function performAction() {
     const x = gameState.player.x;
     const y = gameState.player.y;
     
-    const lootIdx = gameState.lootBags.findIndex(l => l.x === x && l.y === y);
+    // Check for loot bags
+    if (handleLootBagPickup(x, y)) return;
     
-	if (lootIdx !== -1) {
-        const loot = gameState.lootBags[lootIdx];
-        addMessage("Picked up loot!");
-        
-        if (loot.gold > 0) { 
-            gameState.player.gold += loot.gold; 
-            addMessage(`+${loot.gold} gold!`); 
-        }
-        
-        if (loot.items.length > 0) {
-            loot.items.forEach(itemId => {
-                // CHECK INVENTORY SPACE
-                if (gameState.player.inventory.length >= CONFIG.player.maxInventorySize) {
-                    addMessage(`Inventory full! Left ${itemDatabase[itemId].name} on ground.`);
-                    // Create new loot bag with this item
-                    gameState.lootBags.push({
-                        x: x,
-                        y: y,
-                        gold: 0,
-                        items: [itemId]
-                    });
-                } else {
-                    gameState.player.inventory.push(itemId);
-                    addMessage(`Found ${itemDatabase[itemId].name}!`);
-                }
+    // Check for treasure chests
+    if (handleTreasureChest(x, y)) return;
+    
+    // Check for adjacent NPCs
+    if (handleNPCInteraction(x, y)) return;
+    
+    // Nothing found
+    addMessage("Nothing here.");
+    checkEvents(gameState);
+}
+
+// ===== LOOT BAG PICKUP =====
+function handleLootBagPickup(x, y) {
+    const lootIdx = gameState.lootBags.findIndex(l => l.x === x && l.y === y);
+    if (lootIdx === -1) return false;
+    
+    const loot = gameState.lootBags[lootIdx];
+    addMessage("Picked up loot!");
+    
+    if (loot.gold > 0) { 
+        gameState.player.gold += loot.gold; 
+        addMessage(`+${loot.gold} gold!`); 
+    }
+    
+    if (loot.items.length > 0) {
+        loot.items.forEach(itemId => {
+            if (gameState.player.inventory.length >= CONFIG.player.maxInventorySize) {
+                addMessage(`Inventory full! Left ${itemDatabase[itemId].name} on ground.`);
+                gameState.lootBags.push({
+                    x: x,
+                    y: y,
+                    gold: 0,
+                    items: [itemId]
+                });
+            } else {
+                gameState.player.inventory.push(itemId);
+                const item = itemDatabase[itemId];
+                const color = RARITY_COLORS[item.rarity || 'common'];
+                addMessage(`Found ${item.name}!`, color);
+            }
+        });
+    }
+    
+    gameState.lootBags.splice(lootIdx, 1);
+    renderWorld();
+    updateStatus();
+    return true;
+}
+
+// ===== TREASURE CHEST OPENING =====
+function handleTreasureChest(x, y) {
+    const tileChar = gameState.world.tiles[y][x];
+    const tileType = tileTypes[tileChar];
+    
+    if (tileType.name !== 'treasure chest') return false;
+    
+    const key = `${x},${y}`;
+    
+    // Initialize treasure tracking
+    if (!gameState.collectedTreasures[gameState.currentMap]) {
+        gameState.collectedTreasures[gameState.currentMap] = [];
+    }
+    
+    // Already opened?
+    if (gameState.collectedTreasures[gameState.currentMap].includes(key)) {
+        addMessage("Already opened.");
+        return true;
+    }
+    
+    // Get chest contents
+    const mapTreas = treasureContents[gameState.currentMap];
+    const treas = mapTreas ? mapTreas[key] : null;
+    
+    if (!treas) {
+        addMessage("Empty chest!");
+        return true;
+    }
+    
+    // Flavor text
+    const chestMessages = [
+        "The hinges creak as you pry it open...",
+        "Jackpot! Your heart races.",
+        "Inside: treasure. Outside: probably monsters.",
+        "You pocket the loot nervously."
+    ];
+    addMessage(chestMessages[Math.floor(Math.random() * chestMessages.length)]);
+    
+    // Award gold
+    if (treas.gold > 0) { 
+        gameState.player.gold += treas.gold; 
+        addMessage(`+${treas.gold} gold!`); 
+    }
+    
+    // Award items
+    if (treas.items && treas.items.length > 0) {
+        treas.items.forEach(itemId => {
+            // Check for chest drop loot strings
+            if (itemId.startsWith('chest_drop_loot')) {
+                handleChestDropLoot(itemId);
+            } else {
+                handleRegularChestItem(itemId);
+            }
+        });
+    }
+    
+    // Mark as collected and remove chest
+    gameState.collectedTreasures[gameState.currentMap].push(key);
+    gameState.world.tiles[y] = gameState.world.tiles[y].substring(0, x) + '.' + gameState.world.tiles[y].substring(x + 1);
+    addMessage("Chest vanishes!");
+    
+    renderWorld();
+    updateStatus();
+    return true;
+}
+
+// ===== CHEST LOOT HELPERS =====
+function handleChestDropLoot(itemId) {
+    // Parse format: chest_drop_loot:rare:3 = rare quality, 3 rolls
+    const parts = itemId.split(':');
+    const dropType = parts[1] || 'common';  // common/magic/rare/boss
+    const rolls = parseInt(parts[2]) || 1;
+    
+    const lootDrops = rollChestLoot(dropType, rolls);
+    lootDrops.forEach(lootId => {
+        if (gameState.player.inventory.length >= CONFIG.player.maxInventorySize) {
+            addMessage(`Inventory full! Left item on ground.`);
+            gameState.lootBags.push({
+                x: gameState.player.x,
+                y: gameState.player.y,
+                gold: 0,
+                items: [lootId]
             });
+        } else {
+            gameState.player.inventory.push(lootId);
+            const item = itemDatabase[lootId];
+            const color = RARITY_COLORS[item.rarity || 'common'];
+            addMessage(`Found ${item.name}!`, color);
         }
-        
-        // Only remove the original loot bag if it's empty
-        gameState.lootBags.splice(lootIdx, 1);
-        renderWorld();
-        updateStatus();
+    });
+}
+
+function handleRegularChestItem(itemId) {
+    if (!itemDatabase[itemId]) {
+        console.error(`Item not found in database: ${itemId}`);
+        addMessage(`Found unknown item: ${itemId}`);
         return;
     }
     
-    const tileChar = gameState.world.tiles[y][x];
-    const tileType = tileTypes[tileChar];
-    const key = `${x},${y}`;
-    if (tileType.name === 'treasure chest') {
-        if (!gameState.collectedTreasures[gameState.currentMap]) {
-            gameState.collectedTreasures[gameState.currentMap] = [];
-        }
-        if (gameState.collectedTreasures[gameState.currentMap].includes(key)) {
-            addMessage("Already opened.");
-            return;
-        }
-        const mapTreas = treasureContents[gameState.currentMap];
-        const treas = mapTreas ? mapTreas[key] : null;
-        if (treas) {
-            //addMessage("Opened chest!");
-			const chestMessages = [
-			  "The hinges creak as you pry it open...",
-			  "Jackpot! Your heart races.",
-			  "Inside: treasure. Outside: probably monsters.",
-			  "You pocket the loot nervously."
-			];
-			addMessage(chestMessages[Math.floor(Math.random() * chestMessages.length)]);
-			
-			console.log('Chest items:', treas.items);
-			console.log('itemDatabase keys:', Object.keys(itemDatabase).slice(0, 20)); // First 20 items
-			console.log('shadowfang exists?', itemDatabase['shadowfang']);
-			console.log('uniqueItems exists?', typeof uniqueItems);
-			
-            if (treas.gold > 0) { gameState.player.gold += treas.gold; addMessage(`+${treas.gold} gold!`); }
-            if (treas.items && treas.items.length > 0) {
-				treas.items.forEach(itemId => {
-				// ADD SAFETY CHECK
-				if (!itemDatabase[itemId]) {
-					console.error(`Item not found in database: ${itemId}`);
-					addMessage(`Found unknown item: ${itemId}`);
-            return;
-        }
-        
+    if (gameState.player.inventory.length >= CONFIG.player.maxInventorySize) {
+        addMessage(`Inventory full! Left ${itemDatabase[itemId].name} on ground.`);
+        gameState.lootBags.push({
+            x: gameState.player.x,
+            y: gameState.player.y,
+            gold: 0,
+            items: [itemId]
+        });
+    } else {
         gameState.player.inventory.push(itemId);
-        addMessage(`Found ${itemDatabase[itemId].name}!`);
-    });
-}
-            gameState.collectedTreasures[gameState.currentMap].push(key);
-            gameState.world.tiles[y] = gameState.world.tiles[y].substring(0, x) + '.' + gameState.world.tiles[y].substring(x + 1);
-            addMessage("Chest vanishes!");
-            renderWorld();
-            updateStatus();
-            return;
-        } else {
-            addMessage("Empty chest!");
-            return;
-        }
+        const item = itemDatabase[itemId];
+        const color = RARITY_COLORS[item.rarity || 'common'];
+        addMessage(`Found ${item.name}!`, color);
     }
-    
+}
+
+// ===== NPC INTERACTION =====
+function handleNPCInteraction(x, y) {
     const adjacentNPC = gameState.npcs.find(npc => {
         const distX = Math.abs(npc.x - x);
         const distY = Math.abs(npc.y - y);
         return (distX === 1 && distY === 0) || (distX === 0 && distY === 1);
     });
     
-    if (adjacentNPC) {
+    if (!adjacentNPC) return false;
+    
     const npcData = getNPCData(adjacentNPC.type);
     
-	//Innkeepers
-	if (adjacentNPC.type === 'innkeeper_molly' || adjacentNPC.type === 'villager_innkeeper') {
+    // Handle innkeepers
+    if (adjacentNPC.type === 'innkeeper_molly' || adjacentNPC.type === 'villager_innkeeper') {
         handleInnkeeper(adjacentNPC);
-        return;
+        return true;
     }
-	
+    
     // Handle shopkeepers
     if (npcData && npcData.isShopkeeper) {
         openShop(adjacentNPC.type);
-        return;
+        return true;
     }
     
-    // Get appropriate dialogue based on game state
+    // Regular dialogue
     const dialogue = getDialogue(adjacentNPC.type, gameState);
-    
-    /* if (dialogue) {
-        addMessage(`${adjacentNPC.name}: "${dialogue.text}"`);
+    if (dialogue) {
+        addMessage(`<span style="color: ${CGA.MAGENTA};">${adjacentNPC.name}:</span> "${dialogue.text}"`);
     } else {
-        addMessage(`${adjacentNPC.name}: "..."`);
-    } */
-	
-	if (dialogue) {
-		addMessage(`<span style="color: ${CGA.MAGENTA};">${adjacentNPC.name}:</span> "${dialogue.text}"`);
-	} else {
-		addMessage(`<span style="color: ${CGA.MAGENTA};">${adjacentNPC.name}:</span> "..."`);
-	}
+        addMessage(`<span style="color: ${CGA.MAGENTA};">${adjacentNPC.name}:</span> "..."`);
+    }
     
-    return;
+    return true;
 }
-    
-    addMessage("Nothing here.");
-	checkEvents(gameState);
-}
+
 //==============REST HELPER FUNCTIONS===================
 
 
@@ -1664,6 +1749,13 @@ function useItem() {
         if (gameState.selectedItemIndex >= gameState.player.inventory.length) {
             gameState.selectedItemIndex = Math.max(0, gameState.player.inventory.length - 1);
         }
+        
+        // Close inventory after using consumable
+        if (gameState.inventoryOpen) {
+            gameState.inventoryOpen = false;
+            document.getElementById('inventoryPanel').classList.remove('active');
+        }
+        
         updateInventoryDisplay();
         updateStatus();
     }
