@@ -33,7 +33,7 @@
 	"imageExportMode": "None",
 	"exportLevelBg": true,
 	"pngFilePattern": null,
-	"backupOnSave": true,
+	"backupOnSave": false,
 	"backupLimit": 10,
 	"backupRelPath": null,
 	"levelNamePattern": "overworld%idx",
@@ -1631,25 +1631,6 @@
 							],
 							"__worldX": 928,
 							"__worldY": 553
-						},
-						{
-							"__identifier": "NPC",
-							"__grid": [22,2],
-							"__pivot": [0,0],
-							"__tags": [],
-							"__tile": null,
-							"__smartColor": "#D77643",
-							"iid": "1775ea90-d380-11f0-9fec-b9c295c438d0",
-							"width": 16,
-							"height": 16,
-							"defUid": 6,
-							"px": [352,32],
-							"fieldInstances": [{ "__identifier": "npc_type", "__type": "String", "__value": "goblin_npc", "__tile": null, "defUid": 7, "realEditorValues": [{
-								"id": "V_String",
-								"params": ["goblin_npc"]
-							}] }],
-							"__worldX": 928,
-							"__worldY": 233
 						}
 					]
 				},

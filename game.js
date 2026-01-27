@@ -1275,7 +1275,7 @@ function canCampHere() {
     
     const nearbyEnemies = gameState.enemies.some(enemy => {
         const dist = Math.abs(enemy.x - gameState.player.x) + Math.abs(enemy.y - gameState.player.y);
-        return dist <= 3;
+        return dist <= 10;
     });
     
     if (nearbyEnemies) {
