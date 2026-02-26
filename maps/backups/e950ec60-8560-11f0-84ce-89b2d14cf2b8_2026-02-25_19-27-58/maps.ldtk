@@ -1675,28 +1675,6 @@
 							],
 							"__worldX": 704,
 							"__worldY": 233
-						},
-						{
-							"__identifier": "Treasure",
-							"__grid": [6,2],
-							"__pivot": [0,0],
-							"__tags": [],
-							"__tile": null,
-							"__smartColor": "#E4A672",
-							"iid": "f2cc6310-fa90-11f0-bf70-d556ed0b5fd2",
-							"width": 16,
-							"height": 16,
-							"defUid": 13,
-							"px": [96,32],
-							"fieldInstances": [
-								{ "__identifier": "gold", "__type": "Int", "__value": 0, "__tile": null, "defUid": 15, "realEditorValues": [] },
-								{ "__identifier": "items", "__type": "Array<String>", "__value": ["health_potion"], "__tile": null, "defUid": 16, "realEditorValues": [{
-									"id": "V_String",
-									"params": ["health_potion"]
-								}] }
-							],
-							"__worldX": 672,
-							"__worldY": 233
 						}
 					]
 				},
