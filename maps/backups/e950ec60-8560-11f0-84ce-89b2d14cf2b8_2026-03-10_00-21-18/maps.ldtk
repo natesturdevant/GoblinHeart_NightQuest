@@ -1697,28 +1697,6 @@
 							],
 							"__worldX": 672,
 							"__worldY": 233
-						},
-						{
-							"__identifier": "Special",
-							"__grid": [10,11],
-							"__pivot": [0,0],
-							"__tags": [],
-							"__tile": null,
-							"__smartColor": "#733E39",
-							"iid": "081a5e50-fa90-11f0-9ae8-9f12805e7c9c",
-							"width": 16,
-							"height": 16,
-							"defUid": 17,
-							"px": [160,176],
-							"fieldInstances": [
-								{ "__identifier": "message", "__type": "String", "__value": null, "__tile": null, "defUid": 18, "realEditorValues": [] },
-								{ "__identifier": "requires_search", "__type": "Bool", "__value": true, "__tile": null, "defUid": 19, "realEditorValues": [] },
-								{ "__identifier": "journal_title", "__type": "String", "__value": null, "__tile": null, "defUid": 21, "realEditorValues": [] },
-								{ "__identifier": "journal_image", "__type": "String", "__value": null, "__tile": null, "defUid": 22, "realEditorValues": [] },
-								{ "__identifier": "journal_entry", "__type": "Bool", "__value": false, "__tile": null, "defUid": 28, "realEditorValues": [] }
-							],
-							"__worldX": 736,
-							"__worldY": 377
 						}
 					]
 				},
