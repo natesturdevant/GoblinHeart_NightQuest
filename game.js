@@ -244,12 +244,14 @@ async function loadLDtkProject(jsonPath) {
 							const requiresSearch = getField('requires_search') || false;
 							const journalEntry = getField('journal_entry') || false;
 							const journalTitle = getField('journal_title') || 'Discovery';
+							const itemReward = getField('item_reward') || null;
 							if (msg) {
 								convertedSpecialLocations[mapId][key] = {
 								message: msg,
 								requiresSearch: requiresSearch,
 								journalEntry: journalEntry,
-								journalTitle: journalTitle
+								journalTitle: journalTitle,
+								itemReward: itemReward  
 								};
 							}
 						break;
@@ -934,6 +936,8 @@ function movePlayer(dx, dy) {
     }
     renderWorld();
     updateStatus();
+	
+	checkStoryRules();
 } 
 
 function waitTurn() {
@@ -1128,6 +1132,13 @@ function handleNPCInteraction(x, y) {
     });
     
     if (!adjacentNPC) return false;
+	
+	const storyNPC = getStoryNPC(adjacentNPC.type);
+    if (storyNPC) {
+        addMessage(storyNPC.text);
+        checkStoryRules();
+        return true;
+    }
     
     const npcData = getNPCData(adjacentNPC.type);
     
@@ -1304,6 +1315,9 @@ function handleInnkeeper(npc) {
 //================END REST HELPER FUNCTIONS===================
 
 
+
+
+
 function searchLocation() {
     const x = gameState.player.x;
     const y = gameState.player.y;
@@ -1314,13 +1328,18 @@ function searchLocation() {
     
     if (locs && locs[key]) {
         const special = locs[key];
+        
         if (special.requiresSearch) {
             const revealKey = `${gameState.currentMap}:${key}`;
             
-            // Always show the message when searching
-            addMessage(special.message, CGA.CYAN);
+            // Show different message if already searched
+            if (!gameState.revealedSpecials[revealKey]) {
+                addMessage(special.message, CGA.CYAN);
+            } else {
+                addMessage("There's nothing left of any interest. Boring!!", CGA.LIGHTGRAY);
+            }
             
-            // Only trigger journal entry on first discovery
+            // Only trigger journal entry and item on first discovery
             if (!gameState.revealedSpecials[revealKey]) {
                 if (special.journalEntry) {
                     addJournalEntry(special.journalTitle, [
@@ -1328,6 +1347,19 @@ function searchLocation() {
                     ]);
                 }
                 gameState.revealedSpecials[revealKey] = true;
+                
+                // Give item reward if present
+                if (special.itemReward) {
+                    gameState.player.inventory.push(special.itemReward);
+                    if (!gameState.flags) gameState.flags = {};
+                    gameState.flags[`has_${special.itemReward}`] = true;
+                    
+                    const item = keyItems[special.itemReward] || itemDatabase[special.itemReward];
+                    const itemName = item?.name || special.itemReward;
+                    const color = item?.rarity ? RARITY_COLORS[item.rarity] : CGA.CYAN;
+                    
+                    addMessage(`Received ${itemName}!`, color);
+                }
             }
         } else {
             addMessage(special.message, CGA.CYAN);
@@ -1338,9 +1370,9 @@ function searchLocation() {
             "Nothing of interest here.",
             "You find nothing.",
             "Nothing but dust.",
-			"Empty!",
-			"Actually, not even dust.",
-			"Nuts. No treasure.",
+            "Empty!",
+            "Actually, not even dust.",
+            "Nuts. No treasure.",
             "Your search turns up empty.",
             "There's nothing special here.",
             "You don't find anything useful."
@@ -1356,6 +1388,21 @@ function lookAround() {
     
     // Header with map name
     addMessage(`=== ${displayName} ===`);
+	
+	const storyLook = getStoryLook(gameState.currentMap);
+    if (storyLook) {
+        addMessage(storyLook);
+        
+        // Check for journal entry
+        const journalEntry = mapJournalEntries[gameState.currentMap];
+        if (journalEntry) {
+            const entryAdded = addJournalEntry(journalEntry.title, journalEntry.blocks);
+            if (entryAdded) {
+                addMessage("Journal updated...");
+            }
+        }
+        return;
+    }
     
     // Get description for current map
     const description = mapDescriptions[gameState.currentMap];
@@ -1533,7 +1580,7 @@ function renderMapView() {
     });
     
     // Player position
-    ctx.fillStyle = CGA.CYAN;
+    ctx.fillStyle = CGA.BROWN;
     ctx.fillRect(offsetX + gameState.player.x * tileSize, offsetY + gameState.player.y * tileSize, tileSize, tileSize);  // ADD offsetX/Y
 }
 

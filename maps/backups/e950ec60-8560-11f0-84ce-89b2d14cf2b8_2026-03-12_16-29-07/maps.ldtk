@@ -804,7 +804,7 @@
 					"tilesetUid": null
 				},
 				{
-					"identifier": "item_reward",
+					"identifier": "itemReward",
 					"doc": null,
 					"__type": "String",
 					"uid": 41,
@@ -1076,7 +1076,7 @@
 								{ "__identifier": "journal_title", "__type": "String", "__value": null, "__tile": null, "defUid": 21, "realEditorValues": [] },
 								{ "__identifier": "journal_image", "__type": "String", "__value": null, "__tile": null, "defUid": 22, "realEditorValues": [] },
 								{ "__identifier": "journal_entry", "__type": "Bool", "__value": false, "__tile": null, "defUid": 28, "realEditorValues": [] },
-								{ "__identifier": "item_reward", "__type": "String", "__value": null, "__tile": null, "defUid": 41, "realEditorValues": [] }
+								{ "__identifier": "itemReward", "__type": "String", "__value": null, "__tile": null, "defUid": 41, "realEditorValues": [] }
 							],
 							"__worldX": 64,
 							"__worldY": 112
@@ -1105,7 +1105,7 @@
 								{ "__identifier": "journal_title", "__type": "String", "__value": null, "__tile": null, "defUid": 21, "realEditorValues": [] },
 								{ "__identifier": "journal_image", "__type": "String", "__value": null, "__tile": null, "defUid": 22, "realEditorValues": [] },
 								{ "__identifier": "journal_entry", "__type": "Bool", "__value": false, "__tile": null, "defUid": 28, "realEditorValues": [] },
-								{ "__identifier": "item_reward", "__type": "String", "__value": null, "__tile": null, "defUid": 41, "realEditorValues": [] }
+								{ "__identifier": "itemReward", "__type": "String", "__value": null, "__tile": null, "defUid": 41, "realEditorValues": [] }
 							],
 							"__worldX": 64,
 							"__worldY": 80
@@ -1353,7 +1353,7 @@
 								{ "__identifier": "journal_title", "__type": "String", "__value": null, "__tile": null, "defUid": 21, "realEditorValues": [] },
 								{ "__identifier": "journal_image", "__type": "String", "__value": null, "__tile": null, "defUid": 22, "realEditorValues": [] },
 								{ "__identifier": "journal_entry", "__type": "Bool", "__value": false, "__tile": null, "defUid": 28, "realEditorValues": [] },
-								{ "__identifier": "item_reward", "__type": "String", "__value": null, "__tile": null, "defUid": 41, "realEditorValues": [] }
+								{ "__identifier": "itemReward", "__type": "String", "__value": null, "__tile": null, "defUid": 41, "realEditorValues": [] }
 							],
 							"__worldX": 32,
 							"__worldY": 32
@@ -1443,7 +1443,7 @@
 								{ "__identifier": "journal_title", "__type": "String", "__value": null, "__tile": null, "defUid": 21, "realEditorValues": [] },
 								{ "__identifier": "journal_image", "__type": "String", "__value": null, "__tile": null, "defUid": 22, "realEditorValues": [] },
 								{ "__identifier": "journal_entry", "__type": "Bool", "__value": false, "__tile": null, "defUid": 28, "realEditorValues": [] },
-								{ "__identifier": "item_reward", "__type": "String", "__value": "silver_key", "__tile": null, "defUid": 41, "realEditorValues": [{
+								{ "__identifier": "itemReward", "__type": "String", "__value": "silver_key", "__tile": null, "defUid": 41, "realEditorValues": [{
 									"id": "V_String",
 									"params": ["silver_key"]
 								}] }
@@ -1670,7 +1670,7 @@
 									"id": "V_Bool",
 									"params": [ true ]
 								}] },
-								{ "__identifier": "item_reward", "__type": "String", "__value": null, "__tile": null, "defUid": 41, "realEditorValues": [] }
+								{ "__identifier": "itemReward", "__type": "String", "__value": null, "__tile": null, "defUid": 41, "realEditorValues": [] }
 							],
 							"__worldX": 784,
 							"__worldY": 345
@@ -1742,7 +1742,7 @@
 								{ "__identifier": "journal_title", "__type": "String", "__value": null, "__tile": null, "defUid": 21, "realEditorValues": [] },
 								{ "__identifier": "journal_image", "__type": "String", "__value": null, "__tile": null, "defUid": 22, "realEditorValues": [] },
 								{ "__identifier": "journal_entry", "__type": "Bool", "__value": false, "__tile": null, "defUid": 28, "realEditorValues": [] },
-								{ "__identifier": "item_reward", "__type": "String", "__value": null, "__tile": null, "defUid": 41, "realEditorValues": [] }
+								{ "__identifier": "itemReward", "__type": "String", "__value": null, "__tile": null, "defUid": 41, "realEditorValues": [] }
 							],
 							"__worldX": 704,
 							"__worldY": 233
@@ -1787,7 +1787,7 @@
 								{ "__identifier": "journal_title", "__type": "String", "__value": null, "__tile": null, "defUid": 21, "realEditorValues": [] },
 								{ "__identifier": "journal_image", "__type": "String", "__value": null, "__tile": null, "defUid": 22, "realEditorValues": [] },
 								{ "__identifier": "journal_entry", "__type": "Bool", "__value": false, "__tile": null, "defUid": 28, "realEditorValues": [] },
-								{ "__identifier": "item_reward", "__type": "String", "__value": null, "__tile": null, "defUid": 41, "realEditorValues": [] }
+								{ "__identifier": "itemReward", "__type": "String", "__value": null, "__tile": null, "defUid": 41, "realEditorValues": [] }
 							],
 							"__worldX": 736,
 							"__worldY": 377
@@ -2357,7 +2357,7 @@
 									"id": "V_Bool",
 									"params": [ false ]
 								}] },
-								{ "__identifier": "item_reward", "__type": "String", "__value": null, "__tile": null, "defUid": 41, "realEditorValues": [] }
+								{ "__identifier": "itemReward", "__type": "String", "__value": null, "__tile": null, "defUid": 41, "realEditorValues": [] }
 							],
 							"__worldX": 200,
 							"__worldY": -203

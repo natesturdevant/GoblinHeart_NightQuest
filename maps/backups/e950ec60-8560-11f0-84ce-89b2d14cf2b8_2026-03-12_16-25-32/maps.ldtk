@@ -11,7 +11,7 @@
 	"iid": "e950ec60-8560-11f0-84ce-89b2d14cf2b8",
 	"jsonVersion": "1.5.3",
 	"appBuildId": 473703,
-	"nextUid": 41,
+	"nextUid": 42,
 	"identifierStyle": "Capitalize",
 	"toc": [],
 	"worldLayout": "Free",
@@ -33,7 +33,7 @@
 	"imageExportMode": "None",
 	"exportLevelBg": true,
 	"pngFilePattern": null,
-	"backupOnSave": false,
+	"backupOnSave": true,
 	"backupLimit": 10,
 	"backupRelPath": null,
 	"levelNamePattern": "overworld%idx",
@@ -802,6 +802,43 @@
 					"allowedRefsEntityUid": null,
 					"allowedRefTags": [],
 					"tilesetUid": null
+				},
+				{
+					"identifier": "itemReward",
+					"doc": null,
+					"__type": "String",
+					"uid": 41,
+					"type": "F_String",
+					"isArray": false,
+					"canBeNull": true,
+					"arrayMinLength": null,
+					"arrayMaxLength": null,
+					"editorDisplayMode": "Hidden",
+					"editorDisplayScale": 1,
+					"editorDisplayPos": "Above",
+					"editorLinkStyle": "StraightArrow",
+					"editorDisplayColor": null,
+					"editorAlwaysShow": false,
+					"editorShowInWorld": true,
+					"editorCutLongValues": true,
+					"editorTextSuffix": null,
+					"editorTextPrefix": null,
+					"useForSmartColor": false,
+					"exportToToc": false,
+					"searchable": false,
+					"min": null,
+					"max": null,
+					"regex": null,
+					"acceptFileTypes": null,
+					"defaultOverride": null,
+					"textLanguageMode": null,
+					"symmetricalRef": false,
+					"autoChainRef": true,
+					"allowOutOfLevelRef": true,
+					"allowedRefs": "OnlySame",
+					"allowedRefsEntityUid": null,
+					"allowedRefTags": [],
+					"tilesetUid": null
 				}
 			]
 		}
@@ -1038,7 +1075,8 @@
 								{ "__identifier": "requires_search", "__type": "Bool", "__value": true, "__tile": null, "defUid": 19, "realEditorValues": [] },
 								{ "__identifier": "journal_title", "__type": "String", "__value": null, "__tile": null, "defUid": 21, "realEditorValues": [] },
 								{ "__identifier": "journal_image", "__type": "String", "__value": null, "__tile": null, "defUid": 22, "realEditorValues": [] },
-								{ "__identifier": "journal_entry", "__type": "Bool", "__value": false, "__tile": null, "defUid": 28, "realEditorValues": [] }
+								{ "__identifier": "journal_entry", "__type": "Bool", "__value": false, "__tile": null, "defUid": 28, "realEditorValues": [] },
+								{ "__identifier": "itemReward", "__type": "String", "__value": null, "__tile": null, "defUid": 41, "realEditorValues": [] }
 							],
 							"__worldX": 64,
 							"__worldY": 112
@@ -1066,7 +1104,8 @@
 								}] },
 								{ "__identifier": "journal_title", "__type": "String", "__value": null, "__tile": null, "defUid": 21, "realEditorValues": [] },
 								{ "__identifier": "journal_image", "__type": "String", "__value": null, "__tile": null, "defUid": 22, "realEditorValues": [] },
-								{ "__identifier": "journal_entry", "__type": "Bool", "__value": false, "__tile": null, "defUid": 28, "realEditorValues": [] }
+								{ "__identifier": "journal_entry", "__type": "Bool", "__value": false, "__tile": null, "defUid": 28, "realEditorValues": [] },
+								{ "__identifier": "itemReward", "__type": "String", "__value": null, "__tile": null, "defUid": 41, "realEditorValues": [] }
 							],
 							"__worldX": 64,
 							"__worldY": 80
@@ -1313,7 +1352,8 @@
 								{ "__identifier": "requires_search", "__type": "Bool", "__value": true, "__tile": null, "defUid": 19, "realEditorValues": [] },
 								{ "__identifier": "journal_title", "__type": "String", "__value": null, "__tile": null, "defUid": 21, "realEditorValues": [] },
 								{ "__identifier": "journal_image", "__type": "String", "__value": null, "__tile": null, "defUid": 22, "realEditorValues": [] },
-								{ "__identifier": "journal_entry", "__type": "Bool", "__value": false, "__tile": null, "defUid": 28, "realEditorValues": [] }
+								{ "__identifier": "journal_entry", "__type": "Bool", "__value": false, "__tile": null, "defUid": 28, "realEditorValues": [] },
+								{ "__identifier": "itemReward", "__type": "String", "__value": null, "__tile": null, "defUid": 41, "realEditorValues": [] }
 							],
 							"__worldX": 32,
 							"__worldY": 32
@@ -1381,6 +1421,35 @@
 							],
 							"__worldX": 193,
 							"__worldY": 137
+						},
+						{
+							"__identifier": "Special",
+							"__grid": [6,3],
+							"__pivot": [0,0],
+							"__tags": [],
+							"__tile": null,
+							"__smartColor": "#733E39",
+							"iid": "e0f60d20-fa90-11f0-9ae8-fb27fe437b5b",
+							"width": 16,
+							"height": 16,
+							"defUid": 17,
+							"px": [96,48],
+							"fieldInstances": [
+								{ "__identifier": "message", "__type": "String", "__value": "You found a silver key!", "__tile": null, "defUid": 18, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["You found a silver key!"]
+								}] },
+								{ "__identifier": "requires_search", "__type": "Bool", "__value": true, "__tile": null, "defUid": 19, "realEditorValues": [] },
+								{ "__identifier": "journal_title", "__type": "String", "__value": null, "__tile": null, "defUid": 21, "realEditorValues": [] },
+								{ "__identifier": "journal_image", "__type": "String", "__value": null, "__tile": null, "defUid": 22, "realEditorValues": [] },
+								{ "__identifier": "journal_entry", "__type": "Bool", "__value": false, "__tile": null, "defUid": 28, "realEditorValues": [] },
+								{ "__identifier": "itemReward", "__type": "String", "__value": "silver_key", "__tile": null, "defUid": 41, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["silver_key"]
+								}] }
+							],
+							"__worldX": 96,
+							"__worldY": 48
 						}
 					]
 				},
@@ -1600,7 +1669,8 @@
 								{ "__identifier": "journal_entry", "__type": "Bool", "__value": true, "__tile": null, "defUid": 28, "realEditorValues": [{
 									"id": "V_Bool",
 									"params": [ true ]
-								}] }
+								}] },
+								{ "__identifier": "itemReward", "__type": "String", "__value": null, "__tile": null, "defUid": 41, "realEditorValues": [] }
 							],
 							"__worldX": 784,
 							"__worldY": 345
@@ -1631,6 +1701,96 @@
 							],
 							"__worldX": 928,
 							"__worldY": 553
+						},
+						{
+							"__identifier": "NPC",
+							"__grid": [22,2],
+							"__pivot": [0,0],
+							"__tags": [],
+							"__tile": null,
+							"__smartColor": "#D77643",
+							"iid": "1775ea90-d380-11f0-9fec-b9c295c438d0",
+							"width": 16,
+							"height": 16,
+							"defUid": 6,
+							"px": [352,32],
+							"fieldInstances": [{ "__identifier": "npc_type", "__type": "String", "__value": "goblin_npc", "__tile": null, "defUid": 7, "realEditorValues": [{
+								"id": "V_String",
+								"params": ["goblin_npc"]
+							}] }],
+							"__worldX": 928,
+							"__worldY": 233
+						},
+						{
+							"__identifier": "Special",
+							"__grid": [8,2],
+							"__pivot": [0,0],
+							"__tags": [],
+							"__tile": null,
+							"__smartColor": "#733E39",
+							"iid": "a02ca750-fa90-11f0-bf70-71fee6088dab",
+							"width": 16,
+							"height": 16,
+							"defUid": 17,
+							"px": [128,32],
+							"fieldInstances": [
+								{ "__identifier": "message", "__type": "String", "__value": "You can see the gate is unlocked.", "__tile": null, "defUid": 18, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["You can see the gate is unlocked."]
+								}] },
+								{ "__identifier": "requires_search", "__type": "Bool", "__value": true, "__tile": null, "defUid": 19, "realEditorValues": [] },
+								{ "__identifier": "journal_title", "__type": "String", "__value": null, "__tile": null, "defUid": 21, "realEditorValues": [] },
+								{ "__identifier": "journal_image", "__type": "String", "__value": null, "__tile": null, "defUid": 22, "realEditorValues": [] },
+								{ "__identifier": "journal_entry", "__type": "Bool", "__value": false, "__tile": null, "defUid": 28, "realEditorValues": [] },
+								{ "__identifier": "itemReward", "__type": "String", "__value": null, "__tile": null, "defUid": 41, "realEditorValues": [] }
+							],
+							"__worldX": 704,
+							"__worldY": 233
+						},
+						{
+							"__identifier": "Treasure",
+							"__grid": [6,2],
+							"__pivot": [0,0],
+							"__tags": [],
+							"__tile": null,
+							"__smartColor": "#E4A672",
+							"iid": "f2cc6310-fa90-11f0-bf70-d556ed0b5fd2",
+							"width": 16,
+							"height": 16,
+							"defUid": 13,
+							"px": [96,32],
+							"fieldInstances": [
+								{ "__identifier": "gold", "__type": "Int", "__value": 0, "__tile": null, "defUid": 15, "realEditorValues": [] },
+								{ "__identifier": "items", "__type": "Array<String>", "__value": ["health_potion"], "__tile": null, "defUid": 16, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["health_potion"]
+								}] }
+							],
+							"__worldX": 672,
+							"__worldY": 233
+						},
+						{
+							"__identifier": "Special",
+							"__grid": [10,11],
+							"__pivot": [0,0],
+							"__tags": [],
+							"__tile": null,
+							"__smartColor": "#733E39",
+							"iid": "081a5e50-fa90-11f0-9ae8-9f12805e7c9c",
+							"width": 16,
+							"height": 16,
+							"defUid": 17,
+							"px": [160,176],
+							"fieldInstances": [
+								{ "__identifier": "message", "__type": "String", "__value": null, "__tile": null, "defUid": 18, "realEditorValues": [] },
+								{ "__identifier": "requires_search", "__type": "Bool", "__value": true, "__tile": null, "defUid": 19, "realEditorValues": [] },
+								{ "__identifier": "journal_title", "__type": "String", "__value": null, "__tile": null, "defUid": 21, "realEditorValues": [] },
+								{ "__identifier": "journal_image", "__type": "String", "__value": null, "__tile": null, "defUid": 22, "realEditorValues": [] },
+								{ "__identifier": "journal_entry", "__type": "Bool", "__value": false, "__tile": null, "defUid": 28, "realEditorValues": [] },
+								{ "__identifier": "itemReward", "__type": "String", "__value": null, "__tile": null, "defUid": 41, "realEditorValues": [] }
+							],
+							"__worldX": 736,
+							"__worldY": 377
 						}
 					]
 				},
@@ -2196,7 +2356,8 @@
 								{ "__identifier": "journal_entry", "__type": "Bool", "__value": false, "__tile": null, "defUid": 28, "realEditorValues": [{
 									"id": "V_Bool",
 									"params": [ false ]
-								}] }
+								}] },
+								{ "__identifier": "itemReward", "__type": "String", "__value": null, "__tile": null, "defUid": 41, "realEditorValues": [] }
 							],
 							"__worldX": 200,
 							"__worldY": -203
@@ -3236,6 +3397,33 @@
 							],
 							"__worldX": 592,
 							"__worldY": 1369
+						},
+						{
+							"__identifier": "Transition",
+							"__grid": [21,22],
+							"__pivot": [0,0],
+							"__tags": [],
+							"__tile": null,
+							"__smartColor": "#EAD4AA",
+							"iid": "4f1e39f0-fa90-11f0-bf70-a79445461e70",
+							"width": 16,
+							"height": 16,
+							"defUid": 8,
+							"px": [336,352],
+							"fieldInstances": [
+								{ "__identifier": "to_map", "__type": "String", "__value": "Dungeon5", "__tile": null, "defUid": 9, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["Dungeon5"]
+								}] },
+								{ "__identifier": "to_x", "__type": "Int", "__value": 1, "__tile": null, "defUid": 10, "realEditorValues": [{ "id": "V_Int", "params": [1] }] },
+								{ "__identifier": "to_y", "__type": "Int", "__value": 1, "__tile": null, "defUid": 11, "realEditorValues": [{ "id": "V_Int", "params": [1] }] },
+								{ "__identifier": "message", "__type": "String", "__value": "Deeper and deeper you delve...", "__tile": null, "defUid": 12, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["Deeper and deeper you delve..."]
+								}] }
+							],
+							"__worldX": 912,
+							"__worldY": 1705
 						}
 					]
 				},
@@ -3334,7 +3522,35 @@
 					"seed": 5248029,
 					"overrideTilesetUid": null,
 					"gridTiles": [],
-					"entityInstances": []
+					"entityInstances": [
+						{
+							"__identifier": "Transition",
+							"__grid": [1,1],
+							"__pivot": [0,0],
+							"__tags": [],
+							"__tile": null,
+							"__smartColor": "#EAD4AA",
+							"iid": "6f398690-fa90-11f0-bf70-d7d94bca1fb5",
+							"width": 16,
+							"height": 16,
+							"defUid": 8,
+							"px": [16,16],
+							"fieldInstances": [
+								{ "__identifier": "to_map", "__type": "String", "__value": "Dungeon4", "__tile": null, "defUid": 9, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["Dungeon4"]
+								}] },
+								{ "__identifier": "to_x", "__type": "Int", "__value": 21, "__tile": null, "defUid": 10, "realEditorValues": [{ "id": "V_Int", "params": [21] }] },
+								{ "__identifier": "to_y", "__type": "Int", "__value": 22, "__tile": null, "defUid": 11, "realEditorValues": [{ "id": "V_Int", "params": [22] }] },
+								{ "__identifier": "message", "__type": "String", "__value": "Walking up stairs sucks!", "__tile": null, "defUid": 12, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["Walking up stairs sucks!"]
+								}] }
+							],
+							"__worldX": 592,
+							"__worldY": 1753
+						}
+					]
 				},
 				{
 					"__identifier": "Tiles",
