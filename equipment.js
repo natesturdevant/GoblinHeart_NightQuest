@@ -1967,7 +1967,112 @@ const consumableItems = {
             renderWorld();
             return true;
         }
-    }
+    },
+	
+	'rental_robocop': {
+		name: 'RoboCop (VHS)',
+		type: 'consumable',
+		rarity: 'common',
+		description: 'RoboCop (1987). "Dead or alive, you\'re coming with me."',
+		canEquip: false,
+		canDrop: false,
+		canSell: false,
+		stats: { strength: 0, vitality: 0, intelligence: 0, spirit: 0, agility: 0, luck: 0 },
+		onUse: function() {
+			addMessage("You watch ROBOCOP.", CGA.CYAN);
+			addMessage("'Dead or alive, you're coming with me.'", CGA.LIGHTGRAY);
+			addMessage("The tape rewinds automatically.", CGA.DARKGRAY);
+			
+			if (!gameState.flags) gameState.flags = {};
+			gameState.flags.watched_robocop = true;
+			
+			return true; // Consumes the tape
+		}
+	},
+
+	'rental_tron': {
+		name: 'Tron (VHS)',
+		type: 'consumable',
+		rarity: 'common',
+		description: 'Tron (1982). "I fight for the Users!"',
+		canEquip: false,
+		canDrop: false,
+		canSell: false,
+		stats: { strength: 0, vitality: 0, intelligence: 0, spirit: 0, agility: 0, luck: 0 },
+		onUse: function() {
+			addMessage("You watch TRON.", CGA.CYAN);
+			addMessage("'I fight for the Users!'", CGA.LIGHTGRAY);
+			addMessage("The tape rewinds automatically.", CGA.DARKGRAY);
+			
+			if (!gameState.flags) gameState.flags = {};
+			gameState.flags.watched_tron = true;
+			
+			return true;
+		}
+	},
+
+	'rental_thing': {
+		name: 'The Thing (VHS)',
+		type: 'consumable',
+		rarity: 'common',
+		description: 'The Thing (1982). "Trust is a tough thing to come by these days."',
+		canEquip: false,
+		canDrop: false,
+		canSell: false,
+		stats: { strength: 0, vitality: 0, intelligence: 0, spirit: 0, agility: 0, luck: 0 },
+		onUse: function() {
+			addMessage("You watch THE THING.", CGA.CYAN);
+			addMessage("'Trust is a tough thing to come by these days.'", CGA.LIGHTGRAY);
+			addMessage("The tape rewinds automatically.", CGA.DARKGRAY);
+			
+			if (!gameState.flags) gameState.flags = {};
+			gameState.flags.watched_thing = true;
+			
+			return true;
+		}
+	},
+
+	'rental_rocky4': {
+		name: 'Rocky IV (VHS)',
+		type: 'consumable',
+		rarity: 'common',
+		description: 'Rocky IV (1985). "If I can change, you can change."',
+		canEquip: false,
+		canDrop: false,
+		canSell: false,
+		stats: { strength: 0, vitality: 0, intelligence: 0, spirit: 0, agility: 0, luck: 0 },
+		onUse: function() {
+			addMessage("You watch ROCKY IV.", CGA.CYAN);
+			addMessage("'If I can change, you can change, everybody can change.'", CGA.LIGHTGRAY);
+			addMessage("The tape rewinds automatically.", CGA.DARKGRAY);
+			
+			if (!gameState.flags) gameState.flags = {};
+			gameState.flags.watched_rocky4 = true;
+			
+			return true;
+		}
+	},
+
+	'rental_karate_kid': {
+		name: 'The Karate Kid (VHS)',
+		type: 'consumable',
+		rarity: 'common',
+		description: 'The Karate Kid (1984). "Wax on, wax off."',
+		canEquip: false,
+		canDrop: false,
+		canSell: false,
+		stats: { strength: 0, vitality: 0, intelligence: 0, spirit: 0, agility: 0, luck: 0 },
+		onUse: function() {
+			addMessage("You watch THE KARATE KID.", CGA.CYAN);
+			addMessage("'Wax on, wax off.'", CGA.LIGHTGRAY);
+			addMessage("The tape rewinds automatically.", CGA.DARKGRAY);
+			
+			if (!gameState.flags) gameState.flags = {};
+			gameState.flags.watched_karate_kid = true;
+			
+			return true;
+		}
+	}
 };
 
 // ===========KEY ITEMS====================
