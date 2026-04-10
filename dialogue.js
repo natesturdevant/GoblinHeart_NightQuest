@@ -26,6 +26,13 @@ const dialogueDatabase = {
       }
     ]
   },
+  
+  'chrissy_video_clerk': {
+        name: "Chrissy",
+        sprite: "villager_worker"
+        // Don't need dialogue here - story.js handles it
+    },
+	
   "bartender_npc": {
     "name": "Bart the Bartender",
     "sprite": "villager_old",

@@ -440,7 +440,7 @@ function spawnEnemyAt(type, x, y) {
     });
 }
 
-function spawnNPCAt(type, x, y) {
+/* function spawnNPCAt(type, x, y) {
     // Get NPC data from new dialogue system
     const npcData = getNPCData(type);
     
@@ -458,6 +458,44 @@ function spawnNPCAt(type, x, y) {
         x: x,
         y: y
         // No more dialogue stored here - we look it up dynamically!
+    });
+} */
+
+function spawnNPCAt(type, x, y) {
+    // Check if story overrides this NPC's position
+    const storyPos = getStoryNPCPosition(type);
+    
+    if (storyPos) {
+        // Story override exists
+        if (storyPos.map !== gameState.currentMap) {
+            // NPC should be on a different map, don't spawn here
+            return;
+        }
+        if (storyPos.map === null) {
+            // NPC has been removed from world (disappeared)
+            return;
+        }
+        // Use story position instead of passed x, y
+        x = storyPos.x;
+        y = storyPos.y;
+    }
+    
+    // Get NPC data from new dialogue system
+    const npcData = getNPCData(type);
+    
+    if (!npcData) {
+        console.error(`NPC "${type}" not found in dialogue database`);
+        console.log('Available NPCs:', Object.keys(dialogueDatabase));
+        return;
+    }
+    
+    gameState.npcs.push({
+        id: Math.random().toString(36).substr(2, 9),
+        type: type,
+        name: npcData.name,
+        sprite: npcData.sprite,
+        x: x,
+        y: y
     });
 }
 
@@ -1134,6 +1172,7 @@ function handleNPCInteraction(x, y) {
     if (!adjacentNPC) return false;
 	
 	const storyNPC = getStoryNPC(adjacentNPC.type);
+	console.log('Story NPC check:', adjacentNPC.type, storyNPC);  // DEBUG
     if (storyNPC) {
         addMessage(storyNPC.text);
         checkStoryRules();
@@ -1153,7 +1192,9 @@ function handleNPCInteraction(x, y) {
         openShop(adjacentNPC.type);
         return true;
     }
-    
+	
+	console.log('Falling through to old dialogue system');  // DEBUG
+	
     // Regular dialogue
     const dialogue = getDialogue(adjacentNPC.type, gameState);
     if (dialogue) {
