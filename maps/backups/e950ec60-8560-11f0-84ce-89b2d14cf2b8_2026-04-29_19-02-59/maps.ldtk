@@ -11,7 +11,7 @@
 	"iid": "e950ec60-8560-11f0-84ce-89b2d14cf2b8",
 	"jsonVersion": "1.5.3",
 	"appBuildId": 473703,
-	"nextUid": 42,
+	"nextUid": 43,
 	"identifierStyle": "Capitalize",
 	"toc": [],
 	"worldLayout": "Free",
@@ -839,6 +839,43 @@
 					"allowedRefsEntityUid": null,
 					"allowedRefTags": [],
 					"tilesetUid": null
+				},
+				{
+					"identifier": "story_flag",
+					"doc": null,
+					"__type": "String",
+					"uid": 42,
+					"type": "F_String",
+					"isArray": false,
+					"canBeNull": true,
+					"arrayMinLength": null,
+					"arrayMaxLength": null,
+					"editorDisplayMode": "Hidden",
+					"editorDisplayScale": 1,
+					"editorDisplayPos": "Above",
+					"editorLinkStyle": "StraightArrow",
+					"editorDisplayColor": null,
+					"editorAlwaysShow": false,
+					"editorShowInWorld": true,
+					"editorCutLongValues": true,
+					"editorTextSuffix": null,
+					"editorTextPrefix": null,
+					"useForSmartColor": false,
+					"exportToToc": false,
+					"searchable": false,
+					"min": null,
+					"max": null,
+					"regex": null,
+					"acceptFileTypes": null,
+					"defaultOverride": null,
+					"textLanguageMode": null,
+					"symmetricalRef": false,
+					"autoChainRef": true,
+					"allowOutOfLevelRef": true,
+					"allowedRefs": "OnlySame",
+					"allowedRefsEntityUid": null,
+					"allowedRefTags": [],
+					"tilesetUid": null
 				}
 			]
 		}
@@ -1076,7 +1113,8 @@
 								{ "__identifier": "journal_title", "__type": "String", "__value": null, "__tile": null, "defUid": 21, "realEditorValues": [] },
 								{ "__identifier": "journal_image", "__type": "String", "__value": null, "__tile": null, "defUid": 22, "realEditorValues": [] },
 								{ "__identifier": "journal_entry", "__type": "Bool", "__value": false, "__tile": null, "defUid": 28, "realEditorValues": [] },
-								{ "__identifier": "item_reward", "__type": "String", "__value": null, "__tile": null, "defUid": 41, "realEditorValues": [] }
+								{ "__identifier": "item_reward", "__type": "String", "__value": null, "__tile": null, "defUid": 41, "realEditorValues": [] },
+								{ "__identifier": "story_flag", "__type": "String", "__value": null, "__tile": null, "defUid": 42, "realEditorValues": [] }
 							],
 							"__worldX": 64,
 							"__worldY": 112
@@ -1105,7 +1143,8 @@
 								{ "__identifier": "journal_title", "__type": "String", "__value": null, "__tile": null, "defUid": 21, "realEditorValues": [] },
 								{ "__identifier": "journal_image", "__type": "String", "__value": null, "__tile": null, "defUid": 22, "realEditorValues": [] },
 								{ "__identifier": "journal_entry", "__type": "Bool", "__value": false, "__tile": null, "defUid": 28, "realEditorValues": [] },
-								{ "__identifier": "item_reward", "__type": "String", "__value": null, "__tile": null, "defUid": 41, "realEditorValues": [] }
+								{ "__identifier": "item_reward", "__type": "String", "__value": null, "__tile": null, "defUid": 41, "realEditorValues": [] },
+								{ "__identifier": "story_flag", "__type": "String", "__value": null, "__tile": null, "defUid": 42, "realEditorValues": [] }
 							],
 							"__worldX": 64,
 							"__worldY": 80
@@ -1353,7 +1392,8 @@
 								{ "__identifier": "journal_title", "__type": "String", "__value": null, "__tile": null, "defUid": 21, "realEditorValues": [] },
 								{ "__identifier": "journal_image", "__type": "String", "__value": null, "__tile": null, "defUid": 22, "realEditorValues": [] },
 								{ "__identifier": "journal_entry", "__type": "Bool", "__value": false, "__tile": null, "defUid": 28, "realEditorValues": [] },
-								{ "__identifier": "item_reward", "__type": "String", "__value": null, "__tile": null, "defUid": 41, "realEditorValues": [] }
+								{ "__identifier": "item_reward", "__type": "String", "__value": null, "__tile": null, "defUid": 41, "realEditorValues": [] },
+								{ "__identifier": "story_flag", "__type": "String", "__value": null, "__tile": null, "defUid": 42, "realEditorValues": [] }
 							],
 							"__worldX": 32,
 							"__worldY": 32
@@ -1446,7 +1486,8 @@
 								{ "__identifier": "item_reward", "__type": "String", "__value": "silver_key", "__tile": null, "defUid": 41, "realEditorValues": [{
 									"id": "V_String",
 									"params": ["silver_key"]
-								}] }
+								}] },
+								{ "__identifier": "story_flag", "__type": "String", "__value": null, "__tile": null, "defUid": 42, "realEditorValues": [] }
 							],
 							"__worldX": 96,
 							"__worldY": 48
@@ -1670,7 +1711,8 @@
 									"id": "V_Bool",
 									"params": [ true ]
 								}] },
-								{ "__identifier": "item_reward", "__type": "String", "__value": null, "__tile": null, "defUid": 41, "realEditorValues": [] }
+								{ "__identifier": "item_reward", "__type": "String", "__value": null, "__tile": null, "defUid": 41, "realEditorValues": [] },
+								{ "__identifier": "story_flag", "__type": "String", "__value": null, "__tile": null, "defUid": 42, "realEditorValues": [] }
 							],
 							"__worldX": 784,
 							"__worldY": 345
@@ -1742,7 +1784,8 @@
 								{ "__identifier": "journal_title", "__type": "String", "__value": null, "__tile": null, "defUid": 21, "realEditorValues": [] },
 								{ "__identifier": "journal_image", "__type": "String", "__value": null, "__tile": null, "defUid": 22, "realEditorValues": [] },
 								{ "__identifier": "journal_entry", "__type": "Bool", "__value": false, "__tile": null, "defUid": 28, "realEditorValues": [] },
-								{ "__identifier": "item_reward", "__type": "String", "__value": null, "__tile": null, "defUid": 41, "realEditorValues": [] }
+								{ "__identifier": "item_reward", "__type": "String", "__value": null, "__tile": null, "defUid": 41, "realEditorValues": [] },
+								{ "__identifier": "story_flag", "__type": "String", "__value": null, "__tile": null, "defUid": 42, "realEditorValues": [] }
 							],
 							"__worldX": 704,
 							"__worldY": 233
@@ -1787,7 +1830,8 @@
 								{ "__identifier": "journal_title", "__type": "String", "__value": null, "__tile": null, "defUid": 21, "realEditorValues": [] },
 								{ "__identifier": "journal_image", "__type": "String", "__value": null, "__tile": null, "defUid": 22, "realEditorValues": [] },
 								{ "__identifier": "journal_entry", "__type": "Bool", "__value": false, "__tile": null, "defUid": 28, "realEditorValues": [] },
-								{ "__identifier": "item_reward", "__type": "String", "__value": null, "__tile": null, "defUid": 41, "realEditorValues": [] }
+								{ "__identifier": "item_reward", "__type": "String", "__value": null, "__tile": null, "defUid": 41, "realEditorValues": [] },
+								{ "__identifier": "story_flag", "__type": "String", "__value": null, "__tile": null, "defUid": 42, "realEditorValues": [] }
 							],
 							"__worldX": 736,
 							"__worldY": 377
@@ -2064,9 +2108,9 @@
 							"height": 16,
 							"defUid": 6,
 							"px": [80,16],
-							"fieldInstances": [{ "__identifier": "npc_type", "__type": "String", "__value": "eddie_video_clerk", "__tile": null, "defUid": 7, "realEditorValues": [{
+							"fieldInstances": [{ "__identifier": "npc_type", "__type": "String", "__value": "chrissy_video_clerk", "__tile": null, "defUid": 7, "realEditorValues": [{
 								"id": "V_String",
-								"params": ["eddie_video_clerk"]
+								"params": ["chrissy_video_clerk"]
 							}] }],
 							"__worldX": 881,
 							"__worldY": -298
@@ -2097,6 +2141,159 @@
 							],
 							"__worldX": 897,
 							"__worldY": -106
+						},
+						{
+							"__identifier": "Special",
+							"__grid": [9,6],
+							"__pivot": [0,0],
+							"__tags": [],
+							"__tile": null,
+							"__smartColor": "#733E39",
+							"iid": "0cae5e60-fa90-11f0-9ae8-fb7e3ee6d81e",
+							"width": 16,
+							"height": 16,
+							"defUid": 17,
+							"px": [144,96],
+							"fieldInstances": [
+								{ "__identifier": "message", "__type": "String", "__value": "You pick up a new one: Robocop", "__tile": null, "defUid": 18, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["You pick up a new one: Robocop"]
+								}] },
+								{ "__identifier": "requires_search", "__type": "Bool", "__value": true, "__tile": null, "defUid": 19, "realEditorValues": [] },
+								{ "__identifier": "journal_title", "__type": "String", "__value": null, "__tile": null, "defUid": 21, "realEditorValues": [] },
+								{ "__identifier": "journal_image", "__type": "String", "__value": null, "__tile": null, "defUid": 22, "realEditorValues": [] },
+								{ "__identifier": "journal_entry", "__type": "Bool", "__value": false, "__tile": null, "defUid": 28, "realEditorValues": [] },
+								{ "__identifier": "item_reward", "__type": "String", "__value": "rental_robocop", "__tile": null, "defUid": 41, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["rental_robocop"]
+								}] },
+								{ "__identifier": "story_flag", "__type": "String", "__value": null, "__tile": null, "defUid": 42, "realEditorValues": [] }
+							],
+							"__worldX": 945,
+							"__worldY": -218
+						},
+						{
+							"__identifier": "Special",
+							"__grid": [3,6],
+							"__pivot": [0,0],
+							"__tags": [],
+							"__tile": null,
+							"__smartColor": "#733E39",
+							"iid": "d4ce5680-21a0-11f1-9ae8-55490b5608b4",
+							"width": 16,
+							"height": 16,
+							"defUid": 17,
+							"px": [48,96],
+							"fieldInstances": [
+								{ "__identifier": "message", "__type": "String", "__value": "It's Tron!!", "__tile": null, "defUid": 18, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["It's Tron!!"]
+								}] },
+								{ "__identifier": "requires_search", "__type": "Bool", "__value": true, "__tile": null, "defUid": 19, "realEditorValues": [] },
+								{ "__identifier": "journal_title", "__type": "String", "__value": null, "__tile": null, "defUid": 21, "realEditorValues": [] },
+								{ "__identifier": "journal_image", "__type": "String", "__value": null, "__tile": null, "defUid": 22, "realEditorValues": [] },
+								{ "__identifier": "journal_entry", "__type": "Bool", "__value": false, "__tile": null, "defUid": 28, "realEditorValues": [] },
+								{ "__identifier": "item_reward", "__type": "String", "__value": "rental_tron", "__tile": null, "defUid": 41, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["rental_tron"]
+								}] },
+								{ "__identifier": "story_flag", "__type": "String", "__value": null, "__tile": null, "defUid": 42, "realEditorValues": [] }
+							],
+							"__worldX": 849,
+							"__worldY": -218
+						},
+						{
+							"__identifier": "Special",
+							"__grid": [3,8],
+							"__pivot": [0,0],
+							"__tags": [],
+							"__tile": null,
+							"__smartColor": "#733E39",
+							"iid": "ea51d860-21a0-11f1-9ae8-b7237f4fe176",
+							"width": 16,
+							"height": 16,
+							"defUid": 17,
+							"px": [48,128],
+							"fieldInstances": [
+								{ "__identifier": "message", "__type": "String", "__value": "The Thing", "__tile": null, "defUid": 18, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["The Thing"]
+								}] },
+								{ "__identifier": "requires_search", "__type": "Bool", "__value": true, "__tile": null, "defUid": 19, "realEditorValues": [] },
+								{ "__identifier": "journal_title", "__type": "String", "__value": null, "__tile": null, "defUid": 21, "realEditorValues": [] },
+								{ "__identifier": "journal_image", "__type": "String", "__value": null, "__tile": null, "defUid": 22, "realEditorValues": [] },
+								{ "__identifier": "journal_entry", "__type": "Bool", "__value": false, "__tile": null, "defUid": 28, "realEditorValues": [] },
+								{ "__identifier": "item_reward", "__type": "String", "__value": "rental_thing", "__tile": null, "defUid": 41, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["rental_thing"]
+								}] },
+								{ "__identifier": "story_flag", "__type": "String", "__value": null, "__tile": null, "defUid": 42, "realEditorValues": [] }
+							],
+							"__worldX": 849,
+							"__worldY": -186
+						},
+						{
+							"__identifier": "Special",
+							"__grid": [7,8],
+							"__pivot": [0,0],
+							"__tags": [],
+							"__tile": null,
+							"__smartColor": "#733E39",
+							"iid": "f65a9840-21a0-11f1-9ae8-b1cccdf997cb",
+							"width": 16,
+							"height": 16,
+							"defUid": 17,
+							"px": [112,128],
+							"fieldInstances": [
+								{ "__identifier": "message", "__type": "String", "__value": "Karate Kid", "__tile": null, "defUid": 18, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["Karate Kid"]
+								}] },
+								{ "__identifier": "requires_search", "__type": "Bool", "__value": true, "__tile": null, "defUid": 19, "realEditorValues": [] },
+								{ "__identifier": "journal_title", "__type": "String", "__value": null, "__tile": null, "defUid": 21, "realEditorValues": [] },
+								{ "__identifier": "journal_image", "__type": "String", "__value": null, "__tile": null, "defUid": 22, "realEditorValues": [] },
+								{ "__identifier": "journal_entry", "__type": "Bool", "__value": false, "__tile": null, "defUid": 28, "realEditorValues": [] },
+								{ "__identifier": "item_reward", "__type": "String", "__value": "rental_karate_kid", "__tile": null, "defUid": 41, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["rental_karate_kid"]
+								}] },
+								{ "__identifier": "story_flag", "__type": "String", "__value": null, "__tile": null, "defUid": 42, "realEditorValues": [] }
+							],
+							"__worldX": 913,
+							"__worldY": -186
+						},
+						{
+							"__identifier": "Special",
+							"__grid": [5,3],
+							"__pivot": [0,0],
+							"__tags": [],
+							"__tile": null,
+							"__smartColor": "#733E39",
+							"iid": "916f30e0-21a0-11f1-988e-1539f9968e3e",
+							"width": 16,
+							"height": 16,
+							"defUid": 17,
+							"px": [80,48],
+							"fieldInstances": [
+								{ "__identifier": "message", "__type": "String", "__value": "Chrissy is standing here facing you.", "__tile": null, "defUid": 18, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["Chrissy is standing here facing you."]
+								}] },
+								{ "__identifier": "requires_search", "__type": "Bool", "__value": false, "__tile": null, "defUid": 19, "realEditorValues": [{
+									"id": "V_Bool",
+									"params": [ false ]
+								}] },
+								{ "__identifier": "journal_title", "__type": "String", "__value": null, "__tile": null, "defUid": 21, "realEditorValues": [] },
+								{ "__identifier": "journal_image", "__type": "String", "__value": null, "__tile": null, "defUid": 22, "realEditorValues": [] },
+								{ "__identifier": "journal_entry", "__type": "Bool", "__value": false, "__tile": null, "defUid": 28, "realEditorValues": [] },
+								{ "__identifier": "item_reward", "__type": "String", "__value": null, "__tile": null, "defUid": 41, "realEditorValues": [] },
+								{ "__identifier": "story_flag", "__type": "String", "__value": "stood_at_counter", "__tile": null, "defUid": 42, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["stood_at_counter"]
+								}] }
+							],
+							"__worldX": 881,
+							"__worldY": -266
 						}
 					]
 				},
@@ -2119,10 +2316,10 @@
 					"visible": true,
 					"optionalRules": [],
 					"intGridCsv": [
-						0,0,2,2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,23,22,0,0,0,8,0,0,22,23,0,0,0,0,0,0,23,
-						16,0,16,16,16,16,16,16,23,0,0,0,0,0,0,23,0,0,11,11,11,11,11,11,23,0,0,0,0,0,0,23,0,0,0,
-						0,0,0,0,0,23,0,0,0,0,0,0,23,2,2,0,0,2,2,2,0,23,0,0,0,0,0,0,23,11,11,0,0,11,11,
-						11,0,23,0,0,0,0,0,0,23,2,2,0,0,2,2,2,0,23,0,0,0,0,0,0,23,11,11,0,0,11,11,11,0,23,
+						0,0,2,2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,23,22,11,11,11,8,0,0,22,23,0,0,0,0,0,0,23,
+						16,11,13,13,13,13,13,13,23,0,0,0,0,0,0,23,0,11,11,11,11,11,11,11,23,0,0,0,0,0,0,23,11,11,11,
+						11,11,11,11,11,23,0,0,0,0,0,0,23,2,2,2,0,2,2,2,2,23,0,0,0,0,0,0,23,11,11,11,0,11,11,
+						11,11,23,0,0,0,0,0,0,23,2,2,2,0,2,2,2,2,23,0,0,0,0,0,0,23,11,11,11,0,11,11,11,11,23,
 						0,0,0,0,0,0,23,0,0,0,0,0,0,0,17,23,0,0,0,0,0,0,2,2,2,0,0,0,2,2,2,2,0,0,0,
 						0,0,0,0,2,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,2,0,0,0,0,0,0,0,
 						0,2,12,2,5,2,12,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -2357,7 +2554,8 @@
 									"id": "V_Bool",
 									"params": [ false ]
 								}] },
-								{ "__identifier": "item_reward", "__type": "String", "__value": null, "__tile": null, "defUid": 41, "realEditorValues": [] }
+								{ "__identifier": "item_reward", "__type": "String", "__value": null, "__tile": null, "defUid": 41, "realEditorValues": [] },
+								{ "__identifier": "story_flag", "__type": "String", "__value": null, "__tile": null, "defUid": 42, "realEditorValues": [] }
 							],
 							"__worldX": 200,
 							"__worldY": -203
@@ -2603,31 +2801,31 @@
 						1,1,1,18,1,1,1,1,1,1,1,1,1,1,1,1,1,18,18,18,1,1,18,1,1,1,1,1,1,1,1,1,1,1,1,
 						1,1,18,1,1,1,18,1,1,18,1,1,1,1,1,3,3,3,18,1,18,1,1,1,1,1,1,18,1,1,1,18,18,1,1,
 						1,1,1,1,1,1,1,1,1,1,18,1,1,1,1,18,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-						1,18,18,1,1,1,1,1,3,3,3,18,18,18,1,1,1,1,1,1,18,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+						1,18,18,1,1,1,1,1,3,3,3,18,18,19,1,1,1,1,1,1,18,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
 						1,1,1,18,1,1,1,1,18,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,18,1,1,1,1,1,
 						1,1,3,1,3,18,1,1,1,1,1,1,1,18,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,18,1,1,1,
 						1,18,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,18,1,1,1,1,1,1,1,1,3,1,3,1,
-						1,1,1,1,1,1,1,18,1,1,18,1,1,1,1,1,1,1,1,1,1,1,1,1,18,1,1,1,1,18,1,1,1,1,1,
-						1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,18,1,4,1,1,1,3,18,3,1,1,1,1,1,1,1,
+						1,19,1,1,1,1,1,18,1,1,18,1,1,1,1,1,1,1,1,1,1,1,1,1,18,1,1,1,1,18,1,1,1,1,1,
+						1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,18,1,4,1,1,1,3,18,3,19,1,1,1,1,19,1,
 						18,1,1,18,1,1,1,1,1,1,1,1,1,1,1,1,1,18,1,1,1,1,18,1,1,1,1,1,1,1,1,1,1,1,1,
 						1,1,1,1,1,1,1,1,1,1,1,18,18,1,1,1,1,15,1,3,1,3,1,1,1,1,1,1,18,1,18,18,1,1,1,
 						1,18,1,1,1,1,1,1,1,1,18,1,1,1,1,18,18,1,1,18,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4,
-						1,1,1,18,18,1,1,1,1,1,1,1,18,3,1,3,3,1,1,1,1,1,1,18,1,1,1,1,1,18,1,1,1,1,1,
+						1,1,1,18,18,1,1,1,1,1,1,1,18,3,1,3,3,19,1,19,1,1,1,18,1,1,1,1,1,18,1,1,1,1,1,
 						1,1,1,18,1,1,1,1,1,18,1,1,18,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,18,18,1,1,1,
-						1,1,1,18,18,18,1,3,1,1,3,3,1,1,1,1,18,1,1,1,1,1,18,18,18,1,1,1,1,1,1,18,1,17,1,
+						1,1,1,18,18,18,1,3,1,1,3,3,19,1,1,19,18,1,19,1,1,1,18,18,18,1,1,19,1,1,1,18,1,17,1,
 						1,1,18,1,18,18,1,1,1,18,1,1,1,4,1,1,1,1,1,1,1,1,1,1,18,1,1,1,1,1,1,1,1,1,1,
-						1,3,18,1,1,3,3,1,1,18,1,1,1,1,17,1,18,1,1,1,1,1,1,1,18,18,1,1,1,1,1,1,18,1,1,
+						1,3,18,1,1,3,3,19,1,18,1,1,1,1,17,1,18,1,1,1,1,1,15,1,18,18,1,1,1,1,1,1,18,1,1,
 						1,1,18,1,1,1,4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,15,1,1,18,3,3,15,1,1,
-						3,3,3,18,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,18,1,1,1,1,18,1,1,1,1,
-						1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,15,1,18,1,1,3,1,1,1,1,1,18,3,3,1,
-						1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,18,18,1,1,1,1,18,18,1,1,1,1,4,1,1,1,1,1,
-						1,1,1,1,1,1,1,1,1,1,1,1,1,1,18,18,1,1,1,3,3,1,1,15,18,1,1,3,3,1,1,1,1,1,1,
+						3,3,3,18,1,19,1,19,1,1,1,1,1,1,1,1,1,1,1,1,1,15,1,1,1,18,1,1,1,1,18,1,1,1,1,
+						1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,15,1,18,1,1,3,1,19,1,1,1,18,3,3,1,
+						1,1,1,1,1,1,1,1,1,15,1,1,1,1,1,1,1,18,18,1,1,1,1,18,18,1,1,1,1,4,1,1,1,1,1,
+						1,1,1,1,1,1,1,1,1,1,1,1,1,1,18,18,1,1,1,3,3,1,19,15,18,1,1,3,3,1,1,1,1,1,1,
 						1,1,1,1,1,1,1,1,1,1,18,18,1,1,1,1,4,18,1,1,1,4,1,1,1,1,1,1,1,1,1,1,1,1,1,
 						1,1,1,1,1,1,18,18,1,1,1,1,15,1,3,3,3,18,1,1,1,1,3,3,3,1,1,1,1,18,1,1,4,1,1,
 						1,17,1,1,18,1,1,1,18,18,4,1,1,1,1,1,4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,18,18,
 						18,1,1,1,1,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,1,18,18,4,1,1,1,1,1,1,18,18,1,1,1,
 						1,18,4,4,4,4,1,1,1,1,4,1,1,1,1,1,1,1,1,1,1,1,1,4,4,1,18,1,18,1,1,1,1,1,1,
-						1,1,1,1,1,1,1,18,18,1,1,3,3,3,3,1,1,1,1,1,1,1,1,1,1,18,1,1,1,18,18,18,1,1,1,
+						1,1,1,1,1,1,1,18,18,1,1,3,3,3,3,1,1,1,1,1,1,1,1,15,1,18,1,1,1,18,18,18,1,1,1,
 						4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,18,1,1,1,1,1,1,1,1,1,1,1,1,
 						18,1,1,1,1,1,1,18,3,3,1,1,1,18,1,1,1,1,1,18,1,1,18,18,1,1,1,1,1,1,1,1,18,1,1,
 						1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,18,1,1,1,4,1,1,1,1,15,15,1,15,18,1,1,1,1,1,18,

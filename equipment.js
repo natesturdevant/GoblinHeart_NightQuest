@@ -1979,12 +1979,19 @@ const consumableItems = {
 		canSell: false,
 		stats: { strength: 0, vitality: 0, intelligence: 0, spirit: 0, agility: 0, luck: 0 },
 		onUse: function() {
-			addMessage("You watch ROBOCOP.", CGA.CYAN);
-			addMessage("'Dead or alive, you're coming with me.'", CGA.LIGHTGRAY);
-			addMessage("The tape rewinds automatically.", CGA.DARKGRAY);
+			if (typeof narrativeCanWatchTape === 'function' && !narrativeCanWatchTape(true)) return false;
+			addMessage(textGet('item.watch.robocop.1'), CGA.CYAN);
+			addMessage(textGet('item.watch.robocop.2'), CGA.LIGHTGRAY);
+			addMessage(textGet('item.watch.common.rewind'), CGA.DARKGRAY);
 			
 			if (!gameState.flags) gameState.flags = {};
 			gameState.flags.watched_robocop = true;
+            if (typeof narrativeOnTapeWatched === 'function') narrativeOnTapeWatched('robocop');
+			
+			if (gameState.inventoryOpen) {
+				gameState.inventoryOpen = false;
+				document.getElementById('inventoryPanel').classList.remove('active');
+			}
 			
 			return true; // Consumes the tape
 		}
@@ -2000,12 +2007,14 @@ const consumableItems = {
 		canSell: false,
 		stats: { strength: 0, vitality: 0, intelligence: 0, spirit: 0, agility: 0, luck: 0 },
 		onUse: function() {
-			addMessage("You watch TRON.", CGA.CYAN);
-			addMessage("'I fight for the Users!'", CGA.LIGHTGRAY);
-			addMessage("The tape rewinds automatically.", CGA.DARKGRAY);
+			if (typeof narrativeCanWatchTape === 'function' && !narrativeCanWatchTape(true)) return false;
+			addMessage(textGet('item.watch.tron.1'), CGA.CYAN);
+			addMessage(textGet('item.watch.tron.2'), CGA.LIGHTGRAY);
+			addMessage(textGet('item.watch.common.rewind'), CGA.DARKGRAY);
 			
 			if (!gameState.flags) gameState.flags = {};
 			gameState.flags.watched_tron = true;
+            if (typeof narrativeOnTapeWatched === 'function') narrativeOnTapeWatched('tron');
 			
 			return true;
 		}
@@ -2021,12 +2030,14 @@ const consumableItems = {
 		canSell: false,
 		stats: { strength: 0, vitality: 0, intelligence: 0, spirit: 0, agility: 0, luck: 0 },
 		onUse: function() {
-			addMessage("You watch THE THING.", CGA.CYAN);
-			addMessage("'Trust is a tough thing to come by these days.'", CGA.LIGHTGRAY);
-			addMessage("The tape rewinds automatically.", CGA.DARKGRAY);
+			if (typeof narrativeCanWatchTape === 'function' && !narrativeCanWatchTape(true)) return false;
+			addMessage(textGet('item.watch.thing.1'), CGA.CYAN);
+			addMessage(textGet('item.watch.thing.2'), CGA.LIGHTGRAY);
+			addMessage(textGet('item.watch.common.rewind'), CGA.DARKGRAY);
 			
 			if (!gameState.flags) gameState.flags = {};
 			gameState.flags.watched_thing = true;
+            if (typeof narrativeOnTapeWatched === 'function') narrativeOnTapeWatched('thing');
 			
 			return true;
 		}
@@ -2042,12 +2053,14 @@ const consumableItems = {
 		canSell: false,
 		stats: { strength: 0, vitality: 0, intelligence: 0, spirit: 0, agility: 0, luck: 0 },
 		onUse: function() {
-			addMessage("You watch ROCKY IV.", CGA.CYAN);
-			addMessage("'If I can change, you can change, everybody can change.'", CGA.LIGHTGRAY);
-			addMessage("The tape rewinds automatically.", CGA.DARKGRAY);
+			if (typeof narrativeCanWatchTape === 'function' && !narrativeCanWatchTape(true)) return false;
+			addMessage(textGet('item.watch.rocky4.1'), CGA.CYAN);
+			addMessage(textGet('item.watch.rocky4.2'), CGA.LIGHTGRAY);
+			addMessage(textGet('item.watch.common.rewind'), CGA.DARKGRAY);
 			
 			if (!gameState.flags) gameState.flags = {};
 			gameState.flags.watched_rocky4 = true;
+            if (typeof narrativeOnTapeWatched === 'function') narrativeOnTapeWatched('rocky4');
 			
 			return true;
 		}
@@ -2063,12 +2076,14 @@ const consumableItems = {
 		canSell: false,
 		stats: { strength: 0, vitality: 0, intelligence: 0, spirit: 0, agility: 0, luck: 0 },
 		onUse: function() {
-			addMessage("You watch THE KARATE KID.", CGA.CYAN);
-			addMessage("'Wax on, wax off.'", CGA.LIGHTGRAY);
-			addMessage("The tape rewinds automatically.", CGA.DARKGRAY);
+			if (typeof narrativeCanWatchTape === 'function' && !narrativeCanWatchTape(true)) return false;
+			addMessage(textGet('item.watch.karate_kid.1'), CGA.CYAN);
+			addMessage(textGet('item.watch.karate_kid.2'), CGA.LIGHTGRAY);
+			addMessage(textGet('item.watch.common.rewind'), CGA.DARKGRAY);
 			
 			if (!gameState.flags) gameState.flags = {};
 			gameState.flags.watched_karate_kid = true;
+            if (typeof narrativeOnTapeWatched === 'function') narrativeOnTapeWatched('karate_kid');
 			
 			return true;
 		}
@@ -2174,7 +2189,15 @@ const keyItems = {
         canEquip: false,
         canDrop: false,
         canSell: false,
-        rarity: 'unique'
+        rarity: 'unique',
+        onUse: function() {
+            if (typeof narrativeCanWatchTape === 'function' && !narrativeCanWatchTape(true)) return false;
+            if (typeof narrativeOnMagicVhsUsed === 'function') {
+                return narrativeOnMagicVhsUsed();
+            }
+            addMessage(textGet('item.magic_vhs.idle.1'), CGA.CYAN);
+            return false;
+        }
     }
 };
 //Object.assign(itemDatabase, keyItems);

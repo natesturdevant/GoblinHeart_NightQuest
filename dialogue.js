@@ -26,6 +26,19 @@ const dialogueDatabase = {
       }
     ]
   },
+  
+  'chrissy_video_clerk': {
+        name: "Chrissy",
+        sprite: "villager_worker",
+        lines: [
+          {
+            text: "...",
+            requires: {},
+            sets: {}
+          }
+        ]
+    },
+	
   "bartender_npc": {
     "name": "Bart the Bartender",
     "sprite": "villager_old",

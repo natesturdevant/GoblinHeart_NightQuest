@@ -6,6 +6,9 @@ const eventHandlers = {
         // Strange VHS tape appears at the video store on day 3
         canTrigger: (gameState) => {
             if (gameState.flags.vhs_appears_completed) return false;
+            if (typeof unifiedCanTriggerMagicVhs === 'function') {
+                return unifiedCanTriggerMagicVhs(gameState);
+            }
             return gameState.dayCounter >= 3 &&
                    !gameState.flags.vhsAppeared &&
                    gameState.currentMap === 'Video_Store';

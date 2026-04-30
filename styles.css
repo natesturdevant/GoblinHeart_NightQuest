@@ -55,6 +55,15 @@ h1 {
     box-sizing: border-box;
 }
 
+.msg-new {
+    filter: brightness(1.6);
+    transition: filter 0.2s ease;
+}
+
+.msg-new.msg-settle {
+    filter: brightness(1);
+}
+
 .status-bar {
     width: 100%;
     padding: 8px 10px;

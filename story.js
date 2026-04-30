@@ -17,74 +17,165 @@ const STORY = {
     // ==========================================
     
     npcs: {
-        
-        eddie_video_clerk: {
-            name: "Eddie",
+        chrissy_video_clerk: {
+            name: "Chrissy",
             sprite: "villager_worker",
             talk: [
-                // After watching VHS - multi-part conversation
-                {
-                    priority: 100,
-                    when: {watched_vhs: true, eddie_part2: true, NOT_eddie_part3: true},
-                    say: "EDDIE: 'The basement. That's where he went.'\n[Eddie won't say more.]",
-                    set: 'eddie_part3'
-                },
-                {
-                    priority: 99,
-                    when: {watched_vhs: true, eddie_part1: true, NOT_eddie_part2: true},
-                    say: "EDDIE: 'Robert Chen. Missing three weeks. Last seen here.'",
-                    set: 'eddie_part2'
-                },
-                {
-                    priority: 98,
-                    when: {watched_vhs: true, NOT_eddie_part1: true},
-                    say: "EDDIE: 'You watched it. I can tell. What did you see?'",
-                    set: 'eddie_part1'
-                },
-                
-                // Has VHS
-                {
-                    priority: 80,
-                    when: {has_vhs: true, NOT_watched_vhs: true},
-                    say: "EDDIE: 'Let me know what's on that tape!'"
-                },
-                
-                // Give VHS
-                {
-                    priority: 60,
-                    when: {met_eddie: true, NOT_has_vhs: true},
-                    say: "EDDIE: 'Got this weird tape last week. No label.'\nEDDIE: 'Says \"WATCH ME\" in sharpie.'\n[He hands you a black VHS tape]",
-                    give: 'magic_vhs',
-                    set: 'has_vhs'
-                },
-                
-                // First meeting
-                {
-                    priority: 0,
-                    when: {},
-                    say: "EDDIE: 'Hey! We're closed, but... you look like you need something.'\nEDDIE: 'I'm Eddie. I run this place.'",
-                    set: 'met_eddie'
-                }
-            ]
-        },
-        
-        bartender_npc: {
-            name: "Bart",
-            sprite: "villager_old",
-            talk: [
-                {
-                    priority: 50,
-                    when: {talked_to_bart: true},
-                    say: "BART: 'Another round?'"
-                },
-                {
-                    priority: 0,
-                    when: {},
-                    say: "BART: 'What'll it be?'",
-                    set: 'talked_to_bart'
-                }
+				{
+					priority: 200,
+					when: {watched_robocop: true, watched_tron: true, watched_thing: true, 
+						   watched_rocky4: true, watched_karate_kid: true, NOT_final_conversation: true},
+					say: "CHRISSY: 'You watched them all. Every single one.'\nCHRISSY: 'I knew you would.'\n[She smiles, but there's something sad in it]",
+					set: 'final_conversation'
+				},
+				
+				// Individual tape reactions
+				{
+					priority: 150,
+					when: {watched_karate_kid: true, NOT_talked_after_karate_kid: true},
+					say: "CHRISSY: 'Karate Kid, huh? The power of a good teacher.'\nCHRISSY: 'Sometimes you need someone to show you the way.'",
+					set: 'talked_after_karate_kid'
+				},
+				{
+					priority: 140,
+					when: {watched_rocky4: true, NOT_talked_after_rocky4: true},
+					say: "CHRISSY: 'Rocky IV. That speech at the end...'\nCHRISSY: 'If I can change, and you can change, everybody can change.'",
+					set: 'talked_after_rocky4'
+				},
+				{
+					priority: 130,
+					when: {watched_thing: true, NOT_talked_after_thing: true},
+					say: "CHRISSY: 'The Thing! God, that movie's terrifying.'\nCHRISSY: 'Not knowing who to trust. Who's real and who's not.'",
+					set: 'talked_after_thing'
+				},
+				{
+					priority: 120,
+					when: {watched_tron: true, NOT_talked_after_tron: true},
+					say: "CHRISSY: 'Tron! I love that one.'\nCHRISSY: 'A whole world inside the machine. Beautiful.'",
+					set: 'talked_after_tron'
+				},
+				{
+					priority: 110,
+					when: {watched_robocop: true, NOT_talked_after_robocop: true},
+					say: "CHRISSY: 'RoboCop! Nice choice.'\nCHRISSY: 'Half man, half machine. What's left of him, you know?'",
+					set: 'talked_after_robocop'
+				},
+				
+				// Has tape but hasn't watched - generic response
+				{
+					priority: 60,
+					when: {has_rental_robocop: true},
+					say: "CHRISSY: 'Let me know what you think of that one.'"
+				},
+				{
+					priority: 60,
+					when: {has_rental_tron: true},
+					say: "CHRISSY: 'Let me know what you think of that one.'"
+				},
+				{
+					priority: 60,
+					when: {has_rental_thing: true},
+					say: "CHRISSY: 'Let me know what you think of that one.'"
+				},
+				{
+					priority: 60,
+					when: {has_rental_rocky4: true},
+					say: "CHRISSY: 'Let me know what you think of that one.'"
+				},
+				{
+					priority: 60,
+					when: {has_rental_karate_kid: true},
+					say: "CHRISSY: 'Let me know what you think of that one.'"
+				},
+				
+				// Night 5: Last night before she vanishes (multi-part)
+				{
+					priority: 105,
+					when: {watched_thing: true, watched_tron: true, watched_robocop: true, 
+						   watched_rocky4: true, night5_part2: true, NOT_night5_part3: true},
+					say: "CHRISSY: 'Thanks for listening. See you tomorrow?'\n[She looks at you with an expression you can't quite read]",
+					set: 'night5_part3'
+				},
+				{
+					priority: 104,
+					when: {watched_thing: true, watched_tron: true, watched_robocop: true, 
+						   watched_rocky4: true, night5_part1: true, NOT_night5_part2: true},
+					say: "CHRISSY: 'Sorry. That was weird. It's just...'\nCHRISSY: 'You ever feel like you're supposed to be somewhere else?'",
+					set: 'night5_part2'
+				},
+				{
+					priority: 103,
+					when: {watched_thing: true, watched_tron: true, watched_robocop: true, 
+						   watched_rocky4: true, NOT_night5_part1: true},
+					say: "CHRISSY: 'I had the strangest dream last night.'\nCHRISSY: 'There was this... place. Like a fantasy world, but made out of VHS static.'",
+					set: 'night5_part1'
+				},
+				
+				// Night 4
+				{
+					priority: 102,
+					when: {watched_thing: true, watched_tron: true, watched_robocop: true, NOT_night4: true},
+					say: "CHRISSY: 'You know what I love about old movies?'\nCHRISSY: 'They believed in other worlds. Narnia. Oz. Tron.'\nCHRISSY: 'Now everything's ironic. Nobody believes anymore.'",
+					set: 'night4'
+				},
+				
+				// Night 3
+				{
+					priority: 101,
+					when: {watched_thing: true, watched_tron: true, NOT_night3: true},
+					say: "CHRISSY: 'You're here every night now. I like that.'\nCHRISSY: 'Feels like we're the last people who still do this.'\nCHRISSY: 'The ritual, I mean. Coming to a place. Talking to a person.'",
+					set: 'night3'
+				},
+				
+				// Night 2
+				{
+					priority: 100,
+					when: {watched_tron: true, NOT_night2: true},
+					say: "CHRISSY: 'Oh hey, you came back!'\nCHRISSY: 'Most people rent once and I never see them again.'",
+					set: 'night2'
+				},
+				
+				// First meeting
+				{
+					priority: 0,
+					when: {},
+					say: "CHRISSY: 'Hey. Welcome to Midnight Video.'\nCHRISSY: 'We never close. I'm Chrissy.'\nCHRISSY: 'Browse the shelves, grab whatever looks good.'",
+					set: 'met_chrissy'
+				}
             ]
         }
+        // Add comma here if you add more NPCs later
+    },  // ← CLOSE npcs object here
+    
+    // ==========================================
+    // NPC POSITIONS - Story-based overrides
+    // ==========================================
+    
+    npcPositions: {  // ← SEPARATE from npcs!
+        chrissy_video_clerk: [
+            {
+                when: {in_isekai: true, reached_island2: true},
+                map: 'Island_2_Town',
+                x: 15,
+                y: 8
+            },
+            {
+                when: {in_isekai: true},
+                map: 'Island_1_Beach',
+                x: 5,
+                y: 12
+            },
+            {
+                when: {store_empty: true},
+                map: null
+            },
+            {
+                when: {},
+                map: 'Video_Store',
+                x: 8,
+                y: 4
+            }
+        ]
     },
     
     // ==========================================
@@ -92,24 +183,27 @@ const STORY = {
     // ==========================================
     
     locations: {
-        
         Video_Store: {
             look: [
                 {
-                    when: {watched_vhs: true},
-                    text: "The store feels wrong. Empty.\nEddie's not at the counter.\nThe back room door is ajar."
+                    when: {store_empty: true, NOT_found_magic_vhs: true},
+                    text: "The store is empty. Lights on, no one here.\nChrissy's jacket hangs on her chair.\nThe counter is unlocked."
                 },
                 {
-                    when: {has_magic_vhs: true},
-                    text: "The store smells like old cardboard.\nFluorescent lights flicker.\nEddie keeps glancing at you."
+                    when: {store_empty: true, found_magic_vhs: true},
+                    text: "The empty store. Chrissy is gone.\nYou should take that tape home and watch it."
                 },
                 {
-                    when: {met_eddie: true},
-                    text: "Midnight Video. Rows of VHS tapes.\nEddie's organizing the return bin."
+                    when: {watched_karate_kid: true},
+                    text: "Midnight Video. Fluorescent buzz.\nChrissy looks up when you enter."
+                },
+                {
+                    when: {met_chrissy: true},
+                    text: "Midnight Video. Rows of VHS tapes.\nChrissy's at the counter, organizing returns."
                 },
                 {
                     when: {},
-                    text: "Neon sign: 'MIDNIGHT VIDEO - We Never Close'\nFaded 80s movie posters in the windows.\nA guy in a Ghostbusters shirt behind the counter."
+                    text: "MIDNIGHT VIDEO - We Never Close\nNeon sign buzzes. Movie posters in the windows.\nA girl with dark hair behind the counter."
                 }
             ]
         },
@@ -139,11 +233,11 @@ const STORY = {
     
     rules: [
         {
-            id: 'rule_vhs_appears_day3',
-            when: {day: 3, NOT_vhs_appeared: true},
+            id: 'rule_chrissy_vanishes',
+            when: {watched_karate_kid: true, NOT_store_empty: true},
             do: [
-                {message: "Something's different about the store today...", color: 'CYAN'},
-                {set: 'vhs_appeared'}
+                {set: 'store_empty'},
+                {message: "Something feels wrong.", color: 'CYAN'}
             ]
         }
     ]
@@ -210,11 +304,18 @@ function checkStoryRules() {
 }
 
 function getStoryNPC(npcId) {
+    console.log('getStoryNPC called with:', npcId);
+    console.log('STORY.npcs:', STORY.npcs);
+    
     const npc = STORY.npcs[npcId];
+    console.log('Found NPC:', npc);
+    
     if (!npc) return null;
     
     const sorted = [...npc.talk].sort((a, b) => b.priority - a.priority);
     const match = sorted.find(entry => checkWhen(entry.when));
+    
+    console.log('Matched dialogue:', match);
     
     if (match) {
         if (match.set) doAction({set: match.set});
@@ -235,6 +336,15 @@ function getStoryLook(mapId) {
     
     const match = loc.look.find(entry => checkWhen(entry.when));
     return match ? match.text : null;
+}
+
+function getStoryNPCPosition(npcType) {
+    const positions = STORY.npcPositions?.[npcType];
+    if (!positions) return null;
+    
+    // Find first matching position (priority order - check highest priority first)
+    const match = positions.find(pos => checkWhen(pos.when));
+    return match || null;
 }
 
 console.log('=== STORY.JS LOADED ===');

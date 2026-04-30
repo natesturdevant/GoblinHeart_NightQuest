@@ -245,16 +245,19 @@ async function loadLDtkProject(jsonPath) {
 							const journalEntry = getField('journal_entry') || false;
 							const journalTitle = getField('journal_title') || 'Discovery';
 							const itemReward = getField('item_reward') || null;
+							const storyFlag = getField('story_flag') || null;
+
 							if (msg) {
 								convertedSpecialLocations[mapId][key] = {
-								message: msg,
-								requiresSearch: requiresSearch,
-								journalEntry: journalEntry,
-								journalTitle: journalTitle,
-								itemReward: itemReward  
+									message: msg,
+									requiresSearch: requiresSearch,
+									journalEntry: journalEntry,
+									journalTitle: journalTitle,
+									itemReward: itemReward,
+									storyFlag: storyFlag
 								};
 							}
-						break;
+							break;
                     }
                 });
             }
@@ -385,6 +388,12 @@ function loadMap(mapName) {
     if (npcSpawn) {
         npcSpawn.forEach(spawn => { spawnNPCAt(spawn.type, spawn.x, spawn.y); });
     }
+    if (typeof narrativeOnMapLoaded === 'function') {
+        narrativeOnMapLoaded();
+    }
+    if (typeof checkEvents === 'function') {
+        checkEvents(gameState);
+    }
     
     document.getElementById('currentMapName').textContent = mapData.name;
 	document.getElementById('currentMapName').textContent = getMapDisplayName(mapName);
@@ -440,13 +449,12 @@ function spawnEnemyAt(type, x, y) {
     });
 }
 
-function spawnNPCAt(type, x, y) {
+/* function spawnNPCAt(type, x, y) {
     // Get NPC data from new dialogue system
     const npcData = getNPCData(type);
     
     if (!npcData) {
-        console.error(`NPC "${type}" not found in dialogue database`);
-        console.log('Available NPCs:', Object.keys(dialogueDatabase));
+        console.error(`NPC "${type}" not found in narrative or npc database`);
         return;
     }
     
@@ -458,6 +466,43 @@ function spawnNPCAt(type, x, y) {
         x: x,
         y: y
         // No more dialogue stored here - we look it up dynamically!
+    });
+} */
+
+function spawnNPCAt(type, x, y) {
+    // Check if story overrides this NPC's position
+    const storyPos = getStoryNPCPosition(type);
+    
+    if (storyPos) {
+        // Story override exists
+        if (storyPos.map !== gameState.currentMap) {
+            // NPC should be on a different map, don't spawn here
+            return;
+        }
+        if (storyPos.map === null) {
+            // NPC has been removed from world (disappeared)
+            return;
+        }
+        // Use story position instead of passed x, y
+        x = storyPos.x;
+        y = storyPos.y;
+    }
+    
+    // Get NPC data from new dialogue system
+    const npcData = getNPCData(type);
+    
+    if (!npcData) {
+        console.error(`NPC "${type}" not found in narrative or npc database`);
+        return;
+    }
+    
+    gameState.npcs.push({
+        id: Math.random().toString(36).substr(2, 9),
+        type: type,
+        name: npcData.name,
+        sprite: npcData.sprite,
+        x: x,
+        y: y
     });
 }
 
@@ -790,7 +835,7 @@ function getXpForNextLevel() {
     return CONFIG.leveling.xpFormula(gameState.player.level);
 }
 
-
+/* 
 function addMessage(msg, color = null) {
     const mb = document.getElementById('messageBox');
     if (color) {
@@ -803,6 +848,55 @@ function addMessage(msg, color = null) {
         mb.innerHTML = lines.slice(-9).join('<br>');
     }
 	mb.scrollTop = mb.scrollHeight;
+} */
+
+/* function addMessage(msg, color = null) {
+    const mb = document.getElementById('messageBox');
+
+    const span = document.createElement('span');
+    span.classList.add('msg', 'msg-new');
+    span.innerHTML = msg;
+
+    if (color) {
+        span.style.color = color;
+    }
+
+    mb.appendChild(span);
+    mb.appendChild(document.createElement('br'));
+
+    // keep last 9 lines
+    const lines = mb.innerHTML.split('<br>');
+    if (lines.length > 9) {
+        mb.innerHTML = lines.slice(-9).join('<br>');
+    }
+
+    // trigger visual settle
+    requestAnimationFrame(() => {
+        span.classList.add('msg-settle');
+    });
+
+    mb.scrollTop = mb.scrollHeight;
+} */
+
+function addMessage(msg, color = null) {
+    const mb = document.getElementById('messageBox');
+
+    mb.innerHTML += `<span style="color: ${CGA.DARKGRAY};">=============</span><br>`;
+
+    if (color) {
+        mb.innerHTML += `<span style="color: ${color};">${msg}</span><br>`;
+    } else {
+        mb.innerHTML += msg + '<br>';
+    }
+
+    //mb.innerHTML += `<span style="color: ${CGA.DARKGRAY};">=============</span><br>`;
+
+    const lines = mb.innerHTML.split('<br>');
+    if (lines.length > 18) {
+        mb.innerHTML = lines.slice(-18).join('<br>');
+    }
+
+    mb.scrollTop = mb.scrollHeight;
 }
 
 // ===== LEVEL UP =====
@@ -876,6 +970,7 @@ function movePlayer(dx, dy) {
 			}
 			
 			gameState.revealedSpecials[revealKey] = true;
+			applySpecialStoryEffects(special);
 		}
 	}
    
@@ -1132,29 +1227,26 @@ function handleNPCInteraction(x, y) {
     });
     
     if (!adjacentNPC) return false;
-	
-	const storyNPC = getStoryNPC(adjacentNPC.type);
-    if (storyNPC) {
-        addMessage(storyNPC.text);
+
+	//addMessage("===================", CGA.DARKGRAY);
+
+    if (typeof narrativeHandleNPCInteraction === 'function' && narrativeHandleNPCInteraction(adjacentNPC)) {
         checkStoryRules();
         return true;
     }
-    
+
     const npcData = getNPCData(adjacentNPC.type);
     
-    // Handle innkeepers
     if (adjacentNPC.type === 'innkeeper_molly' || adjacentNPC.type === 'villager_innkeeper') {
         handleInnkeeper(adjacentNPC);
         return true;
     }
     
-    // Handle shopkeepers
     if (npcData && npcData.isShopkeeper) {
         openShop(adjacentNPC.type);
         return true;
     }
-    
-    // Regular dialogue
+
     const dialogue = getDialogue(adjacentNPC.type, gameState);
     if (dialogue) {
         addMessage(`<span style="color: ${CGA.MAGENTA};">${adjacentNPC.name}:</span> "${dialogue.text}"`);
@@ -1191,9 +1283,9 @@ function rest(location = 'camp', cost = 0) {
 	checkEvents(gameState);
 	
     // ===== BEFORE REST HOOKS =====
-    if (runBeforeRestHooks(gameState, location)) {
-        return; // Hook cancelled the rest (e.g., VHS transport)
-    }
+    //if (runBeforeRestHooks(gameState, location)) {
+    //    return; // Hook cancelled the rest (e.g., VHS transport)
+    //}
     // =============================
     
     if (location === 'inn') {
@@ -1318,7 +1410,7 @@ function handleInnkeeper(npc) {
 
 
 
-function searchLocation() {
+/* function searchLocation() {
     const x = gameState.player.x;
     const y = gameState.player.y;
     const tileChar = gameState.world.tiles[y][x];
@@ -1354,6 +1446,10 @@ function searchLocation() {
                     if (!gameState.flags) gameState.flags = {};
                     gameState.flags[`has_${special.itemReward}`] = true;
                     
+                    if (typeof unifiedOnItemReceived === 'function') {
+                        unifiedOnItemReceived(special.itemReward, { source: 'search', mapId: gameState.currentMap, key });
+                    }
+
                     const item = keyItems[special.itemReward] || itemDatabase[special.itemReward];
                     const itemName = item?.name || special.itemReward;
                     const color = item?.rarity ? RARITY_COLORS[item.rarity] : CGA.CYAN;
@@ -1380,7 +1476,160 @@ function searchLocation() {
         const msg = nothingMessages[Math.floor(Math.random() * nothingMessages.length)];
         addMessage(msg, CGA.LIGHTGRAY);
     }
+} */
+
+function applySpecialStoryEffects(special) {
+    const storyFlag = special.storyFlag || special.story_flag;
+    const storyReaction = special.storyReaction || special.story_reaction;
+
+    if (storyFlag && typeof storySetFlag === 'function') {
+        storySetFlag(storyFlag);
+    }
+
+    if (storyReaction && typeof storyQueueReaction === 'function') {
+        storyQueueReaction(storyReaction);
+    }
 }
+
+function searchLocation() {
+    const x = gameState.player.x;
+    const y = gameState.player.y;
+    const key = `${x},${y}`;
+    const locs = specialLocations[gameState.currentMap];
+
+    if (locs && locs[key]) {
+        const special = locs[key];
+        const revealKey = `${gameState.currentMap}:${key}`;
+
+        // Rental VHS are repeatable and should NOT be consumed
+        const isRentalVhs = Boolean(
+            special.itemReward &&
+            typeof special.itemReward === 'string' &&
+            special.itemReward.startsWith('rental_')
+        );
+
+        if (special.requiresSearch) {
+            if (isRentalVhs) {
+                if (special.itemReward && typeof narrativeCanReceiveItem === 'function') {
+                    const gate = narrativeCanReceiveItem(special.itemReward, {
+                        source: 'search',
+                        mapId: gameState.currentMap,
+                        x,
+                        y,
+                        key
+                    });
+
+                    if (gate && gate.allowed === false) {
+                        addMessage(gate.message || "You can't take that right now.", CGA.LIGHTGRAY);
+                        return;
+                    }
+                }
+
+                addMessage(special.message, CGA.CYAN);
+
+                gameState.player.inventory.push(special.itemReward);
+                if (!gameState.flags) gameState.flags = {};
+                gameState.flags[`has_${special.itemReward}`] = true;
+
+                if (typeof narrativeOnItemReceived === 'function') {
+                    narrativeOnItemReceived(special.itemReward, {
+                        source: 'search',
+                        mapId: gameState.currentMap,
+                        key
+                    });
+                }
+
+                const item = keyItems[special.itemReward] || itemDatabase[special.itemReward];
+                const itemName = item?.name || special.itemReward;
+                const color = item?.rarity ? RARITY_COLORS[item.rarity] : CGA.CYAN;
+
+                addMessage(`Received ${itemName}!`, color);
+                return;
+            }
+
+            // Normal one-time searchable special
+            if (!gameState.revealedSpecials[revealKey]) {
+                addMessage(special.message, CGA.CYAN);
+            } else {
+                addMessage("There's nothing left of any interest. Boring!!", CGA.LIGHTGRAY);
+            }
+
+            if (!gameState.revealedSpecials[revealKey]) {
+                if (special.journalEntry) {
+                    addJournalEntry(special.journalTitle, [
+                        { type: 'text', content: special.message }
+                    ]);
+                }
+
+                if (special.itemReward && typeof narrativeCanReceiveItem === 'function') {
+                    const gate = narrativeCanReceiveItem(special.itemReward, {
+                        source: 'search',
+                        mapId: gameState.currentMap,
+                        x,
+                        y,
+                        key
+                    });
+
+                    if (gate && gate.allowed === false) {
+                        addMessage(gate.message || "You can't take that right now.", CGA.LIGHTGRAY);
+                        return;
+                    }
+                }
+
+                gameState.revealedSpecials[revealKey] = true;
+				
+				applySpecialStoryEffects(special);
+
+				if (special.storyFlag && typeof storySetFlag === 'function') {
+					storySetFlag(special.storyFlag);
+				}
+
+                if (special.itemReward) {
+                    gameState.player.inventory.push(special.itemReward);
+                    if (!gameState.flags) gameState.flags = {};
+                    gameState.flags[`has_${special.itemReward}`] = true;
+
+                    if (typeof narrativeOnItemReceived === 'function') {
+                        narrativeOnItemReceived(special.itemReward, {
+                            source: 'search',
+                            mapId: gameState.currentMap,
+                            key
+                        });
+                    }
+
+                    const item = keyItems[special.itemReward] || itemDatabase[special.itemReward];
+                    const itemName = item?.name || special.itemReward;
+                    const color = item?.rarity ? RARITY_COLORS[item.rarity] : CGA.CYAN;
+
+                    addMessage(`Received ${itemName}!`, color);
+                }
+            }
+			} else {
+				addMessage(special.message, CGA.CYAN);
+
+				if (!gameState.revealedSpecials[revealKey]) {
+					gameState.revealedSpecials[revealKey] = true;
+					//applySpecialStoryEffects(special);
+				}
+			}
+    } else {
+        const nothingMessages = [
+            "Nothing of interest here.",
+            "You find nothing.",
+            "Nothing but dust.",
+            "Empty!",
+            "Actually, not even dust.",
+            "Nuts. No treasure.",
+            "Your search turns up empty.",
+            "There's nothing special here.",
+            "You don't find anything useful."
+        ];
+        const msg = nothingMessages[Math.floor(Math.random() * nothingMessages.length)];
+        addMessage(msg, CGA.LIGHTGRAY);
+    }
+}
+
+
 
 function lookAround() {
     const mapData = maps[gameState.currentMap];
