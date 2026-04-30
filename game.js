@@ -492,7 +492,12 @@ function spawnNPCAt(type, x, y) {
     const npcData = getNPCData(type);
     
     if (!npcData) {
+<<<<<<< HEAD
         console.error(`NPC "${type}" not found in narrative or npc database`);
+=======
+        console.error(`NPC "${type}" not found in dialogue database`);
+        console.log('Available NPCs:', Object.keys(dialogueDatabase));
+>>>>>>> ea051bce08cf14b5edcce969c1018f99468b6114
         return;
     }
     
@@ -1227,10 +1232,18 @@ function handleNPCInteraction(x, y) {
     });
     
     if (!adjacentNPC) return false;
+<<<<<<< HEAD
 
 	//addMessage("===================", CGA.DARKGRAY);
 
     if (typeof narrativeHandleNPCInteraction === 'function' && narrativeHandleNPCInteraction(adjacentNPC)) {
+=======
+	
+	const storyNPC = getStoryNPC(adjacentNPC.type);
+	console.log('Story NPC check:', adjacentNPC.type, storyNPC);  // DEBUG
+    if (storyNPC) {
+        addMessage(storyNPC.text);
+>>>>>>> ea051bce08cf14b5edcce969c1018f99468b6114
         checkStoryRules();
         return true;
     }
@@ -1246,7 +1259,14 @@ function handleNPCInteraction(x, y) {
         openShop(adjacentNPC.type);
         return true;
     }
+<<<<<<< HEAD
 
+=======
+	
+	console.log('Falling through to old dialogue system');  // DEBUG
+	
+    // Regular dialogue
+>>>>>>> ea051bce08cf14b5edcce969c1018f99468b6114
     const dialogue = getDialogue(adjacentNPC.type, gameState);
     if (dialogue) {
         addMessage(`<span style="color: ${CGA.MAGENTA};">${adjacentNPC.name}:</span> "${dialogue.text}"`);

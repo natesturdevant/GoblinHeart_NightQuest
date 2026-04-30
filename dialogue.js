@@ -29,6 +29,7 @@ const dialogueDatabase = {
   
   'chrissy_video_clerk': {
         name: "Chrissy",
+<<<<<<< HEAD
         sprite: "villager_worker",
         lines: [
           {
@@ -37,6 +38,10 @@ const dialogueDatabase = {
             sets: {}
           }
         ]
+=======
+        sprite: "villager_worker"
+        // Don't need dialogue here - story.js handles it
+>>>>>>> ea051bce08cf14b5edcce969c1018f99468b6114
     },
 	
   "bartender_npc": {
